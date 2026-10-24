@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+import { RADICALS } from '../../../data/kanji';
+---
+<BaseLayout title="Kanji theo bộ thủ" description="214 bộ thủ Khang Hy kèm tên Hán Việt và danh sách kanji thuộc mỗi bộ.">
+  <PageHeader
+    title="Kanji theo bộ thủ"
+    crumbs={[{ label: 'Kanji', href: '/kanji' }, { label: 'Bộ thủ' }]}
+    lead="214 bộ thủ Khang Hy, xếp theo số thứ tự. Bộ thủ là thành phần dùng để phân loại và tra cứu chữ Hán."
+  />
+  <section class="container-page py-10">
+    <ul class="grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-2">
+      {RADICALS.map((r) => (
+        <li>
+          {r.kanji.length > 0 ? (
+            <a href={`/kanji/radicals/${r.n}`} class="flex h-full flex-col items-center rounded-lg border border-line bg-surface px-2 py-3 transition hover:border-brand/60 hover:text-brand">
+              <span class="self-start text-xs text-fg-muted tabular-nums">{r.n}</span>
+              <span lang="ja" class="font-jp text-3xl leading-none">{r.char}</span>
+              <span class="mt-2 text-sm font-semibold">{r.name}</span>
+              <span class="text-xs text-fg-muted">{r.kanji.length} kanji</span>
+            </a>
+          ) : (
+            <div class="flex h-full flex-col items-center rounded-lg border border-dashed border-line px-2 py-3 text-fg-muted">
+              <span class="self-start text-xs tabular-nums">{r.n}</span>
+              <span lang="ja" class="font-jp text-3xl leading-none">{r.char}</span>
+              <span class="mt-2 text-sm">{r.name}</span>
+              <span class="text-xs">0 kanji</span>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  </section>
+</BaseLayout>

@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+import KanjiList from '../../../components/KanjiList.astro';
+import { RADICALS } from '../../../data/kanji';
+
+export function getStaticPaths() {
+  return RADICALS.filter((r) => r.kanji.length > 0).map((r) => ({ params: { n: String(r.n) }, props: { r } }));
+}
+const { r } = Astro.props;
+const prev = RADICALS.slice(0, r.n - 1).findLast((x) => x.kanji.length > 0);
+const next = RADICALS.slice(r.n).find((x) => x.kanji.length > 0);
+---
+<BaseLayout title={`Bộ ${r.name} ${r.char}`} description={`Bộ thủ số ${r.n}: ${r.char} (${r.name}), gồm ${r.kanji.length} kanji.`}>
+  <PageHeader
+    title={`Bộ ${r.name}`}
+    crumbs={[{ label: 'Kanji', href: '/kanji' }, { label: 'Bộ thủ', href: '/kanji/radicals' }, { label: r.name }]}
+  >
+    <div class="mt-6 flex items-center gap-5">
+      <span lang="ja" class="grid size-24 place-items-center rounded-xl border border-line bg-surface font-jp text-6xl">{r.char}</span>
+      <p class="text-fg-muted">Bộ thủ số {r.n}<br />{r.kanji.length} kanji trong danh sách</p>
+    </div>
+  </PageHeader>
+  <section class="container-page py-10">
+    <KanjiList kanji={r.kanji} />
+    <nav class="mt-10 flex justify-between text-sm">
+      {prev ? <a href={`/kanji/radicals/${prev.n}`} class="link-underline">← Bộ {prev.name} <span lang="ja">{prev.char}</span></a> : <span />}
+      {next && <a href={`/kanji/radicals/${next.n}`} class="link-underline">Bộ {next.name} <span lang="ja">{next.char}</span> →</a>}
+    </nav>
+  </section>
+</BaseLayout>

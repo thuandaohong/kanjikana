@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import KanjiList from '../../components/KanjiList.astro';
+import { GRADE_LABELS, JOYO } from '../../data/kanji';
+
+const groups = Object.entries(GRADE_LABELS).map(([g, label]) => ({
+  label,
+  kanji: JOYO.filter((k) => k.grade === Number(g)),
+}));
+---
+<BaseLayout title="Toàn bộ kanji jōyō" description={`Danh sách đầy đủ ${JOYO.length} kanji thường dụng (jōyō) chia theo cấp lớp.`}>
+  <PageHeader
+    title="Toàn bộ kanji jōyō"
+    crumbs={[{ label: 'Kanji', href: '/kanji' }, { label: 'Jōyō' }]}
+    lead={`Jōyō kanji (常用漢字) là ${JOYO.length} chữ Hán thường dùng do Bộ Giáo dục Nhật Bản quy định. Học sinh Nhật học ${groups.slice(0, 6).reduce((s, g) => s + g.kanji.length, 0)} chữ ở tiểu học, phần còn lại ở trung học.`}
+  >
+    <nav class="mt-6 flex flex-wrap gap-2" aria-label="Đi đến cấp lớp">
+      {groups.map((g, i) => (
+        <a href={`#grade-${i}`} class="rounded-full border border-line px-4 py-1.5 text-sm hover:border-brand">{g.label}</a>
+      ))}
+    </nav>
+  </PageHeader>
+  {groups.map((g, i) => (
+    <section id={`grade-${i}`} class="container-page scroll-mt-20 py-10">
+      <h2 class="mb-6 text-2xl font-bold">{g.label}</h2>
+      <KanjiList kanji={g.kanji} />
+    </section>
+  ))}
+</BaseLayout>

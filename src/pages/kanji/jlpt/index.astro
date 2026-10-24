@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+import CardLink from '../../../components/CardLink.astro';
+import { JLPT_LEVELS, byJlpt, jlptSlug } from '../../../data/kanji';
+---
+<BaseLayout title="Kanji theo cấp JLPT" description="Danh sách kanji cần học cho từng cấp JLPT từ N5 đến N1.">
+  <PageHeader
+    title="Kanji theo cấp JLPT"
+    crumbs={[{ label: 'Kanji', href: '/kanji' }, { label: 'JLPT' }]}
+    lead="JLPT (Kỳ thi năng lực tiếng Nhật) có 5 cấp, từ N5 (dễ nhất) đến N1 (khó nhất). Chọn một cấp để xem danh sách kanji."
+  />
+  <section class="container-page py-12">
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      {JLPT_LEVELS.map((n) => (
+        <CardLink href={`/kanji/jlpt/${jlptSlug(n)}`} title={`JLPT N${n}`} subtitle={`${byJlpt(n).length} kanji`} />
+      ))}
+    </div>
+    <p class="mt-8 max-w-2xl text-sm text-fg-muted">
+      Từ năm 2010, JLPT không còn công bố danh sách kanji chính thức. Các danh sách ở đây dựa trên tổng hợp của
+      Jonathan Waller (tanos.co.uk), được dùng rộng rãi trong cộng đồng người học.
+    </p>
+  </section>
+</BaseLayout>

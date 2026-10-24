@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+import KanjiList from '../../../components/KanjiList.astro';
+import { JLPT_LEVELS, byJlpt, jlptSlug } from '../../../data/kanji';
+
+export function getStaticPaths() {
+  return JLPT_LEVELS.map((n) => ({ params: { level: jlptSlug(n) }, props: { n } }));
+}
+const { n } = Astro.props;
+const kanji = byJlpt(n);
+---
+<BaseLayout title={`Kanji JLPT N${n}`} description={`Danh sách ${kanji.length} kanji JLPT N${n} kèm âm Hán Việt, nghĩa và cách đọc.`}>
+  <PageHeader
+    title={`Kanji JLPT N${n}`}
+    crumbs={[{ label: 'Kanji', href: '/kanji' }, { label: 'JLPT', href: '/kanji/jlpt' }, { label: `N${n}` }]}
+    lead={`${kanji.length} kanji cho cấp N${n}, xếp theo độ thông dụng. Bấm vào một chữ để xem chi tiết.`}
+  >
+    <nav class="mt-6 flex flex-wrap gap-2" aria-label="Cấp JLPT khác">
+      {JLPT_LEVELS.map((m) => (
+        <a
+          href={`/kanji/jlpt/${jlptSlug(m)}`}
+          aria-current={m === n ? 'page' : undefined}
+          class="rounded-full border border-line px-4 py-1.5 text-sm font-semibold hover:border-brand aria-[current=page]:border-brand aria-[current=page]:bg-brand aria-[current=page]:text-white"
+        >N{m}</a>
+      ))}
+    </nav>
+  </PageHeader>
+  <section class="container-page py-10">
+    <KanjiList kanji={kanji} />
+  </section>
+</BaseLayout>

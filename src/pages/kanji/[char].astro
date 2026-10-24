@@ -1,0 +1,139 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import KanjiList from '../../components/KanjiList.astro';
+import { ALL, GRADE_LABELS, KANKEN, RADICALS, THEMES, hvText, jlptSlug, kanjiUrl, type Kanji } from '../../data/kanji';
+
+export function getStaticPaths() {
+  return ALL.map((k) => ({ params: { char: k.c }, props: { k } }));
+}
+const { k } = Astro.props as { k: Kanji };
+
+const radical = RADICALS[k.rad - 1];
+const kanken = KANKEN.find((g) => g.match(k))!;
+const themes = THEMES.filter((t) => t.kanji.some((x) => x.c === k.c));
+
+// Chữ trước/sau trong cùng danh sách JLPT (hoặc cùng cấp lớp nếu không thuộc JLPT).
+const siblings = ALL.filter((x) => (k.jlpt ? x.jlpt === k.jlpt : x.grade === k.grade));
+const idx = siblings.findIndex((x) => x.c === k.c);
+const prev = siblings[idx - 1];
+const next = siblings[idx + 1];
+const sameRadical = radical.kanji.filter((x) => x.c !== k.c).slice(0, 24);
+
+const hv = hvText(k);
+// Giữ dấu "." để tô màu phần okurigana, nhưng bỏ các cách đọc trùng khi hiển thị.
+const kun = k.kun.filter((r, i) => k.kun.findIndex((x) => x.replace('.', '') === r.replace('.', '')) === i);
+const meaning = k.en.join(', ');
+const facts: [string, string, string?][] = [
+  ['Số nét', String(k.strokes)],
+  ['Bộ thủ', `${radical.char} ${radical.name} (${radical.n})`, `/kanji/radicals/${radical.n}`],
+  ['JLPT', k.jlpt ? `N${k.jlpt}` : '—', k.jlpt ? `/kanji/jlpt/${jlptSlug(k.jlpt)}` : undefined],
+  ['Cấp lớp', k.grade ? (GRADE_LABELS[k.grade] ?? 'Jinmeiyō') : '—'],
+  ['Kanken', kanken.name, `/kanji/kanken/${kanken.slug}`],
+  ['Tần suất', k.freq ? `#${k.freq} / 2500` : '—'],
+];
+---
+<BaseLayout
+  title={`${k.c} – ${hv || meaning}`}
+  description={`Kanji ${k.c}${hv ? ` (Hán Việt: ${hv})` : ''}: ${meaning}. Onyomi ${k.on.join('、') || '—'}, kunyomi ${k.kun.join('、') || '—'}, ${k.strokes} nét.`}
+>
+  <PageHeader
+    title={`Kanji ${k.c}`}
+    crumbs={[
+      { label: 'Kanji', href: '/kanji' },
+      ...(k.jlpt ? [{ label: `N${k.jlpt}`, href: `/kanji/jlpt/${jlptSlug(k.jlpt)}` }] : []),
+      { label: k.c },
+    ]}
+  />
+
+  <section class="container-page grid gap-10 py-10 md:grid-cols-[16rem_1fr]">
+    <div>
+      <div class="kanji-box relative mx-auto grid aspect-square w-full max-w-60 md:max-w-none place-items-center rounded-2xl border border-line bg-surface">
+        <span lang="ja" class="font-jp text-[9rem] leading-none">{k.c}</span>
+      </div>
+      <nav class="mx-auto mt-4 flex max-w-60 justify-between text-sm md:max-w-none" aria-label="Kanji trước và sau">
+        {prev ? <a href={kanjiUrl(prev.c)} class="link-underline">← <span lang="ja">{prev.c}</span></a> : <span />}
+        {next && <a href={kanjiUrl(next.c)} class="link-underline"><span lang="ja">{next.c}</span> →</a>}
+      </nav>
+    </div>
+
+    <div>
+      {hv && (<>
+        <p class="text-sm font-semibold tracking-wide text-fg-muted uppercase">Hán Việt</p>
+        <p class="mt-1 font-serif text-3xl font-bold text-brand">{hv}</p>
+      </>)}
+      <p class="mt-6 text-sm font-semibold tracking-wide text-fg-muted uppercase">Nghĩa (tiếng Anh)</p>
+      <p class="mt-1 text-lg">{meaning || '—'}</p>
+
+      <dl class="mt-8 grid gap-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-semibold tracking-wide text-fg-muted uppercase">Onyomi (âm On)</dt>
+          <dd lang="ja" class="mt-2 flex flex-wrap gap-2">
+            {k.on.length ? k.on.map((r) => <span class="rounded-md bg-bg-muted px-2.5 py-1 font-jp text-lg">{r}</span>) : '—'}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-sm font-semibold tracking-wide text-fg-muted uppercase">Kunyomi (âm Kun)</dt>
+          <dd lang="ja" class="mt-2 flex flex-wrap gap-2">
+            {kun.length
+              ? kun.map((r) => {
+                  // KANJIDIC2 dùng dấu "." để tách phần okurigana, ví dụ た.べる → た(べる)
+                  const [stem, oku] = r.split('.');
+                  return (
+                    <span class="rounded-md bg-bg-muted px-2.5 py-1 font-jp text-lg">
+                      {stem}{oku && <span class="text-fg-muted">{oku}</span>}
+                    </span>
+                  );
+                })
+              : '—'}
+          </dd>
+        </div>
+      </dl>
+
+      <dl class="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-3">
+        {facts.map(([label, value, href]) => (
+          <div class="bg-surface p-4">
+            <dt class="text-xs text-fg-muted">{label}</dt>
+            <dd class="mt-1 font-semibold">{href ? <a href={href} class="hover:text-brand" lang="ja">{value}</a> : value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {themes.length > 0 && (
+        <p class="mt-6 text-sm text-fg-muted">
+          Chủ đề:{' '}
+          {themes.map((t, i) => (
+            <>{i > 0 && ', '}<a href={`/kanji/themes/${t.slug}`} class="link-underline text-fg">{t.name}</a></>
+          ))}
+        </p>
+      )}
+    </div>
+  </section>
+
+  {sameRadical.length > 0 && (
+    <section class="border-t border-dashed border-line">
+      <div class="container-page py-10">
+        <h2 class="mb-6 text-xl font-bold">Cùng bộ {radical.name} <span lang="ja">{radical.char}</span></h2>
+        <KanjiList kanji={sameRadical} showToggle={false} />
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  /* Chữ thập đứt nét như ô tập viết */
+  .kanji-box::before,
+  .kanji-box::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+  }
+  .kanji-box::before {
+    inset: 0 50%;
+    border-left: 1px dashed var(--color-line);
+  }
+  .kanji-box::after {
+    inset: 50% 0;
+    border-top: 1px dashed var(--color-line);
+  }
+</style>

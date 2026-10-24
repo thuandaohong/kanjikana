@@ -1,0 +1,25 @@
+---
+interface Crumb { label: string; href?: string }
+interface Props { title: string; crumbs?: Crumb[]; lead?: string }
+const { title, crumbs = [], lead } = Astro.props;
+---
+<header class="border-b border-line">
+  <div class="container-page py-10 md:py-14">
+    {crumbs.length > 0 && (
+      <nav aria-label="Breadcrumb" class="mb-4 text-sm text-fg-muted">
+        <ol class="flex flex-wrap items-center gap-1.5">
+          <li><a href="/" class="hover:text-brand">Trang chủ</a></li>
+          {crumbs.map((c) => (
+            <li class="flex items-center gap-1.5">
+              <span aria-hidden="true">/</span>
+              {c.href ? <a href={c.href} class="hover:text-brand">{c.label}</a> : <span aria-current="page">{c.label}</span>}
+            </li>
+          ))}
+        </ol>
+      </nav>
+    )}
+    <h1 class="text-3xl font-bold md:text-4xl">{title}</h1>
+    {lead && <p class="mt-4 max-w-2xl text-lg text-fg-muted">{lead}</p>}
+    <slot />
+  </div>
+</header>

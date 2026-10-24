@@ -1,0 +1,85 @@
+---
+// Danh sách kanji, xem dạng lưới hoặc bảng. Lựa chọn được nhớ cho mọi danh sách.
+import { type Kanji, hvText, kanjiUrl, kunPlain } from '../data/kanji';
+interface Props { kanji: Kanji[]; showToggle?: boolean }
+const { kanji, showToggle = true } = Astro.props;
+---
+<div class="kanji-list" data-view="grid">
+  {showToggle && (
+    <div class="mb-5 flex items-center justify-between gap-4">
+      <p class="text-sm text-fg-muted">{kanji.length} kanji</p>
+      <div class="inline-flex rounded-lg border border-line p-0.5 text-sm" role="group" aria-label="Kiểu hiển thị">
+        <button type="button" data-set-view="grid" class="rounded-md px-3 py-1 aria-pressed:bg-bg-muted aria-pressed:font-semibold">Lưới</button>
+        <button type="button" data-set-view="table" class="rounded-md px-3 py-1 aria-pressed:bg-bg-muted aria-pressed:font-semibold">Bảng</button>
+      </div>
+    </div>
+  )}
+
+  <ul class="view-grid grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
+    {kanji.map((k) => (
+      <li>
+        <a
+          href={kanjiUrl(k.c)}
+          title={k.en.slice(0, 3).join(', ')}
+          class="flex aspect-square flex-col items-center justify-center rounded-lg border border-line bg-surface transition hover:border-brand/60 hover:text-brand"
+        >
+          <span lang="ja" class="font-jp text-3xl leading-none">{k.c}</span>
+          <span class="mt-2 max-w-full truncate px-1 text-xs text-fg-muted">{k.hv[0] ?? ''}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <div class="view-table overflow-x-auto rounded-lg border border-line">
+    <table class="w-full min-w-[40rem] text-left text-sm">
+      <thead class="bg-bg-muted text-fg-muted">
+        <tr>
+          <th class="px-4 py-2.5 font-semibold">Kanji</th>
+          <th class="px-4 py-2.5 font-semibold">Hán Việt</th>
+          <th class="px-4 py-2.5 font-semibold">Nghĩa</th>
+          <th class="px-4 py-2.5 font-semibold">Onyomi</th>
+          <th class="px-4 py-2.5 font-semibold">Kunyomi</th>
+          <th class="px-4 py-2.5 text-right font-semibold">Nét</th>
+        </tr>
+      </thead>
+      <tbody>
+        {kanji.map((k) => (
+          <tr class="border-t border-line hover:bg-bg-muted/60">
+            <td class="px-4 py-2"><a href={kanjiUrl(k.c)} lang="ja" class="font-jp text-2xl hover:text-brand">{k.c}</a></td>
+            <td class="px-4 py-2 font-semibold">{hvText(k)}</td>
+            <td class="px-4 py-2 text-fg-muted">{k.en.slice(0, 3).join(', ')}</td>
+            <td class="px-4 py-2" lang="ja">{k.on.join('、')}</td>
+            <td class="px-4 py-2" lang="ja">{kunPlain(k).slice(0, 4).join('、')}</td>
+            <td class="px-4 py-2 text-right tabular-nums">{k.strokes}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .kanji-list[data-view='grid'] .view-table,
+  .kanji-list[data-view='table'] .view-grid {
+    display: none;
+  }
+</style>
+
+<script>
+  const KEY = 'kanji-view';
+  function apply(view: string) {
+    document.querySelectorAll<HTMLElement>('.kanji-list').forEach((el) => (el.dataset.view = view));
+    document.querySelectorAll<HTMLButtonElement>('[data-set-view]').forEach((b) =>
+      b.setAttribute('aria-pressed', String(b.dataset.setView === view)),
+    );
+  }
+  let saved = 'grid';
+  try { saved = localStorage.getItem(KEY) || 'grid'; } catch {}
+  apply(saved);
+  document.querySelectorAll<HTMLButtonElement>('[data-set-view]').forEach((b) =>
+    b.addEventListener('click', () => {
+      apply(b.dataset.setView!);
+      try { localStorage.setItem(KEY, b.dataset.setView!); } catch {}
+    }),
+  );
+</script>
