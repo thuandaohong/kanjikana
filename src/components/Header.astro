@@ -1,0 +1,133 @@
+---
+import { NAV } from '../data/site';
+import Logo from './Logo.astro';
+import SearchBox from './SearchBox.astro';
+import ThemeToggle from './ThemeToggle.astro';
+
+const chevron = 'm6 9 6 6 6-6';
+---
+<header class="sticky top-0 z-40 border-b border-line bg-bg/90 backdrop-blur">
+  <div class="container-page flex h-16 items-center gap-6">
+    <Logo />
+
+    <!-- Menu desktop -->
+    <nav class="hidden items-center gap-1 lg:flex" aria-label="Điều hướng chính">
+      {NAV.map((menu, i) => (
+        <div class="dropdown relative">
+          <button
+            type="button"
+            class="inline-flex items-center gap-1 rounded-md px-3 py-2 text-[15px] font-semibold hover:bg-bg-muted"
+            aria-expanded="false"
+            aria-controls={`menu-${i}`}
+          >
+            {menu.label}
+            <svg viewBox="0 0 24 24" class="size-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d={chevron} /></svg>
+          </button>
+          <div
+            id={`menu-${i}`}
+            hidden
+            class="absolute top-full left-0 mt-2 flex min-w-56 gap-6 rounded-xl border border-line bg-surface p-4 shadow-lg"
+          >
+            {menu.groups.map((g) => (
+              <div class="min-w-44">
+                {g.title && <p class="mb-2 px-2 text-xs font-semibold tracking-wide text-fg-muted uppercase">{g.title}</p>}
+                <ul>
+                  {g.links.map((l) => (
+                    <li><a href={l.href} class="block rounded-md px-2 py-1.5 text-sm hover:bg-bg-muted hover:text-brand">{l.label}</a></li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </nav>
+
+    <SearchBox class="ml-auto hidden w-72 md:block" id="q-header" />
+
+    <div class="ml-auto hidden items-center gap-2 md:ml-0 lg:flex">
+      <ThemeToggle />
+    </div>
+
+    <!-- Nút menu mobile -->
+    <button
+      type="button"
+      id="mobile-toggle"
+      class="ml-auto grid size-10 place-items-center rounded-md hover:bg-bg-muted md:ml-0 lg:hidden"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label="Mở menu"
+    >
+      <svg viewBox="0 0 24 24" class="size-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path class="icon-open" d="M4 7h16M4 12h16M4 17h16" />
+        <path class="icon-close hidden" d="M6 6l12 12M18 6 6 18" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Menu mobile -->
+  <div id="mobile-menu" hidden class="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-bg lg:hidden">
+    <div class="container-page space-y-6 py-5">
+      <SearchBox class="md:hidden" id="q-mobile" />
+      {NAV.map((menu) => (
+        <section>
+          <h2 class="mb-2 font-sans text-sm font-semibold tracking-wide text-fg-muted uppercase">{menu.label}</h2>
+          <ul class="grid grid-cols-2 gap-1">
+            {menu.groups.flatMap((g) => g.links).map((l) => (
+              <li><a href={l.href} class="block rounded-md px-2 py-2 hover:bg-bg-muted">{l.label}</a></li>
+            ))}
+          </ul>
+        </section>
+      ))}
+      <div class="flex items-center justify-between border-t border-line pt-4">
+        <span class="text-sm text-fg-muted">Giao diện</span>
+        <ThemeToggle />
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Dropdown desktop: mở bằng click, đóng khi click ra ngoài hoặc nhấn Esc.
+  const dropdowns = [...document.querySelectorAll<HTMLElement>('.dropdown')];
+
+  function close(except?: HTMLElement) {
+    dropdowns.forEach((d) => {
+      if (d === except) return;
+      d.querySelector('button')!.setAttribute('aria-expanded', 'false');
+      d.querySelector<HTMLElement>('[id^="menu-"]')!.hidden = true;
+      d.querySelector('svg')!.classList.remove('rotate-180');
+    });
+  }
+
+  dropdowns.forEach((d) => {
+    const btn = d.querySelector('button')!;
+    const panel = d.querySelector<HTMLElement>('[id^="menu-"]')!;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = btn.getAttribute('aria-expanded') !== 'true';
+      close(d);
+      btn.setAttribute('aria-expanded', String(open));
+      panel.hidden = !open;
+      btn.querySelector('svg')!.classList.toggle('rotate-180', open);
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (!(e.target as HTMLElement).closest('.dropdown')) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+
+  // Menu mobile
+  const toggle = document.getElementById('mobile-toggle')!;
+  const menu = document.getElementById('mobile-menu')!;
+  toggle.addEventListener('click', () => {
+    const open = menu.hidden;
+    menu.hidden = !open;
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
+    toggle.querySelector('.icon-open')!.classList.toggle('hidden', open);
+    toggle.querySelector('.icon-close')!.classList.toggle('hidden', !open);
+  });
+</script>

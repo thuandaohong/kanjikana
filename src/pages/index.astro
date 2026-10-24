@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CardLink from '../components/CardLink.astro';
+import HeroGrid from '../components/HeroGrid.astro';
+import { JLPT_LEVELS } from '../data/site';
+import { JLPT_COUNTS, THEMES } from '../data/home';
+---
+<BaseLayout>
+  <section class="relative overflow-hidden border-b border-line">
+    <HeroGrid />
+    <div class="container-page relative py-20 md:py-32">
+      <div class="max-w-xl">
+        <h1 class="text-4xl leading-tight font-bold text-balance md:text-[42px]">
+          Danh sách kanji và công cụ cho người học tiếng Nhật.
+        </h1>
+        <p class="mt-6 text-lg text-fg-muted md:text-xl">
+          Danh sách và công cụ miễn phí để học kanji và từ vựng tiếng Nhật. Phù hợp với mọi trình độ.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-16 md:py-20">
+    <h2 class="text-2xl font-bold">Danh sách kanji</h2>
+    <div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      {JLPT_LEVELS.map((l) => (
+        <CardLink href={`/kanji/jlpt/${l}`} title={`JLPT ${l.toUpperCase()}`} subtitle={`${JLPT_COUNTS[l]} kanji`} />
+      ))}
+    </div>
+    <p class="mt-8 text-fg-muted">
+      Bạn cũng có thể xem kanji theo{' '}
+      <a href="/kanji/kanken" class="link-underline text-fg">cấp Kanken</a>,{' '}
+      <a href="/kanji/radicals" class="link-underline text-fg">bộ thủ</a>, hoặc xem toàn bộ danh sách{' '}
+      <a href="/kanji/all" class="link-underline text-fg">kanji jōyō</a>.
+    </p>
+  </section>
+
+  <section class="border-t border-dashed border-line">
+    <div class="container-page py-16 md:py-20">
+      <h2 class="text-2xl font-bold">Kanji theo chủ đề</h2>
+      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {THEMES.map((t) => (
+          <CardLink href={`/kanji/themes/${t.slug}`} title={t.name} subtitle={`${t.kanji.length} kanji · ${t.kanji.slice(0, 5).join(' ')}…`} />
+        ))}
+      </div>
+      <a href="/kanji/themes" class="link-underline mt-8 inline-block">Xem tất cả chủ đề</a>
+    </div>
+  </section>
+</BaseLayout>

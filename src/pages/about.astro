@@ -1,0 +1,16 @@
+---
+import ProseLayout from '../layouts/ProseLayout.astro';
+import { SITE } from '../data/site';
+---
+<ProseLayout title="Giới thiệu">
+  <p>
+    {SITE.name} là bộ danh sách và công cụ miễn phí giúp người Việt học kanji và từ vựng tiếng Nhật,
+    từ người mới bắt đầu đến người luyện thi JLPT N1.
+  </p>
+  <h2>Có gì ở đây?</h2>
+  <ul>
+    <li>Danh sách kanji theo cấp JLPT, Kanken, bộ thủ và chủ đề.</li>
+    <li>Bảng Hiragana và Katakana.</li>
+    <li>Công cụ tìm kanji, tạo furigana và flashcards.</li>
+  </ul>
+</ProseLayout>
