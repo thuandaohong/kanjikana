@@ -101,6 +101,7 @@ Trang `/privacy` (Chính sách quyền riêng tư) đã có phần công bố v�
 - [ ] Giai đoạn 7: dịch (Pages Functions), tạm hoãn, đã gỡ khỏi menu
 - [x] Giai đoạn 8: tiếng Việt (URL gốc) và tiếng Anh (/en/), có hreflang và nút chuyển ngôn ngữ
 - [x] Giai đoạn 9: sitemap, robots.txt, Open Graph, JSON-LD, font tự host, Lighthouse 95–100
+- [x] Giai đoạn 19: danh sách kanji dài (trên 80 chữ) tự chia trang 60 chữ ngay trên trình duyệt, không tạo thêm file; mọi link vẫn nằm trong HTML
 - [x] Giai đoạn 18: trang kanji không có từ vựng lẫn câu ví dụ đặt noindex và bỏ khỏi sitemap (`isThinKanji`, `astro.config.mjs`); trang Giới thiệu có phần người làm site và email liên hệ
 - [x] Giai đoạn 17: thêm 398 chữ nhân danh (jinmeiyō, KANJIDIC2 grade 9, bỏ ký tự tương thích U+F900…) có trang riêng; trang danh sách /kanji/jinmeiyo; site có 2.783 chữ, bản build khoảng 15.900 file
 - [x] Giai đoạn 16: trang bộ thủ liệt kê mọi chữ có chứa bộ làm thành phần (theo cây thành phần KanjiVG, `radical-members.json`), có sắp xếp theo tần suất / số nét / JLPT

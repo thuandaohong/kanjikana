@@ -13,12 +13,17 @@ interface Props {
 const { kanji, showToggle = true, sortable = false } = Astro.props;
 // Khoá sắp xếp gắn vào từng ô: thứ tự gốc (tần suất), số nét, cấp JLPT (N5 trước, ngoài JLPT cuối).
 const sortData = (k: Kanji, i: number) => ({ 'data-i': i, 'data-s': k.strokes, 'data-j': k.jlpt ? 6 - k.jlpt : 9 });
+// Danh sách dài được chia trang ngay trên trình duyệt (không tạo thêm file). Mọi ô vẫn nằm trong HTML
+// để máy tìm kiếm thấy đủ link; ô ngoài trang hiện tại có data-off và bị ẩn bằng CSS.
+const PAGE_SIZE = 60;
+const paged = kanji.length > PAGE_SIZE + 20;
+const off = (i: number) => (paged && i >= PAGE_SIZE ? { 'data-off': '' } : {});
 const lang = getLang(Astro);
 const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 // Cột âm đọc của người học: Hán Việt (vi), pinyin (zh), âm Hán-Hàn (ko); bản tiếng Anh không có.
 const readingLabel = LOCAL_READING_LABEL[lang];
 ---
-<div class="kanji-list" data-view="grid">
+<div class="kanji-list" data-view="grid" data-page-size={paged ? PAGE_SIZE : undefined}>
   {showToggle && (
     <div class="mb-5 flex items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-3">
@@ -40,7 +45,7 @@ const readingLabel = LOCAL_READING_LABEL[lang];
 
   <ul class="view-grid grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
     {kanji.map((k, i) => (
-      <li {...sortData(k, i)}>
+      <li {...sortData(k, i)} {...off(i)}>
         <a
           href={kanjiUrl(k.c, lang)}
           title={meaningText(k, lang)}
@@ -69,7 +74,7 @@ const readingLabel = LOCAL_READING_LABEL[lang];
     </table>
     <template>
       {kanji.map((k, i) => (
-        <tr {...sortData(k, i)} class="border-t border-line hover:bg-bg-muted/60">
+        <tr {...sortData(k, i)} {...off(i)} class="border-t border-line hover:bg-bg-muted/60">
           <td class="px-4 py-2"><a href={kanjiUrl(k.c, lang)} lang="ja" class="font-jp text-2xl hover:text-brand">{k.c}</a></td>
           {readingLabel && <td class="px-4 py-2 font-semibold">{localReadings(k, lang)?.join(', ')}</td>}
           <td class="px-4 py-2 text-fg-muted">{meaningText(k, lang)}</td>
@@ -80,11 +85,20 @@ const readingLabel = LOCAL_READING_LABEL[lang];
       ))}
     </template>
   </div>
+  {paged && (
+    <nav
+      class="pager mt-6 flex flex-wrap items-center justify-center gap-1 text-sm"
+      aria-label={t('Phân trang', 'Pagination', '分页', '페이지 이동', 'Halaman')}
+      data-prev={t('Trang trước', 'Previous page', '上一页', '이전 페이지', 'Halaman sebelumnya')}
+      data-next={t('Trang sau', 'Next page', '下一页', '다음 페이지', 'Halaman berikutnya')}
+    ></nav>
+  )}
 </div>
 
 <style>
   .kanji-list[data-view='grid'] .view-table,
-  .kanji-list[data-view='table'] .view-grid {
+  .kanji-list[data-view='table'] .view-grid,
+  .kanji-list [data-off] {
     display: none;
   }
 </style>
@@ -113,7 +127,59 @@ const readingLabel = LOCAL_READING_LABEL[lang];
       if (box) box.append(...[...box.children].sort(byKey));
     }
     list.querySelectorAll<HTMLButtonElement>('[data-sort]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.sort === key)));
+    paginate(list, 1);
   }
+
+  // ---------- Phân trang ----------
+  function paginate(list: HTMLElement, page: number, scroll = false) {
+    const size = Number(list.dataset.pageSize);
+    if (!size) return;
+    const total = list.querySelector('.view-grid')!.children.length;
+    const pages = Math.ceil(total / size);
+    page = Math.min(Math.max(page, 1), pages);
+    for (const box of [list.querySelector('.view-grid'), list.querySelector('.view-table tbody'), list.querySelector<HTMLTemplateElement>('.view-table template')?.content]) {
+      if (!box) continue;
+      [...box.children].forEach((el, i) => el.toggleAttribute('data-off', i < (page - 1) * size || i >= page * size));
+    }
+    renderPager(list, page, pages);
+    if (scroll && list.getBoundingClientRect().top < 0) list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  /** Nút trang: ‹ 1 … 4 5 6 … 21 › */
+  function renderPager(list: HTMLElement, page: number, pages: number) {
+    const nav = list.querySelector<HTMLElement>('.pager');
+    if (!nav) return;
+    const nums = [...new Set([1, page - 1, page, page + 1, pages])].filter((n) => n >= 1 && n <= pages).sort((a, b) => a - b);
+    const items: (number | '…')[] = [];
+    nums.forEach((n, i) => {
+      if (i && n - nums[i - 1] > 1) items.push('…');
+      items.push(n);
+    });
+    const button = (label: string, target: number, opts: { current?: boolean; disabled?: boolean; aria?: string } = {}) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.className = 'min-w-9 rounded-md border border-line px-3 py-1.5 tabular-nums hover:border-brand disabled:opacity-40 aria-[current=page]:border-brand aria-[current=page]:bg-brand aria-[current=page]:text-white';
+      if (opts.current) b.setAttribute('aria-current', 'page');
+      if (opts.aria) b.setAttribute('aria-label', opts.aria);
+      b.disabled = !!opts.disabled;
+      b.addEventListener('click', () => paginate(list, target, true));
+      return b;
+    };
+    nav.replaceChildren(
+      button('‹', page - 1, { disabled: page === 1, aria: nav.dataset.prev }),
+      ...items.map((n) => {
+        if (n === '…') {
+          const span = document.createElement('span');
+          span.className = 'px-1 text-fg-muted';
+          span.textContent = '…';
+          return span;
+        }
+        return button(String(n), n, { current: n === page });
+      }),
+      button('›', page + 1, { disabled: page === pages, aria: nav.dataset.next }),
+    );
+  }
+  document.querySelectorAll<HTMLElement>('.kanji-list[data-page-size]').forEach((list) => paginate(list, 1));
   document.querySelectorAll<HTMLButtonElement>('[data-sort]').forEach((b) =>
     b.addEventListener('click', () => sortList(b.closest('.kanji-list')!, b.dataset.sort!)),
   );
