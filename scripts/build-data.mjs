@@ -102,6 +102,48 @@ const radicals = Array.from({ length: 214 }, (_, i) => {
   return [pinyinList(r.pinyin)[0] ?? '', r.korean_h?.[0] ?? ''];
 });
 await writeFile(new URL('radicals.json', GEN), JSON.stringify(radicals));
+
+// ---------- Chữ khác thuộc mỗi bộ (không có trang riêng) ----------
+// Bổ sung cho trang bộ thủ những chữ ngoài danh sách của site, ưu tiên: chữ nhân danh hoặc có xếp hạng
+// tần suất (nhóm 0), JIS X 0208 cấp 1 (nhóm 1), JIS cấp 2 (nhóm 2); trong nhóm xếp theo số nét.
+// Bỏ grade 10 (dạng chữ cũ của chữ jōyō). Mỗi phần tử: [chữ, nhóm, Hán Việt, pinyin, âm Hán-Hàn, nghĩa EN, on, kun].
+const EXTRA_PER_RADICAL = 30;
+const inSite = new Set(out.map((k) => k.c));
+// Không liệt kê chính chữ bộ thủ và các dạng biến thể (đã hiện ở đầu trang).
+for (let i = 0; i < 214; i++) inSite.add(String.fromCodePoint(0x2f00 + i).normalize('NFKC'));
+for (const r of JSON.parse(await readFile(new URL('../src/data/radicals-info.json', import.meta.url), 'utf8'))) for (const v of r.variants) inSite.add(v.c);
+const jisRow = (k) => {
+  const j = k.codepoints?.jis208;
+  return j ? Number(j.split('-')[1]) : null;
+};
+const extraByRadical = {};
+for (const k of kanjidic) {
+  if (inSite.has(k.literal) || k.grade === 10) continue;
+  const row = jisRow(k);
+  const tier = k.grade === 9 || k.freq ? 0 : row && row <= 47 ? 1 : row ? 2 : null;
+  if (tier === null) continue;
+  const r = k.readings ?? {};
+  (extraByRadical[k.radicals.classical] ??= []).push({
+    tier,
+    strokes: k.strokeCounts[0],
+    row: [
+      k.literal,
+      tier,
+      r.vietnam?.[0] ?? '',
+      pinyinList(r.pinyin)[0] ?? '',
+      r.korean_h?.[0] ?? '',
+      (k.meanings?.en ?? []).slice(0, 3).join(', '),
+      (r.ja_on ?? []).slice(0, 2).join('、'),
+      (r.ja_kun ?? []).slice(0, 2).map((x) => x.replace('.', '')).join('、'),
+    ],
+  });
+}
+for (const [rad, list] of Object.entries(extraByRadical)) {
+  list.sort((a, b) => a.tier - b.tier || a.strokes - b.strokes || a.row[0].localeCompare(b.row[0]));
+  extraByRadical[rad] = list.slice(0, EXTRA_PER_RADICAL).map((x) => x.row);
+}
+await writeFile(new URL('radical-extra.json', GEN), JSON.stringify(extraByRadical));
+console.log(`Chữ thêm cho bộ thủ: ${Object.values(extraByRadical).flat().length}`);
 console.log(`Bộ thủ: ${radicals.filter(([p, k]) => p && k).length}/214 có đủ pinyin và âm Hán-Hàn`);
 
 // ---------- Cấp Kanken 4級–2級 ----------

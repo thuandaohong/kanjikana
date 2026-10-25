@@ -9,6 +9,7 @@ import {
   RADICALS,
   RADICAL_POS_LABEL,
   RADICAL_STROKES,
+  extraLabel,
   radicalLabel,
   radicalMeaning,
   radicalName,
@@ -125,6 +126,31 @@ const facts: [string, string, string?][] = [
             'Belum ada kanji dengan radikal ini di situs ini.',
           )}
         </p>
+      )}
+      {r.extra.length > 0 && (
+        <div class="mt-10">
+          <h3 class="text-lg font-bold">{t('Chữ khác thuộc bộ này', 'More kanji with this radical', '此部首的其他汉字', '이 부수의 다른 한자', 'Kanji lain dengan radikal ini')}</h3>
+          <p class="mt-1 mb-4 text-sm text-fg-muted">
+            {t(
+              'Chữ ngoài danh sách học của site (chưa có trang riêng). Chữ mờ là chữ ít gặp. Rê chuột lên chữ để xem nghĩa và cách đọc.',
+              'Kanji outside this site’s study lists (no page yet). Faded ones are rare. Hover a character for its meaning and readings.',
+              '本站学习列表以外的汉字（暂无单独页面）。颜色较浅的是少见字。将鼠标移到字上可查看释义和读音。',
+              '이 사이트 학습 목록 밖의 한자입니다(아직 개별 페이지 없음). 흐린 글자는 드문 한자입니다. 글자에 마우스를 올리면 뜻과 읽기를 볼 수 있습니다.',
+              'Kanji di luar daftar belajar situs ini (belum ada halamannya). Yang pudar jarang dipakai. Arahkan kursor ke huruf untuk melihat arti dan cara bacanya.',
+            )}
+          </p>
+          <ul class="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-2">
+            {r.extra.map((x) => (
+              <li
+                title={[x[5], [x[6], x[7]].filter(Boolean).join(' / ')].filter(Boolean).join(' · ')}
+                class={`flex aspect-square flex-col items-center justify-center rounded-lg border border-dashed border-line ${x[1] === 2 ? 'opacity-60' : ''}`}
+              >
+                <span lang="ja" class="font-jp text-2xl leading-none">{x[0]}</span>
+                <span class="mt-1.5 max-w-full truncate px-1 text-[11px] text-fg-muted">{extraLabel(x, lang)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       <nav class="mt-10 flex justify-between text-sm">
         {prev ? <a href={l(`/kanji/radicals/${prev.n}`)} class="link-underline">← {radicalLabel(prev, lang)}</a> : <span />}

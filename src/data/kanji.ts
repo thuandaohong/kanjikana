@@ -6,6 +6,7 @@ import radicalsRaw from './generated/radicals.json';
 import kankenRaw from './generated/kanken.json';
 import radicalInfoRaw from './radicals-info.json';
 import radicalStrokesRaw from './generated/radical-strokes.json';
+import radicalExtraRaw from './generated/radical-extra.json';
 import meaningsVi from './meanings/vi.json';
 import meaningsZh from './meanings/zh.json';
 import meaningsKo from './meanings/ko.json';
@@ -117,6 +118,15 @@ export type RadicalVariant = { c: string; ja: string; pos: RadicalPos };
 /** Thông tin soạn tay trong src/data/radicals-info.json: tên tiếng Nhật, vị trí, nghĩa, dạng biến thể. */
 type RadicalInfo = { n: number; ja: string; pos: RadicalPos; meaning: Record<Exclude<Lang, 'en'>, string>; variants: RadicalVariant[] };
 const RADICAL_INFO = radicalInfoRaw as RadicalInfo[];
+/**
+ * Chữ khác thuộc một bộ, ngoài danh sách của site: [chữ, nhóm, Hán Việt, pinyin, âm Hán-Hàn, nghĩa EN, on, kun].
+ * Nhóm 0: chữ nhân danh hoặc có xếp hạng tần suất; 1: JIS cấp 1; 2: JIS cấp 2 (ít gặp).
+ */
+export type RadicalExtra = [string, 0 | 1 | 2, string, string, string, string, string, string];
+const RADICAL_EXTRA = radicalExtraRaw as unknown as Record<string, RadicalExtra[]>;
+/** Nhãn ngắn dưới ô chữ: âm đọc theo ngôn ngữ của người học, hoặc nghĩa tiếng Anh đầu tiên. */
+export const extraLabel = ([, , hv, py, ko, en]: RadicalExtra, lang: Lang) =>
+  pick(lang, { vi: hv, en: '', zh: py, ko, id: '' }) || en.split(',')[0];
 
 // 214 bộ Khang Hy xếp theo số nét: bộ đầu tiên của nhóm 1, 2, 3… 17 nét.
 const STROKE_GROUP_START = [1, 7, 30, 61, 95, 118, 147, 167, 176, 187, 195, 201, 205, 209, 211, 212, 214];
@@ -137,6 +147,8 @@ export type Radical = {
   meaning: Record<Exclude<Lang, 'en'>, string>;
   variants: RadicalVariant[];
   kanji: Kanji[];
+  /** Chữ khác thuộc bộ, không có trang riêng (xem RadicalExtra). */
+  extra: RadicalExtra[];
 };
 
 export const RADICALS: Radical[] = RADICAL_NAMES.map((name, i) => ({
@@ -153,6 +165,7 @@ export const RADICALS: Radical[] = RADICAL_NAMES.map((name, i) => ({
   meaning: RADICAL_INFO[i].meaning,
   variants: RADICAL_INFO[i].variants,
   kanji: ALL.filter((k) => k.rad === i + 1),
+  extra: RADICAL_EXTRA[i + 1] ?? [],
 }));
 if (RADICAL_INFO.some((r, i) => r.n !== i + 1)) throw new Error('radicals-info.json phải đủ 214 bộ theo thứ tự');
 
