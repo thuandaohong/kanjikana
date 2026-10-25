@@ -113,9 +113,18 @@ const facts: [string, string, string?][] = [
   <AdSlot placement="list" class="pt-8" />
   <section class="border-t border-dashed border-line">
     <div class="container-page py-10">
-      <h2 class="mb-6 text-xl font-bold">{t('Kanji thuộc bộ này', 'Kanji with this radical', '此部首的汉字', '이 부수의 한자', 'Kanji dengan radikal ini')}</h2>
-      {r.kanji.length > 0 ? (
-        <KanjiList kanji={r.kanji} />
+      <h2 class="text-xl font-bold">{t('Kanji có chứa bộ này', 'Kanji containing this radical', '含有此部首的汉字', '이 부수가 들어간 한자', 'Kanji yang mengandung radikal ini')}</h2>
+      <p class="mt-1 mb-6 text-sm text-fg-muted">
+        {t(
+          `Gồm ${r.kanji.length} chữ được xếp vào bộ này trong từ điển và các chữ khác có chứa bộ này làm thành phần.`,
+          `Includes the ${r.kanji.length} kanji filed under this radical in dictionaries, plus others that contain it as a component.`,
+          `包括字典中归入此部首的 ${r.kanji.length} 个汉字，以及以此部首为组成部分的其他汉字。`,
+          `사전에서 이 부수로 분류되는 ${r.kanji.length}자와, 이 부수를 구성 요소로 포함하는 다른 한자를 함께 보여 줍니다.`,
+          `Termasuk ${r.kanji.length} kanji yang digolongkan ke radikal ini di kamus, ditambah kanji lain yang mengandungnya sebagai komponen.`,
+        )}
+      </p>
+      {r.members.length > 0 ? (
+        <KanjiList kanji={r.members} sortable />
       ) : (
         <p class="text-fg-muted">
           {t(

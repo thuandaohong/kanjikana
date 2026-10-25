@@ -101,6 +101,7 @@ Trang `/privacy` (Chính sách quyền riêng tư) đã có phần công bố v�
 - [ ] Giai đoạn 7: dịch (Pages Functions), tạm hoãn, đã gỡ khỏi menu
 - [x] Giai đoạn 8: tiếng Việt (URL gốc) và tiếng Anh (/en/), có hreflang và nút chuyển ngôn ngữ
 - [x] Giai đoạn 9: sitemap, robots.txt, Open Graph, JSON-LD, font tự host, Lighthouse 95–100
+- [x] Giai đoạn 16: trang bộ thủ liệt kê mọi chữ có chứa bộ làm thành phần (theo cây thành phần KanjiVG, `radical-members.json`), có sắp xếp theo tần suất / số nét / JLPT
 - [x] Giai đoạn 15: trang bộ thủ hiện thêm tối đa 30 chữ khác thuộc bộ (nhân danh, JIS cấp 1–2; không có trang riêng) từ KANJIDIC2, lưu ở `radical-extra.json`
 - [x] Giai đoạn 14: trang bộ thủ có số nét (nhóm theo nét), tên tiếng Nhật, vị trí, dạng biến thể, nghĩa 5 ngôn ngữ và thứ tự nét; thông tin soạn tay ở `src/data/radicals-info.json`
 - [x] Giai đoạn 13: tách cấp Kanken 4級, 3級, 準2級, 2級 (dữ liệu từ fosskers/kanji, lưu tạm ở .cache/kanken)

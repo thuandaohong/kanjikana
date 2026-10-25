@@ -7,6 +7,7 @@ import kankenRaw from './generated/kanken.json';
 import radicalInfoRaw from './radicals-info.json';
 import radicalStrokesRaw from './generated/radical-strokes.json';
 import radicalExtraRaw from './generated/radical-extra.json';
+import radicalMembersRaw from './generated/radical-members.json';
 import meaningsVi from './meanings/vi.json';
 import meaningsZh from './meanings/zh.json';
 import meaningsKo from './meanings/ko.json';
@@ -118,6 +119,7 @@ export type RadicalVariant = { c: string; ja: string; pos: RadicalPos };
 /** Thông tin soạn tay trong src/data/radicals-info.json: tên tiếng Nhật, vị trí, nghĩa, dạng biến thể. */
 type RadicalInfo = { n: number; ja: string; pos: RadicalPos; meaning: Record<Exclude<Lang, 'en'>, string>; variants: RadicalVariant[] };
 const RADICAL_INFO = radicalInfoRaw as RadicalInfo[];
+const RADICAL_MEMBERS = radicalMembersRaw as Record<string, string>;
 /**
  * Chữ khác thuộc một bộ, ngoài danh sách của site: [chữ, nhóm, Hán Việt, pinyin, âm Hán-Hàn, nghĩa EN, on, kun].
  * Nhóm 0: chữ nhân danh hoặc có xếp hạng tần suất; 1: JIS cấp 1; 2: JIS cấp 2 (ít gặp).
@@ -146,7 +148,10 @@ export type Radical = {
   pos: RadicalPos;
   meaning: Record<Exclude<Lang, 'en'>, string>;
   variants: RadicalVariant[];
+  /** Chữ được xếp vào bộ này trong từ điển (mỗi chữ thuộc đúng một bộ). */
   kanji: Kanji[];
+  /** Mọi chữ của site có chứa bộ này làm thành phần (theo KanjiVG), gồm cả `kanji`. */
+  members: Kanji[];
   /** Chữ khác thuộc bộ, không có trang riêng (xem RadicalExtra). */
   extra: RadicalExtra[];
 };
@@ -165,6 +170,7 @@ export const RADICALS: Radical[] = RADICAL_NAMES.map((name, i) => ({
   meaning: RADICAL_INFO[i].meaning,
   variants: RADICAL_INFO[i].variants,
   kanji: ALL.filter((k) => k.rad === i + 1),
+  members: [...(RADICAL_MEMBERS[i + 1] ?? '')].map((c) => BY_CHAR.get(c)).filter((k): k is Kanji => !!k),
   extra: RADICAL_EXTRA[i + 1] ?? [],
 }));
 if (RADICAL_INFO.some((r, i) => r.n !== i + 1)) throw new Error('radicals-info.json phải đủ 214 bộ theo thứ tự');

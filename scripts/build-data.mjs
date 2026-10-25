@@ -225,6 +225,40 @@ await Promise.all(
 );
 await writeFile(new URL('radical-strokes.json', GEN), JSON.stringify(Object.fromEntries([...radicalChars].filter((c) => radicalStrokes[c]).map((c) => [c, radicalStrokes[c]]))));
 console.log(`Thứ tự nét bộ thủ: ${Object.keys(radicalStrokes).length}/${radicalChars.size} chữ`);
+
+// ---------- Chữ có chứa mỗi bộ (theo thành phần) ----------
+// Ngoài bộ chính thức của từ điển (mỗi chữ một bộ), liệt kê mọi chữ của site có chứa bộ đó làm thành phần,
+// dựa trên cây thành phần trong KanjiVG (kvg:element, kvg:original), duyệt đệ quy qua các thành phần con.
+const toRadical = new Map();
+for (let i = 0; i < 214; i++) toRadical.set(String.fromCodePoint(0x2f00 + i).normalize('NFKC'), i + 1);
+for (const r of radicalInfo) for (const v of r.variants) if (!toRadical.has(v.c)) toRadical.set(v.c, r.n);
+const componentCache = new Map();
+async function components(c, depth = 0) {
+  if ([...c].length !== 1 || depth > 6) return new Set();
+  if (componentCache.has(c)) return componentCache.get(c);
+  const result = new Set();
+  componentCache.set(c, result);
+  const file = new URL(c.codePointAt(0).toString(16).padStart(5, '0') + '.svg', CACHE);
+  if (!existsSync(file)) return result;
+  const svg = await readFile(file, 'utf8');
+  for (const m of svg.matchAll(/kvg:element="([^"]+)"(?:[^>]*?kvg:original="([^"]+)")?/g)) {
+    for (const x of [m[1], m[2]]) {
+      if (!x || x === c || [...x].length !== 1) continue;
+      result.add(x);
+      for (const y of await components(x, depth + 1)) result.add(y);
+    }
+  }
+  return result;
+}
+const radicalMembers = {};
+for (const k of out) {
+  const rads = new Set([k.rad]);
+  if (toRadical.has(k.c)) rads.add(toRadical.get(k.c));
+  for (const x of await components(k.c)) if (toRadical.has(x)) rads.add(toRadical.get(x));
+  for (const n of rads) radicalMembers[n] = (radicalMembers[n] ?? '') + k.c;
+}
+await writeFile(new URL('radical-members.json', GEN), JSON.stringify(radicalMembers));
+console.log(`Chữ chứa bộ thủ: trung bình ${(Object.values(radicalMembers).join('').length / out.length).toFixed(1)} bộ mỗi chữ`);
 console.log(`Thứ tự nét: ${Object.keys(strokes).length} chữ` + (missing.length ? `, thiếu: ${missing.join('')}` : ''));
 
 // ---------- Từ vựng ví dụ ----------

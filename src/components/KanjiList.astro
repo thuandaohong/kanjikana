@@ -4,8 +4,15 @@
 // để trang danh sách dài (N1 có hơn 1.200 chữ) không phải dựng gấp đôi số phần tử.
 import { type Kanji, LOCAL_READING_LABEL, kanjiCount, kanjiUrl, kunPlain, localReadings, meaningText, shortLabel } from '../data/kanji';
 import { getLang, pick } from '../i18n';
-interface Props { kanji: Kanji[]; showToggle?: boolean }
-const { kanji, showToggle = true } = Astro.props;
+interface Props {
+  kanji: Kanji[];
+  showToggle?: boolean;
+  /** Hiện nút sắp xếp theo tần suất / số nét / cấp JLPT (sắp xếp trên trình duyệt). */
+  sortable?: boolean;
+}
+const { kanji, showToggle = true, sortable = false } = Astro.props;
+// Khoá sắp xếp gắn vào từng ô: thứ tự gốc (tần suất), số nét, cấp JLPT (N5 trước, ngoài JLPT cuối).
+const sortData = (k: Kanji, i: number) => ({ 'data-i': i, 'data-s': k.strokes, 'data-j': k.jlpt ? 6 - k.jlpt : 9 });
 const lang = getLang(Astro);
 const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 // Cột âm đọc của người học: Hán Việt (vi), pinyin (zh), âm Hán-Hàn (ko); bản tiếng Anh không có.
@@ -14,7 +21,16 @@ const readingLabel = LOCAL_READING_LABEL[lang];
 <div class="kanji-list" data-view="grid">
   {showToggle && (
     <div class="mb-5 flex items-center justify-between gap-4">
-      <p class="text-sm text-fg-muted">{kanjiCount(kanji.length, lang)}</p>
+      <div class="flex flex-wrap items-center gap-3">
+        <p class="text-sm text-fg-muted">{kanjiCount(kanji.length, lang)}</p>
+        {sortable && (
+          <div class="inline-flex rounded-lg border border-line p-0.5 text-sm" role="group" aria-label={t('Sắp xếp', 'Sort', '排序', '정렬', 'Urutkan')}>
+            <button type="button" data-sort="i" aria-pressed="true" class="rounded-md px-3 py-1 aria-pressed:bg-bg-muted aria-pressed:font-semibold">{t('Tần suất', 'Frequency', '频率', '빈도', 'Frekuensi')}</button>
+            <button type="button" data-sort="s" class="rounded-md px-3 py-1 aria-pressed:bg-bg-muted aria-pressed:font-semibold">{t('Số nét', 'Strokes', '笔画', '획수', 'Goresan')}</button>
+            <button type="button" data-sort="j" class="rounded-md px-3 py-1 aria-pressed:bg-bg-muted aria-pressed:font-semibold">JLPT</button>
+          </div>
+        )}
+      </div>
       <div class="inline-flex rounded-lg border border-line p-0.5 text-sm" role="group" aria-label={t('Kiểu hiển thị', 'View', '显示方式', '보기 방식', 'Tampilan')}>
         <button type="button" data-set-view="grid" class="rounded-md px-3 py-1 aria-pressed:bg-bg-muted aria-pressed:font-semibold">{t('Lưới', 'Grid', '网格', '격자', 'Kisi')}</button>
         <button type="button" data-set-view="table" class="rounded-md px-3 py-1 aria-pressed:bg-bg-muted aria-pressed:font-semibold">{t('Bảng', 'Table', '表格', '표', 'Tabel')}</button>
@@ -23,8 +39,8 @@ const readingLabel = LOCAL_READING_LABEL[lang];
   )}
 
   <ul class="view-grid grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
-    {kanji.map((k) => (
-      <li>
+    {kanji.map((k, i) => (
+      <li {...sortData(k, i)}>
         <a
           href={kanjiUrl(k.c, lang)}
           title={meaningText(k, lang)}
@@ -52,8 +68,8 @@ const readingLabel = LOCAL_READING_LABEL[lang];
       <tbody></tbody>
     </table>
     <template>
-      {kanji.map((k) => (
-        <tr class="border-t border-line hover:bg-bg-muted/60">
+      {kanji.map((k, i) => (
+        <tr {...sortData(k, i)} class="border-t border-line hover:bg-bg-muted/60">
           <td class="px-4 py-2"><a href={kanjiUrl(k.c, lang)} lang="ja" class="font-jp text-2xl hover:text-brand">{k.c}</a></td>
           {readingLabel && <td class="px-4 py-2 font-semibold">{localReadings(k, lang)?.join(', ')}</td>}
           <td class="px-4 py-2 text-fg-muted">{meaningText(k, lang)}</td>
@@ -88,6 +104,20 @@ const readingLabel = LOCAL_READING_LABEL[lang];
       b.setAttribute('aria-pressed', String(b.dataset.setView === view)),
     );
   }
+  // Sắp xếp các ô (và các dòng bảng, kể cả dòng còn trong <template>) theo khoá đã chọn.
+  function sortList(list: HTMLElement, key: string) {
+    const byKey = (a: Element, b: Element) =>
+      Number((a as HTMLElement).dataset[key]) - Number((b as HTMLElement).dataset[key]) ||
+      Number((a as HTMLElement).dataset.i) - Number((b as HTMLElement).dataset.i);
+    for (const box of [list.querySelector('.view-grid'), list.querySelector('.view-table tbody'), list.querySelector<HTMLTemplateElement>('.view-table template')?.content]) {
+      if (box) box.append(...[...box.children].sort(byKey));
+    }
+    list.querySelectorAll<HTMLButtonElement>('[data-sort]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.sort === key)));
+  }
+  document.querySelectorAll<HTMLButtonElement>('[data-sort]').forEach((b) =>
+    b.addEventListener('click', () => sortList(b.closest('.kanji-list')!, b.dataset.sort!)),
+  );
+
   let saved = 'grid';
   try { saved = localStorage.getItem(KEY) || 'grid'; } catch {}
   apply(saved);
