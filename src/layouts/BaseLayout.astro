@@ -1,13 +1,36 @@
 ---
+// Font tự host (chia nhỏ theo unicode-range, trình duyệt chỉ tải phần cần dùng).
+import '@fontsource/be-vietnam-pro/vietnamese-400.css';
+import '@fontsource/be-vietnam-pro/latin-400.css';
+import '@fontsource/be-vietnam-pro/vietnamese-500.css';
+import '@fontsource/be-vietnam-pro/latin-500.css';
+import '@fontsource/be-vietnam-pro/vietnamese-600.css';
+import '@fontsource/be-vietnam-pro/latin-600.css';
+import '@fontsource/be-vietnam-pro/vietnamese-700.css';
+import '@fontsource/be-vietnam-pro/latin-700.css';
+import '@fontsource/noto-serif/vietnamese-700.css';
+import '@fontsource/noto-serif/latin-700.css';
+import '@fontsource/noto-serif-jp/400.css';
+import '@fontsource/noto-serif-jp/700.css';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE } from '../data/site';
+import { publicPath } from '../lib/text';
 
-interface Props { title?: string; description?: string }
-const { title, description = SITE.description } = Astro.props;
+interface Props {
+  title?: string;
+  description?: string;
+  /** Dữ liệu có cấu trúc (schema.org) cho trang này */
+  jsonLd?: Record<string, unknown>;
+  noindex?: boolean;
+}
+const { title, description = SITE.description, jsonLd, noindex = false } = Astro.props;
 const fullTitle = title ? `${title} – ${SITE.name}` : SITE.title;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const canonical = new URL(publicPath(Astro.url.pathname), Astro.site);
+const ogImage = new URL('/og.png', Astro.site);
+// Token của Cloudflare Web Analytics (tuỳ chọn), đặt trong biến môi trường khi build.
+const beaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
 ---
 <!doctype html>
 <html lang={SITE.lang}>
@@ -22,13 +45,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Serif:wght@600;700&family=Noto+Serif+JP:wght@400;700&display=swap"
-    />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#e11d2e" />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {beaconToken && (
+      <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: beaconToken })} />
+    )}
 
     <!-- Áp giao diện trước khi render để tránh nháy sáng/tối -->
     <script is:inline>

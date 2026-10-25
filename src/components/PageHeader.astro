@@ -1,8 +1,27 @@
 ---
+import { publicPath } from '../lib/text';
 interface Crumb { label: string; href?: string }
 interface Props { title: string; crumbs?: Crumb[]; lead?: string }
 const { title, crumbs = [], lead } = Astro.props;
+
+// Breadcrumb cho máy tìm kiếm; mục cuối (trang hiện tại) dùng URL của trang.
+const breadcrumbLd = crumbs.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [{ label: 'Trang chủ', href: '/' }, ...crumbs]
+        // Mục không có link (như "Công cụ") bị bỏ, trừ mục cuối là trang hiện tại.
+        .filter((c, i, all) => c.href || i === all.length - 1)
+        .map((c, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: c.label,
+          item: new URL(c.href ?? publicPath(Astro.url.pathname), Astro.site).href,
+        })),
+    }
+  : null;
 ---
+{breadcrumbLd && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />}
 <header class="border-b border-line">
   <div class="container-page py-10 md:py-14">
     {crumbs.length > 0 && (

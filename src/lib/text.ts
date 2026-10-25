@@ -60,3 +60,6 @@ export function toRomaji(input: string): string {
   }
   return out;
 }
+
+/** Đường dẫn công khai của trang: bỏ đuôi .html do build dạng file ("/a/b.html" → "/a/b"). */
+export const publicPath = (pathname: string) => pathname.replace(/(\/index)?\.html$/, '') || '/';

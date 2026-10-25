@@ -9,6 +9,7 @@ npm install
 npm run dev       # http://localhost:4321
 npm run build     # xuất ra thư mục dist/
 npm run preview   # xem bản build
+npm run preview:cf  # xem bản build bằng môi trường mô phỏng Cloudflare Pages (wrangler)
 ```
 
 ## Dữ liệu
@@ -41,12 +42,15 @@ scripts/              # build-data.mjs (dữ liệu), copy-kuromoji.mjs (chạy 
    - Framework preset: **Astro**
    - Build command: `npm run build`
    - Build output directory: `dist`
-   - Biến môi trường: `NODE_VERSION=22`
+   - Biến môi trường:
+     - `NODE_VERSION=22`
+     - `SITE_URL=https://ten-mien-cua-ban` (dùng cho canonical, sitemap, ảnh chia sẻ; mặc định `https://kanjiviet.pages.dev`)
+     - `PUBLIC_CF_BEACON_TOKEN=...` (tuỳ chọn, bật Cloudflare Web Analytics; lấy token ở Dashboard → Analytics & Logs → Web Analytics)
 4. Save and Deploy. Mỗi lần push lên `main` sẽ tự deploy, các nhánh khác có link preview riêng.
 
 Hoặc deploy thẳng từ máy: `npx wrangler pages deploy dist --project-name kanjiviet`.
 
-Sau khi có domain thật, sửa `site` trong `astro.config.mjs`.
+Site build dạng `/trang.html` nên Cloudflare phục vụ thẳng `/trang`, không phải chuyển hướng sang `/trang/`.
 
 ## Tiến độ
 
@@ -57,6 +61,6 @@ Sau khi có domain thật, sửa `site` trong `astro.config.mjs`.
 - [x] Giai đoạn 4: trang chi tiết kanji, hoạt ảnh thứ tự nét (KanjiVG), từ vựng ví dụ theo JLPT
 - [x] Giai đoạn 5: Hiragana / Katakana (phát âm bằng Web Speech API, thứ tự nét)
 - [x] Giai đoạn 6: tìm kanji, flashcards (lưu tiến độ trên trình duyệt), furigana (kuromoji chạy trên trình duyệt)
-- [ ] Giai đoạn 7: dịch (Pages Functions)
+- [ ] Giai đoạn 7: dịch (Pages Functions), tạm hoãn, đã gỡ khỏi menu
 - [ ] Giai đoạn 8: đa ngôn ngữ
-- [ ] Giai đoạn 9: SEO, sitemap, analytics
+- [x] Giai đoạn 9: sitemap, robots.txt, Open Graph, JSON-LD, font tự host, Lighthouse 95–100

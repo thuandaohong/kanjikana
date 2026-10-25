@@ -3,8 +3,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CardLink from '../components/CardLink.astro';
 import HeroGrid from '../components/HeroGrid.astro';
 import { JLPT_LEVELS, THEMES, byJlpt, jlptSlug } from '../data/kanji';
+import { SITE } from '../data/site';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.name,
+  url: new URL('/', Astro.site).href,
+  inLanguage: SITE.lang,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${new URL('/kanji/search', Astro.site).href}?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
+};
 ---
-<BaseLayout>
+<BaseLayout jsonLd={jsonLd}>
   <section class="relative overflow-hidden border-b border-line">
     <HeroGrid />
     <div class="container-page relative py-20 md:py-32">

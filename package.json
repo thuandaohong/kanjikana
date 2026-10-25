@@ -8,12 +8,16 @@
     "preview": "astro preview",
     "data": "node scripts/build-data.mjs",
     "predev": "node scripts/copy-kuromoji.mjs",
-    "prebuild": "node scripts/copy-kuromoji.mjs"
+    "prebuild": "node scripts/copy-kuromoji.mjs",
+    "preview:cf": "wrangler pages dev dist"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fontsource/be-vietnam-pro": "^5.3.0",
+    "@fontsource/noto-serif": "^5.3.0",
+    "@fontsource/noto-serif-jp": "^5.3.1",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.4.1",
     "kuromoji": "^0.1.2",
@@ -21,6 +25,8 @@
   },
   "type": "module",
   "devDependencies": {
-    "kanjidic2-json": "^0.1.0"
+    "@astrojs/sitemap": "^3.7.4",
+    "kanjidic2-json": "^0.1.0",
+    "wrangler": "^4.152.0"
   }
 }

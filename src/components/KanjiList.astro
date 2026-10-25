@@ -1,5 +1,7 @@
 ---
 // Danh sách kanji, xem dạng lưới hoặc bảng. Lựa chọn được nhớ cho mọi danh sách.
+// Các dòng của bảng nằm trong <template> và chỉ được dựng khi chuyển sang chế độ bảng,
+// để trang danh sách dài (N1 có hơn 1.200 chữ) không phải dựng gấp đôi số phần tử.
 import { type Kanji, hvText, kanjiUrl, kunPlain } from '../data/kanji';
 interface Props { kanji: Kanji[]; showToggle?: boolean }
 const { kanji, showToggle = true } = Astro.props;
@@ -42,19 +44,20 @@ const { kanji, showToggle = true } = Astro.props;
           <th class="px-4 py-2.5 text-right font-semibold">Nét</th>
         </tr>
       </thead>
-      <tbody>
-        {kanji.map((k) => (
-          <tr class="border-t border-line hover:bg-bg-muted/60">
-            <td class="px-4 py-2"><a href={kanjiUrl(k.c)} lang="ja" class="font-jp text-2xl hover:text-brand">{k.c}</a></td>
-            <td class="px-4 py-2 font-semibold">{hvText(k)}</td>
-            <td class="px-4 py-2 text-fg-muted">{k.en.slice(0, 3).join(', ')}</td>
-            <td class="px-4 py-2" lang="ja">{k.on.join('、')}</td>
-            <td class="px-4 py-2" lang="ja">{kunPlain(k).slice(0, 4).join('、')}</td>
-            <td class="px-4 py-2 text-right tabular-nums">{k.strokes}</td>
-          </tr>
-        ))}
-      </tbody>
+      <tbody></tbody>
     </table>
+    <template>
+      {kanji.map((k) => (
+        <tr class="border-t border-line hover:bg-bg-muted/60">
+          <td class="px-4 py-2"><a href={kanjiUrl(k.c)} lang="ja" class="font-jp text-2xl hover:text-brand">{k.c}</a></td>
+          <td class="px-4 py-2 font-semibold">{hvText(k)}</td>
+          <td class="px-4 py-2 text-fg-muted">{k.en.slice(0, 3).join(', ')}</td>
+          <td class="px-4 py-2" lang="ja">{k.on.join('、')}</td>
+          <td class="px-4 py-2" lang="ja">{kunPlain(k).slice(0, 4).join('、')}</td>
+          <td class="px-4 py-2 text-right tabular-nums">{k.strokes}</td>
+        </tr>
+      ))}
+    </template>
   </div>
 </div>
 
@@ -68,7 +71,14 @@ const { kanji, showToggle = true } = Astro.props;
 <script>
   const KEY = 'kanji-view';
   function apply(view: string) {
-    document.querySelectorAll<HTMLElement>('.kanji-list').forEach((el) => (el.dataset.view = view));
+    document.querySelectorAll<HTMLElement>('.kanji-list').forEach((el) => {
+      el.dataset.view = view;
+      const tpl = el.querySelector<HTMLTemplateElement>('.view-table template');
+      if (view === 'table' && tpl) {
+        el.querySelector('.view-table tbody')!.append(tpl.content);
+        tpl.remove();
+      }
+    });
     document.querySelectorAll<HTMLButtonElement>('[data-set-view]').forEach((b) =>
       b.setAttribute('aria-pressed', String(b.dataset.setView === view)),
     );

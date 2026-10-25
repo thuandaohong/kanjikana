@@ -52,13 +52,6 @@ export const NAV: NavMenu[] = [
     label: 'Công cụ',
     groups: [
       {
-        title: 'Dịch',
-        links: [
-          { label: 'Việt → Nhật', href: '/tools/translator/vi/ja' },
-          { label: 'Nhật → Việt', href: '/tools/translator/ja/vi' },
-        ],
-      },
-      {
         links: [
           { label: 'Tạo furigana', href: '/tools/furigana' },
           { label: 'Tìm kanji', href: '/kanji/search' },
@@ -90,7 +83,6 @@ export const FOOTER: { title: string; links: NavLink[] }[] = [
   {
     title: 'Công cụ',
     links: [
-      { label: 'Dịch', href: '/tools/translator/vi/ja' },
       { label: 'Furigana', href: '/tools/furigana' },
       { label: 'Tìm kanji', href: '/kanji/search' },
       { label: 'Flashcards', href: '/flashcards' },
