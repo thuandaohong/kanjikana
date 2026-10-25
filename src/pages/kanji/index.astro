@@ -1,152 +1,327 @@
 ---
 import ProseLayout from '../../layouts/ProseLayout.astro';
-import { JOYO } from '../../data/kanji';
+import { JINMEIYO, JOYO } from '../../data/kanji';
 import { getLang, linker } from '../../i18n';
 const lang = getLang(Astro);
 const l = linker(lang);
 ---
 {lang === 'en' ? (
-  <ProseLayout title="About kanji" description="What kanji are, on and kun readings, and how many kanji you need to learn.">
+  <ProseLayout title="About kanji" description="What kanji are, on and kun readings, components and radicals, stroke order, and how many kanji you need to learn.">
     <p>
-      Kanji (漢字) are the Chinese characters used in Japanese alongside the two kana syllabaries,{' '}
-      <a href={l('/hiragana')}>hiragana</a> and <a href={l('/katakana')}>katakana</a>. A typical Japanese sentence mixes
-      all three.
+      Kanji (漢字) are the characters of Chinese origin used in Japanese. They are written together with the two kana
+      scripts, <a href={l('/hiragana')}>hiragana</a> and <a href={l('/katakana')}>katakana</a>. In the sentence
+      私は日本語を勉強しています (“I am studying Japanese”), the kanji carry the meaning (私, 日本語, 勉強), hiragana
+      supplies grammar and word endings (は, を, しています), and katakana is mainly used for loanwords.
     </p>
 
     <h2>On and kun readings</h2>
     <p>
-      Most kanji have two kinds of readings. The <strong>on'yomi</strong> is derived from the original Chinese
-      pronunciation and is mostly used in compounds, such as 学生 (がくせい, student). The <strong>kun'yomi</strong> is the
-      native Japanese reading, used when the kanji stands alone or with okurigana, such as 学ぶ (まなぶ, to learn).
+      Most kanji have two kinds of readings. The <strong>on'yomi</strong> comes from the Chinese pronunciation at the
+      time the character was borrowed and is mostly used in compound words: 学生 (がくせい, student). The{' '}
+      <strong>kun'yomi</strong> is a native Japanese word attached to the character, used when the kanji stands alone or
+      is followed by okurigana, the kana that write the inflected ending: 学ぶ (まなぶ, to learn).
+    </p>
+    <p>
+      A kanji can have several on and kun readings, and the right one depends on the word. Some words are read as a whole
+      rather than character by character, such as 今日 (きょう, today) and 大人 (おとな, adult). That is why it pays to
+      learn each kanji through real words.
     </p>
 
-    <h2>Learning tips</h2>
+    <h2>Japanese character forms</h2>
     <p>
-      Kanji are built from a limited set of recurring components. Learning by <a href={l('/kanji/radicals')}>radical</a>
-      helps you guess meanings, and learning each kanji through the example words on its page – then reviewing with{' '}
-      <a href={l('/flashcards')}>flashcards</a> – works far better than memorising characters in isolation.
+      Japan simplified many characters after 1946. These forms (shinjitai) are not the same as traditional Chinese
+      characters or the simplified characters used in mainland China: 気, 駅 and 売 are written 氣, 驛, 賣 in traditional
+      Chinese and 气, 驿, 卖 in simplified Chinese. When you write Japanese, use the forms shown on this site.
+    </p>
+
+    <h2>Components and radicals</h2>
+    <p>
+      Most kanji are built from smaller, recurring components. Dictionaries file each kanji under one of the 214{' '}
+      <a href={l('/kanji/radicals')}>radicals</a>, which often hints at the meaning: characters with 氵 (water) include 海
+      (sea), 池 (pond) and 泳 (to swim). Another component often hints at the sound: 晴, 清, 請 and 精 all contain 青 and
+      are all read セイ. The same components also make some kanji look alike, so each kanji page lists look-alike kanji
+      to compare.
+    </p>
+
+    <h2>Stroke order</h2>
+    <p>
+      Each kanji is written with its strokes in a set order. The basic rules are top to bottom and left to right;
+      horizontal strokes usually come before vertical ones that cross them. Correct stroke order makes your handwriting
+      balanced and readable, and it also helps you look up kanji by handwriting input. Every kanji page shows an
+      animation of the stroke order.
     </p>
 
     <h2>How many kanji should I learn?</h2>
     <p>
-      The <a href={l('/kanji/all')}>jōyō kanji</a> list contains {JOYO.length} characters in common use, enough to read
-      newspapers and most everyday text. If you are studying for an exam, start with the{' '}
-      <a href={l('/kanji/jlpt')}>JLPT levels</a> from N5. You can also learn by{' '}
-      <a href={l('/kanji/radicals')}>radical</a> or <a href={l('/kanji/themes')}>theme</a>.
+      The <a href={l('/kanji/all')}>jōyō kanji</a> list contains {JOYO.length} characters in everyday use, enough to read
+      newspapers and most everyday text. A further {JINMEIYO.length} <a href={l('/kanji/jinmeiyo')}>name kanji</a> on
+      this site are mainly used in personal and place names.
     </p>
+    <p>
+      If you are preparing for an exam, start with the <a href={l('/kanji/jlpt')}>JLPT levels</a> from N5. The JLPT has
+      not published an official kanji list since 2010, so the levels here follow commonly used lists: roughly 80 kanji
+      for N5, 170 more for N4, and around 2,200 in total for N1. You can also study by{' '}
+      <a href={l('/kanji/kanken')}>Kanken level</a> or by <a href={l('/kanji/themes')}>theme</a>.
+    </p>
+
+    <h2>Learning tips</h2>
+    <ul>
+      <li>Learn each kanji through the example words on its page instead of memorising it on its own.</li>
+      <li>Review a little every day with <a href={l('/flashcards')}>flashcards</a>; regular review beats long sessions.</li>
+      <li>Write new kanji by hand a few times, following the stroke order.</li>
+      <li>Read example sentences aloud so readings stick in context.</li>
+    </ul>
   </ProseLayout>
 ) : lang === 'id' ? (
-  <ProseLayout title="Tentang kanji" description="Apa itu kanji, cara baca on dan kun, serta berapa banyak kanji yang perlu dipelajari.">
+  <ProseLayout title="Tentang kanji" description="Apa itu kanji, cara baca on dan kun, komponen dan radikal, urutan goresan, serta berapa banyak kanji yang perlu dipelajari.">
     <p>
-      Kanji (漢字) adalah huruf Tionghoa yang dipakai dalam bahasa Jepang bersama dua aksara kana,{' '}
-      <a href={l('/hiragana')}>hiragana</a> dan <a href={l('/katakana')}>katakana</a>. Kalimat bahasa Jepang biasanya
-      memadukan ketiganya.
+      Kanji (漢字) adalah huruf yang berasal dari Tiongkok dan dipakai dalam bahasa Jepang. Kanji ditulis bersama dua
+      aksara kana, <a href={l('/hiragana')}>hiragana</a> dan <a href={l('/katakana')}>katakana</a>. Dalam kalimat
+      私は日本語を勉強しています (“Saya sedang belajar bahasa Jepang”), kanji membawa makna (私, 日本語, 勉強), hiragana
+      menulis tata bahasa dan akhiran kata (は, を, しています), sedangkan katakana terutama dipakai untuk kata serapan.
     </p>
 
     <h2>Cara baca on dan kun</h2>
     <p>
-      Kebanyakan kanji punya dua jenis cara baca. <strong>On'yomi</strong> berasal dari pelafalan Tionghoa kuno dan
-      umumnya dipakai dalam kata majemuk, misalnya 学生 (がくせい, siswa). <strong>Kun'yomi</strong> adalah cara baca asli
-      Jepang, dipakai saat kanji berdiri sendiri atau diikuti okurigana, misalnya 学ぶ (まなぶ, belajar).
+      Kebanyakan kanji punya dua jenis cara baca. <strong>On'yomi</strong> berasal dari pelafalan Tionghoa pada saat huruf
+      itu dipinjam dan umumnya dipakai dalam kata majemuk: 学生 (がくせい, siswa). <strong>Kun'yomi</strong> adalah kata asli
+      Jepang yang dilekatkan pada huruf tersebut, dipakai saat kanji berdiri sendiri atau diikuti okurigana, yaitu kana
+      yang menulis akhiran berubah: 学ぶ (まなぶ, belajar).
+    </p>
+    <p>
+      Satu kanji bisa punya beberapa cara baca on dan kun, dan yang benar tergantung katanya. Ada juga kata yang dibaca
+      sebagai satu kesatuan, bukan per huruf, misalnya 今日 (きょう, hari ini) dan 大人 (おとな, orang dewasa). Karena itu,
+      sebaiknya pelajari setiap kanji lewat kata yang nyata.
     </p>
 
-    <h2>Tips untuk pelajar dari Indonesia</h2>
+    <h2>Bentuk huruf Jepang</h2>
     <p>
-      Kanji memang terlihat banyak, tetapi setiap kanji tersusun dari komponen yang berulang. Belajar per{' '}
-      <a href={l('/kanji/radicals')}>radikal</a> membantu menebak arti. Menghafal kanji lewat contoh kata di setiap halaman
-      kanji, lalu mengulanginya dengan <a href={l('/flashcards')}>flashcard</a>, jauh lebih efektif daripada menghafal satu
-      per satu.
+      Setelah tahun 1946, Jepang menyederhanakan banyak huruf. Bentuk ini (shinjitai) tidak sama dengan huruf Tionghoa
+      tradisional maupun huruf sederhana yang dipakai di Tiongkok daratan: 気, 駅, dan 売 ditulis 氣, 驛, 賣 dalam huruf
+      tradisional dan 气, 驿, 卖 dalam huruf sederhana. Saat menulis bahasa Jepang, gunakan bentuk yang ada di situs ini.
+    </p>
+
+    <h2>Komponen dan radikal</h2>
+    <p>
+      Kebanyakan kanji tersusun dari komponen kecil yang berulang. Kamus menggolongkan setiap kanji ke salah satu dari 214{' '}
+      <a href={l('/kanji/radicals')}>radikal</a>, yang sering memberi petunjuk arti: kanji dengan 氵 (air) antara lain 海
+      (laut), 池 (kolam), dan 泳 (berenang). Komponen lain sering memberi petunjuk bunyi: 晴, 清, 請, dan 精 sama-sama
+      mengandung 青 dan sama-sama dibaca セイ. Komponen yang sama juga membuat sebagian kanji terlihat mirip, jadi setiap
+      halaman kanji menampilkan kanji yang mirip untuk dibandingkan.
+    </p>
+
+    <h2>Urutan goresan</h2>
+    <p>
+      Setiap kanji ditulis dengan urutan goresan yang tetap. Aturan dasarnya dari atas ke bawah dan dari kiri ke kanan;
+      goresan mendatar biasanya ditulis sebelum goresan tegak yang memotongnya. Urutan yang benar membuat tulisan tangan
+      seimbang dan mudah dibaca, juga membantu saat mencari kanji dengan input tulisan tangan. Setiap halaman kanji
+      menampilkan animasi urutan goresannya.
     </p>
 
     <h2>Berapa banyak kanji yang perlu dipelajari?</h2>
     <p>
       Daftar <a href={l('/kanji/all')}>kanji jōyō</a> berisi {JOYO.length} huruf yang umum dipakai, cukup untuk membaca
-      koran dan sebagian besar teks sehari-hari. Kalau kamu belajar untuk ujian, mulailah dari{' '}
-      <a href={l('/kanji/jlpt')}>level JLPT</a> N5. Kamu juga bisa belajar per <a href={l('/kanji/themes')}>tema</a>.
+      koran dan sebagian besar teks sehari-hari. Selain itu, {JINMEIYO.length}{' '}
+      <a href={l('/kanji/jinmeiyo')}>kanji nama</a> di situs ini terutama dipakai untuk nama orang dan nama tempat.
     </p>
+    <p>
+      Kalau kamu belajar untuk ujian, mulailah dari <a href={l('/kanji/jlpt')}>level JLPT</a> N5. Sejak 2010 JLPT tidak
+      lagi menerbitkan daftar kanji resmi, jadi level di sini mengikuti daftar yang umum dipakai: sekitar 80 kanji untuk
+      N5, 170 kanji lagi untuk N4, dan sekitar 2.200 kanji secara total untuk N1. Kamu juga bisa belajar per{' '}
+      <a href={l('/kanji/kanken')}>level Kanken</a> atau per <a href={l('/kanji/themes')}>tema</a>.
+    </p>
+
+    <h2>Tips belajar</h2>
+    <ul>
+      <li>Pelajari setiap kanji lewat contoh kata di halamannya, jangan menghafal hurufnya saja.</li>
+      <li>Ulangi sedikit setiap hari dengan <a href={l('/flashcards')}>flashcard</a>; rutin lebih baik daripada lama.</li>
+      <li>Tulis kanji baru dengan tangan beberapa kali sesuai urutan goresan.</li>
+      <li>Baca contoh kalimat dengan suara keras agar cara bacanya melekat dalam konteks.</li>
+    </ul>
   </ProseLayout>
 ) : lang === 'zh' ? (
-  <ProseLayout title="关于日语汉字" description="日语汉字是什么、音读与训读，以及中文母语者学日语汉字要注意什么。">
+  <ProseLayout title="关于日语汉字" description="日语汉字是什么、音读与训读、部件与部首、笔顺，以及需要学多少汉字。">
     <p>
-      日语汉字（漢字）是日语中使用的汉字，与两套假名{' '}
-      <a href={l('/hiragana')}>平假名</a>和<a href={l('/katakana')}>片假名</a>一起使用。一句普通的日语通常同时包含这三种文字。
+      日语汉字（漢字）是日语中使用的源自中国的文字，与两套假名<a href={l('/hiragana')}>平假名</a>和
+      <a href={l('/katakana')}>片假名</a>一起书写。在句子“私は日本語を勉強しています”（我在学日语）中，汉字承载意思
+      （私、日本語、勉強），平假名表示语法和词尾（は、を、しています），片假名则主要用于外来语。
     </p>
 
     <h2>音读与训读</h2>
     <p>
-      大多数汉字有两类读法。<strong>音读</strong>源自古代汉语的发音，多用于复合词，例如 学生（がくせい）。
-      <strong>训读</strong>是日本固有的读法，多在汉字单用或带送假名时使用，例如 学ぶ（まなぶ，学习）。
+      大多数汉字有两类读法。<strong>音读</strong>来自汉字传入日本时的汉语发音，多用于复合词，例如 学生（がくせい，学生）。
+      <strong>训读</strong>是给汉字配上的日语固有词，多在汉字单用或后接送假名（书写词尾变化的假名）时使用，例如
+      学ぶ（まなぶ，学习）。
+    </p>
+    <p>
+      一个汉字可能有多个音读和训读，用哪个取决于具体的词。有些词是整体来读的，不能逐字拆开，例如 今日（きょう，今天）和
+      大人（おとな，成年人）。所以最好通过实际的词语来学每个汉字。
     </p>
 
-    <h2>中文母语者的优势与陷阱</h2>
+    <h2>日本的汉字字形</h2>
     <p>
-      你已经认识大部分汉字，很多词的意思一看就懂，音读也常与普通话读音相近：学 xué → ガク，生 shēng → セイ。但要注意：
-      日语使用的是“新字体”，和简体字不完全相同（例如 学、国 写法相同，但 気／气、駅／驿、売／卖 写法不同）；还有不少同形异义词，
-      例如 手紙 是“信”，勉強 是“学习”。本站每个汉字都标注拼音，帮助你建立读音联系。
+      日本在 1946 年后简化了许多汉字。这些字形（新字体）既不同于繁体字，也不同于中国大陆的简体字：気、駅、売 的繁体写作
+      氣、驛、賣，简体写作 气、驿、卖。书写日语时，请使用本站显示的字形。
+    </p>
+
+    <h2>部件与部首</h2>
+    <p>
+      大多数汉字由较小的、反复出现的部件组成。字典把每个汉字归入 214 个<a href={l('/kanji/radicals')}>部首</a>之一，
+      部首常提示字义：带 氵（水）的字有 海（海）、池（池塘）、泳（游泳）。另一个部件常提示读音：晴、清、請、精 都含有
+      青，音读都是 セイ。相同的部件也让一些汉字看起来很像，所以每个汉字页面都列出了形近字供比较。
+    </p>
+
+    <h2>笔顺</h2>
+    <p>
+      每个汉字都按固定的笔顺书写。基本规则是从上到下、从左到右，横画通常先于与它相交的竖画。正确的笔顺能让字写得匀称、
+      易读，也方便用手写输入查字。每个汉字页面都有笔顺动画。
     </p>
 
     <h2>应该学多少汉字？</h2>
     <p>
-      <a href={l('/kanji/all')}>常用汉字</a>表共有 {JOYO.length} 个字，足以阅读报纸和大部分日常文本。如果是为了考试，
-      可以从 <a href={l('/kanji/jlpt')}>JLPT</a> N5 开始，也可以按<a href={l('/kanji/radicals')}>部首</a>或
-      <a href={l('/kanji/themes')}>主题</a>学习。
+      <a href={l('/kanji/all')}>常用汉字</a>表共有 {JOYO.length} 个字，足以阅读报纸和大部分日常文本。此外，本站还收录了
+      {JINMEIYO.length} 个<a href={l('/kanji/jinmeiyo')}>人名用汉字</a>，主要用于人名和地名。
     </p>
+    <p>
+      如果是为了考试，可以从 <a href={l('/kanji/jlpt')}>JLPT</a> N5 开始。JLPT 自 2010 年起不再公布官方汉字表，
+      本站的级别依据常用的汉字表：N5 约 80 个字，N4 再加约 170 个，N1 总计约 2,200 个。也可以按
+      <a href={l('/kanji/kanken')}>汉检级别</a>或<a href={l('/kanji/themes')}>主题</a>学习。
+    </p>
+
+    <h2>学习建议</h2>
+    <ul>
+      <li>通过汉字页面上的例词来学，而不是孤立地记单个字。</li>
+      <li>每天用<a href={l('/flashcards')}>闪卡</a>复习一点；规律复习比一次学很久更有效。</li>
+      <li>按笔顺把新学的汉字手写几遍。</li>
+      <li>大声朗读例句，在语境中记住读音。</li>
+    </ul>
   </ProseLayout>
 ) : lang === 'ko' ? (
-  <ProseLayout title="일본 한자란" description="일본 한자의 음독과 훈독, 그리고 한국어 화자가 한자음을 활용하는 방법.">
+  <ProseLayout title="일본 한자란" description="일본 한자란 무엇인지, 음독과 훈독, 구성 요소와 부수, 획순, 그리고 배워야 할 한자 수.">
     <p>
-      일본어의 한자(漢字)는 두 가지 가나 문자인 <a href={l('/hiragana')}>히라가나</a>, <a href={l('/katakana')}>가타카나</a>와
-      함께 쓰입니다. 일반적인 일본어 문장에는 세 가지 문자가 모두 섞여 있습니다.
+      일본 한자(漢字)는 중국에서 들어와 일본어에 쓰이는 문자로, 두 가지 가나 문자인{' '}
+      <a href={l('/hiragana')}>히라가나</a>, <a href={l('/katakana')}>가타카나</a>와 함께 씁니다. 「私は日本語を勉強しています」
+      (저는 일본어를 공부하고 있습니다)라는 문장에서 한자는 뜻을 나타내고(私, 日本語, 勉強), 히라가나는 문법과 어미를
+      나타내며(は, を, しています), 가타카나는 주로 외래어에 쓰입니다.
     </p>
 
     <h2>음독과 훈독</h2>
     <p>
-      대부분의 한자에는 두 종류의 읽기가 있습니다. <strong>음독</strong>은 옛 중국어 발음에서 온 읽기로 주로 한자어에
-      쓰입니다(예: 学生 がくせい). <strong>훈독</strong>은 일본 고유어 읽기로, 한자가 단독으로 쓰이거나 오쿠리가나와 함께
-      쓰일 때 사용합니다(예: 学ぶ まなぶ, 배우다).
+      대부분의 한자에는 두 종류의 읽기가 있습니다. <strong>음독</strong>은 한자가 일본에 들어올 당시의 중국어 발음에서 온
+      읽기로, 주로 한자어에 쓰입니다(예: 学生 がくせい, 학생). <strong>훈독</strong>은 한자에 붙인 일본 고유어 읽기로,
+      한자가 단독으로 쓰이거나 오쿠리가나(활용 어미를 적는 가나)와 함께 쓰일 때 사용합니다(예: 学ぶ まなぶ, 배우다).
+    </p>
+    <p>
+      한 한자에 음독과 훈독이 여러 개 있을 수 있으며, 어떤 읽기를 쓰는지는 단어에 따라 다릅니다. 글자별로 읽지 않고
+      단어 전체로 읽는 경우도 있습니다(예: 今日 きょう, 오늘 / 大人 おとな, 어른). 그래서 한자는 실제 단어와 함께 익히는
+      것이 좋습니다.
     </p>
 
-    <h2>한국어 화자의 장점: 한자음</h2>
+    <h2>일본의 한자 자형</h2>
     <p>
-      한국어 어휘의 상당 부분이 한자어이기 때문에, 한자음을 알면 일본어 한자어의 뜻을 짐작하기 쉽습니다. 学은 <em>학</em>,
-      生은 <em>생</em>, 学生은 <em>학생</em>입니다. 한국 한자음과 일본어 음독은 같은 중국 고대음에서 왔기 때문에 규칙적인
-      대응이 많습니다(예: 받침 ㄱ → ク/キ, 学 학 → ガク). 이 사이트는 모든 한자에 한자음을 함께 표시합니다.
+      일본은 1946년 이후 많은 한자를 간략하게 바꾸었습니다. 이 자형(신자체)은 번체자와도, 중국 대륙의 간체자와도 다릅니다.
+      気, 駅, 売는 번체자로 氣, 驛, 賣, 간체자로 气, 驿, 卖라고 씁니다. 일본어를 쓸 때는 이 사이트에 나온 자형을
+      사용하세요.
+    </p>
+
+    <h2>구성 요소와 부수</h2>
+    <p>
+      대부분의 한자는 반복해서 나타나는 작은 구성 요소로 이루어져 있습니다. 사전은 모든 한자를 214개{' '}
+      <a href={l('/kanji/radicals')}>부수</a> 가운데 하나로 분류하며, 부수는 흔히 뜻을 암시합니다. 氵(물)이 들어간 한자로는
+      海(바다), 池(연못), 泳(헤엄치다)가 있습니다. 다른 구성 요소는 흔히 소리를 암시합니다. 晴, 清, 請, 精에는 모두 青이
+      들어 있고 음독이 모두 セイ입니다. 같은 구성 요소 때문에 모양이 비슷한 한자도 생기므로, 각 한자 페이지에서 모양이
+      비슷한 한자를 함께 비교할 수 있습니다.
+    </p>
+
+    <h2>획순</h2>
+    <p>
+      한자는 정해진 획순에 따라 씁니다. 기본 규칙은 위에서 아래로, 왼쪽에서 오른쪽으로이며, 가로획은 보통 그것과 교차하는
+      세로획보다 먼저 씁니다. 획순을 바르게 지키면 글씨가 균형 있고 읽기 쉬워지며, 필기 입력으로 한자를 찾을 때도
+      도움이 됩니다. 모든 한자 페이지에서 획순 애니메이션을 볼 수 있습니다.
     </p>
 
     <h2>한자는 몇 자나 배워야 하나요?</h2>
     <p>
-      <a href={l('/kanji/all')}>상용한자</a>는 {JOYO.length}자로, 신문과 대부분의 일상 글을 읽기에 충분합니다. 시험을
-      준비한다면 <a href={l('/kanji/jlpt')}>JLPT</a> N5부터 시작하세요. <a href={l('/kanji/radicals')}>부수</a>나{' '}
-      <a href={l('/kanji/themes')}>주제</a>별로 배울 수도 있습니다.
+      <a href={l('/kanji/all')}>상용한자</a>는 {JOYO.length}자로, 신문과 대부분의 일상 글을 읽기에 충분합니다. 이
+      사이트에는 주로 사람 이름과 지명에 쓰이는 <a href={l('/kanji/jinmeiyo')}>인명용 한자</a> {JINMEIYO.length}자도 있습니다.
     </p>
+    <p>
+      시험을 준비한다면 <a href={l('/kanji/jlpt')}>JLPT</a> N5부터 시작하세요. JLPT는 2010년부터 공식 한자 목록을 발표하지
+      않으므로, 이 사이트의 급수는 널리 쓰이는 목록을 따릅니다. N5는 약 80자, N4는 약 170자가 더해지며, N1까지는 모두
+      약 2,200자입니다. <a href={l('/kanji/kanken')}>한자검정 급수</a>나 <a href={l('/kanji/themes')}>주제</a>별로 배울
+      수도 있습니다.
+    </p>
+
+    <h2>공부 요령</h2>
+    <ul>
+      <li>한자만 따로 외우기보다 각 한자 페이지의 예시 단어와 함께 익히세요.</li>
+      <li><a href={l('/flashcards')}>플래시카드</a>로 매일 조금씩 복습하세요. 한 번에 오래 하는 것보다 꾸준함이 중요합니다.</li>
+      <li>새 한자는 획순에 맞춰 손으로 몇 번 써 보세요.</li>
+      <li>예문을 소리 내어 읽으며 문맥 속에서 읽기를 익히세요.</li>
+    </ul>
   </ProseLayout>
 ) : (
-  <ProseLayout title="Giới thiệu về kanji" description="Kanji là gì, âm On, âm Kun và vì sao âm Hán Việt giúp người Việt học kanji nhanh hơn.">
+  <ProseLayout title="Giới thiệu về kanji" description="Kanji là gì, âm On và âm Kun, thành phần và bộ thủ, thứ tự nét, và cần học bao nhiêu kanji.">
     <p>
-      Kanji (漢字 – Hán tự) là chữ Hán được người Nhật dùng cùng với hai bảng chữ kana là{' '}
-      <a href={l('/hiragana')}>hiragana</a> và <a href={l('/katakana')}>katakana</a>. Một câu tiếng Nhật thường kết hợp
-      cả ba loại chữ này.
+      Kanji (漢字) là loại chữ có nguồn gốc từ Trung Quốc được dùng trong tiếng Nhật, viết cùng với hai bảng chữ kana là{' '}
+      <a href={l('/hiragana')}>hiragana</a> và <a href={l('/katakana')}>katakana</a>. Trong câu 私は日本語を勉強しています
+      (“Tôi đang học tiếng Nhật”), kanji mang nghĩa của câu (私, 日本語, 勉強), hiragana thể hiện ngữ pháp và đuôi từ (は,
+      を, しています), còn katakana chủ yếu dùng cho từ mượn.
     </p>
 
     <h2>Âm On và âm Kun</h2>
     <p>
-      Mỗi kanji thường có hai kiểu đọc. <strong>Onyomi</strong> (âm On) là cách đọc gốc Hán, thường dùng trong từ ghép,
-      ví dụ 学生 (がくせい). <strong>Kunyomi</strong> (âm Kun) là cách đọc thuần Nhật, thường dùng khi chữ đứng một mình
-      hoặc đi kèm okurigana, ví dụ 学ぶ (まなぶ).
+      Phần lớn kanji có hai kiểu đọc. <strong>Onyomi</strong> (âm On) bắt nguồn từ cách phát âm tiếng Trung vào thời chữ đó
+      được du nhập, thường dùng trong từ ghép: 学生 (がくせい, học sinh). <strong>Kunyomi</strong> (âm Kun) là từ thuần Nhật
+      được gán cho chữ đó, thường dùng khi chữ đứng một mình hoặc đi kèm okurigana, tức phần kana viết đuôi biến đổi:
+      学ぶ (まなぶ, học).
+    </p>
+    <p>
+      Một kanji có thể có nhiều âm On và âm Kun, đọc theo âm nào là tuỳ từng từ. Có những từ đọc theo cả cụm chứ không đọc
+      từng chữ, như 今日 (きょう, hôm nay) và 大人 (おとな, người lớn). Vì vậy nên học mỗi kanji qua các từ thật.
     </p>
 
-    <h2>Lợi thế của người Việt: âm Hán Việt</h2>
+    <h2>Tự dạng của Nhật</h2>
     <p>
-      Tiếng Việt có khoảng 60% từ gốc Hán, nên rất nhiều kanji có âm Hán Việt quen thuộc: 学 là <em>Học</em>, 生 là{' '}
-      <em>Sinh</em>, 学生 là <em>Học sinh</em>. Âm Hán Việt giúp đoán nghĩa của từ ghép và ghi nhớ âm On dễ hơn, vì hai
-      âm này cùng bắt nguồn từ cách đọc chữ Hán cổ.
+      Sau năm 1946, Nhật Bản đã giản lược nhiều chữ. Các tự dạng này (shinjitai) khác với chữ phồn thể lẫn chữ giản thể dùng
+      ở Trung Quốc đại lục: 気, 駅, 売 trong chữ phồn thể viết là 氣, 驛, 賣, còn giản thể là 气, 驿, 卖. Khi viết tiếng
+      Nhật, hãy dùng tự dạng như trên site này.
+    </p>
+
+    <h2>Thành phần và bộ thủ</h2>
+    <p>
+      Phần lớn kanji được ghép từ những thành phần nhỏ lặp lại. Từ điển xếp mỗi kanji vào một trong 214{' '}
+      <a href={l('/kanji/radicals')}>bộ thủ</a>, và bộ thủ thường gợi ý nghĩa: các chữ có bộ 氵 (nước) gồm 海 (biển), 池
+      (ao) và 泳 (bơi). Một thành phần khác thường gợi ý âm đọc: 晴, 清, 請 và 精 đều chứa 青 và đều đọc là セイ. Cũng vì
+      chung thành phần mà nhiều kanji trông giống nhau, nên trang của mỗi kanji có liệt kê các chữ trông giống để so sánh.
+    </p>
+
+    <h2>Thứ tự nét</h2>
+    <p>
+      Mỗi kanji được viết theo một thứ tự nét cố định. Quy tắc cơ bản là trên trước dưới sau, trái trước phải sau; nét ngang
+      thường viết trước nét dọc cắt qua nó. Viết đúng thứ tự nét giúp chữ cân đối, dễ đọc, và cũng giúp tra chữ bằng cách
+      viết tay. Trang của mỗi kanji đều có hoạt ảnh thứ tự nét.
     </p>
 
     <h2>Nên học bao nhiêu kanji?</h2>
     <p>
       Bảng <a href={l('/kanji/all')}>jōyō kanji</a> gồm {JOYO.length} chữ thường dùng, đủ để đọc báo chí và phần lớn văn
-      bản hằng ngày. Nếu học để thi, hãy bắt đầu theo <a href={l('/kanji/jlpt')}>cấp JLPT</a> từ N5. Bạn cũng có thể học
-      theo <a href={l('/kanji/radicals')}>bộ thủ</a> hoặc <a href={l('/kanji/themes')}>chủ đề</a>.
+      bản hằng ngày. Ngoài ra site còn có {JINMEIYO.length} <a href={l('/kanji/jinmeiyo')}>chữ nhân danh</a>, chủ yếu dùng
+      trong tên người và địa danh.
     </p>
+    <p>
+      Nếu học để thi, hãy bắt đầu theo <a href={l('/kanji/jlpt')}>cấp JLPT</a> từ N5. Từ năm 2010 JLPT không còn công bố
+      danh sách kanji chính thức, nên các cấp trên site theo danh sách được dùng phổ biến: khoảng 80 chữ cho N5, thêm khoảng
+      170 chữ cho N4, và tổng cộng khoảng 2.200 chữ cho N1. Bạn cũng có thể học theo{' '}
+      <a href={l('/kanji/kanken')}>cấp Kanken</a> hoặc theo <a href={l('/kanji/themes')}>chủ đề</a>.
+    </p>
+
+    <h2>Mẹo học</h2>
+    <ul>
+      <li>Học mỗi kanji qua các từ ví dụ trên trang của nó thay vì học thuộc riêng từng chữ.</li>
+      <li>Ôn một ít mỗi ngày bằng <a href={l('/flashcards')}>flashcards</a>; ôn đều đặn hiệu quả hơn học dồn.</li>
+      <li>Viết tay chữ mới vài lần theo đúng thứ tự nét.</li>
+      <li>Đọc to câu ví dụ để nhớ cách đọc trong ngữ cảnh.</li>
+    </ul>
   </ProseLayout>
 )}

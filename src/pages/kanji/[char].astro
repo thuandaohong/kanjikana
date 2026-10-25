@@ -236,11 +236,9 @@ const jsonLd = {
                   })}
                 </p>
                 <p lang={tr.fallback ? 'en' : HTML_LANGS[lang]} class="mt-1">{tr.text}</p>
-                {(tr.ai || tr.fallback) && (
+                {tr.fallback && (
                   <p class="mt-2 text-xs text-fg-muted">
-                    {tr.ai
-                      ? t('Bản dịch có hỗ trợ AI', 'AI-assisted translation', '译文由 AI 辅助', 'AI 도움 번역', 'Terjemahan dibantu AI')
-                      : t('Chưa có bản dịch tiếng Việt', '', '暂无中文译文', '아직 한국어 번역이 없습니다', 'Belum ada terjemahan bahasa Indonesia')}
+                    {t('Chưa có bản dịch tiếng Việt', '', '暂无中文译文', '아직 한국어 번역이 없습니다', 'Belum ada terjemahan bahasa Indonesia')}
                   </p>
                 )}
               </li>
