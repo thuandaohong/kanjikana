@@ -1,5 +1,7 @@
 import raw from './generated/kanji.json';
 import themesRaw from './themes.json';
+import strokesRaw from './generated/strokes.json';
+import vocabRaw from './generated/vocab.json';
 
 export type Kanji = {
   c: string;
@@ -93,3 +95,11 @@ export const hvText = (k: Kanji) => k.hv.join(', ');
 /** KANJIDIC2 dùng "." để tách okurigana (た.べる). Bỏ dấu chấm và các bản trùng. */
 export const kunPlain = (k: Kanji) => [...new Set(k.kun.map((r) => r.replace('.', '')))];
 export const kanjiUrl = (c: string) => `/kanji/${c}`;
+
+// ---------- Thứ tự nét & từ vựng ----------
+/** Path SVG của từng nét (khung 109×109, KanjiVG) */
+export const STROKES = strokesRaw as Record<string, string[]>;
+
+/** [từ, cách đọc, nghĩa tiếng Anh, cấp JLPT] */
+export type Word = [string, string, string, number];
+export const VOCAB = vocabRaw as unknown as Record<string, Word[]>;

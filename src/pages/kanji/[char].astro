@@ -2,7 +2,9 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import KanjiList from '../../components/KanjiList.astro';
-import { ALL, GRADE_LABELS, KANKEN, RADICALS, THEMES, hvText, jlptSlug, kanjiUrl, type Kanji } from '../../data/kanji';
+import StrokeOrder from '../../components/StrokeOrder.astro';
+import StrokeSteps from '../../components/StrokeSteps.astro';
+import { ALL, GRADE_LABELS, KANKEN, RADICALS, STROKES, THEMES, VOCAB, hvText, jlptSlug, kanjiUrl, type Kanji } from '../../data/kanji';
 
 export function getStaticPaths() {
   return ALL.map((k) => ({ params: { char: k.c }, props: { k } }));
@@ -20,6 +22,8 @@ const prev = siblings[idx - 1];
 const next = siblings[idx + 1];
 const sameRadical = radical.kanji.filter((x) => x.c !== k.c).slice(0, 24);
 
+const paths = STROKES[k.c] ?? [];
+const words = VOCAB[k.c] ?? [];
 const hv = hvText(k);
 // Giữ dấu "." để tô màu phần okurigana, nhưng bỏ các cách đọc trùng khi hiển thị.
 const kun = k.kun.filter((r, i) => k.kun.findIndex((x) => x.replace('.', '') === r.replace('.', '')) === i);
@@ -48,9 +52,13 @@ const facts: [string, string, string?][] = [
 
   <section class="container-page grid gap-10 py-10 md:grid-cols-[16rem_1fr]">
     <div>
-      <div class="kanji-box relative mx-auto grid aspect-square w-full max-w-60 md:max-w-none place-items-center rounded-2xl border border-line bg-surface">
-        <span lang="ja" class="font-jp text-[9rem] leading-none">{k.c}</span>
-      </div>
+      {paths.length > 0 ? (
+        <StrokeOrder char={k.c} paths={paths} />
+      ) : (
+        <div class="kanji-box relative mx-auto grid aspect-square w-full max-w-60 place-items-center rounded-2xl border border-line bg-surface md:max-w-none">
+          <span lang="ja" class="font-jp text-[9rem] leading-none">{k.c}</span>
+        </div>
+      )}
       <nav class="mx-auto mt-4 flex max-w-60 justify-between text-sm md:max-w-none" aria-label="Kanji trước và sau">
         {prev ? <a href={kanjiUrl(prev.c)} class="link-underline">← <span lang="ja">{prev.c}</span></a> : <span />}
         {next && <a href={kanjiUrl(next.c)} class="link-underline"><span lang="ja">{next.c}</span> →</a>}
@@ -109,6 +117,37 @@ const facts: [string, string, string?][] = [
       )}
     </div>
   </section>
+
+  {paths.length > 0 && (
+    <section class="border-t border-dashed border-line">
+      <div class="container-page py-10">
+        <h2 class="mb-6 text-xl font-bold">Thứ tự nét</h2>
+        <StrokeSteps char={k.c} count={paths.length} />
+      </div>
+    </section>
+  )}
+
+  {words.length > 0 && (
+    <section class="border-t border-dashed border-line">
+      <div class="container-page py-10">
+        <h2 class="mb-6 text-xl font-bold">Từ vựng chứa <span lang="ja">{k.c}</span></h2>
+        <ul class="grid gap-3 sm:grid-cols-2">
+          {words.map(([word, reading, gloss, level]) => (
+            <li class="flex items-start gap-4 rounded-xl border border-line bg-surface px-4 py-3">
+              <div class="min-w-0 flex-1">
+                <p lang="ja" class="font-jp text-xl">
+                  {[...word].map((ch) => (ch === k.c ? <span class="text-brand">{ch}</span> : ch))}
+                </p>
+                <p lang="ja" class="text-sm text-fg-muted">{reading}</p>
+                <p class="mt-1 text-sm">{gloss}</p>
+              </div>
+              <a href={`/kanji/jlpt/${jlptSlug(level)}`} class="shrink-0 rounded-full bg-bg-muted px-2 py-0.5 text-xs font-semibold text-fg-muted hover:text-brand">N{level}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
 
   {sameRadical.length > 0 && (
     <section class="border-t border-dashed border-line">

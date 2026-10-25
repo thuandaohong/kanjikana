@@ -23,7 +23,7 @@ src/
   data/site.ts        # tên site, menu, footer: đổi thương hiệu ở đây
   data/kanji.ts       # truy vấn kanji: JLPT, Kanken, 214 bộ thủ, chủ đề
   data/themes.json    # danh sách kanji theo chủ đề (tự soạn)
-  data/generated/     # kanji.json do scripts/build-data.mjs tạo ra
+  data/generated/     # kanji.json, strokes.json, vocab.json do scripts/build-data.mjs tạo ra
   styles/global.css   # design tokens (màu sáng/tối, font)
   layouts/            # BaseLayout (head, header, footer), ProseLayout
   components/         # Header, Footer, ThemeToggle, SearchBox, HeroGrid, ...
@@ -50,9 +50,9 @@ Sau khi có domain thật, sửa `site` trong `astro.config.mjs`.
 
 - [x] Giai đoạn 0: khởi tạo dự án, design tokens, dark mode
 - [x] Giai đoạn 1: header (dropdown, tìm kiếm, đổi giao diện, menu mobile), footer, trang chủ, About, Credits, 404
-- [x] Giai đoạn 2: pipeline dữ liệu (KANJIDIC2 + JLPT). KanjiVG và JMdict làm ở giai đoạn 4
+- [x] Giai đoạn 2: pipeline dữ liệu (KANJIDIC2, JLPT, KanjiVG, từ vựng)
 - [x] Giai đoạn 3: danh sách kanji (JLPT, jōyō, Kanken, bộ thủ, chủ đề)
-- [~] Giai đoạn 4: trang chi tiết kanji (đã có bản cơ bản, còn thiếu thứ tự nét và từ vựng ví dụ)
+- [x] Giai đoạn 4: trang chi tiết kanji, hoạt ảnh thứ tự nét (KanjiVG), từ vựng ví dụ theo JLPT
 - [ ] Giai đoạn 5: Hiragana / Katakana
 - [ ] Giai đoạn 6: tìm kanji, flashcards, furigana
 - [ ] Giai đoạn 7: dịch (Pages Functions)
