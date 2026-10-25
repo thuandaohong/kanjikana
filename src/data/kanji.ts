@@ -291,3 +291,10 @@ export function sentenceTranslation(s: Sentence, lang: Lang): { text: string; ai
   }
   return { text: s.t.en ?? '', ai: false, fallback: lang !== 'en' };
 }
+
+/**
+ * Trang kanji "mỏng": không có từ vựng ví dụ lẫn câu ví dụ, chỉ có nghĩa, cách đọc, thứ tự nét.
+ * Các trang này đặt noindex và không đưa vào sitemap (giữ khớp với astro.config.mjs) để Google
+ * không đánh giá cả site là ít nội dung; khi chữ có thêm từ vựng hoặc câu ví dụ thì tự được index.
+ */
+export const isThinKanji = (c: string) => !VOCAB[c]?.length && !SENTENCES[c]?.length;

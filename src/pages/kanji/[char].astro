@@ -5,7 +5,7 @@ import KanjiList from '../../components/KanjiList.astro';
 import StrokeOrder from '../../components/StrokeOrder.astro';
 import StrokeSteps from '../../components/StrokeSteps.astro';
 import AdSlot from '../../components/AdSlot.astro';
-import { ALL, KANKEN, RADICALS, STROKES, THEMES, VOCAB, gradeLabel, hvText, jlptSlug, kanjiUrl, localMeaning, meaningText, radicalName, SENTENCES, sentenceTranslation, wordMeaning, type Kanji } from '../../data/kanji';
+import { ALL, KANKEN, RADICALS, STROKES, THEMES, VOCAB, gradeLabel, hvText, jlptSlug, kanjiUrl, isThinKanji, localMeaning, meaningText, radicalName, SENTENCES, sentenceTranslation, wordMeaning, type Kanji } from '../../data/kanji';
 import { HTML_LANGS } from '../../i18n';
 import { getLang, linker, pick } from '../../i18n';
 
@@ -51,6 +51,7 @@ const facts: [string, string, string?][] = [
 ];
 ---
 <BaseLayout
+  noindex={isThinKanji(k.c)}
   title={t(`${k.c} – ${hv || meaning}`, `${k.c} – ${k.en.slice(0, 3).join(', ') || k.on[0] || ''}`, `${k.c} – ${py || meaning}`, `${k.c} – ${ko || meaning}`, `${k.c} – ${meaningText(k, lang) || k.on[0] || ''}`)}
   description={t(
     `Kanji ${k.c}${hv ? ` (Hán Việt: ${hv})` : ''}: ${meaning}. Onyomi ${k.on.join('、') || '—'}, kunyomi ${k.kun.join('、') || '—'}, ${k.strokes} nét.`,

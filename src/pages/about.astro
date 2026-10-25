@@ -16,6 +16,16 @@ const lang = getLang(Astro);
       <li>Hiragana and katakana charts.</li>
       <li>Kanji search, a furigana generator and flashcards.</li>
     </ul>
+      <h2>About me</h2>
+    <p>
+      I'm Đào Hồng Thuận. I'm Vietnamese and have lived and worked in Japan for more than ten years. Kanji was the biggest wall I hit when I
+      started learning Japanese, and over the years I've watched friends and colleagues struggle with the same thing.
+      I'm also an app developer, and I've built Android apps for learning Japanese, including JLPT practice apps.
+    </p>
+    <p>
+      I made {SITE.name} so that anyone who wants to learn Japanese can get clear, accurate kanji resources for free, in
+      their own language. If you spot a mistake or have an idea for the site, please email me at <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>.
+    </p>
   </ProseLayout>
 ) : lang === 'id' ? (
   <ProseLayout title="Tentang">
@@ -30,6 +40,17 @@ const lang = getLang(Astro);
       <li>Pencarian kanji, pembuat furigana, dan flashcard.</li>
     </ul>
     <p>Arti kanji diterjemahkan dengan bantuan AI dari arti bahasa Inggris di kamus sumber terbuka KANJIDIC2, begitu juga arti contoh kata, jadi mungkin ada yang kurang tepat.</p>
+      <h2>Tentang saya</h2>
+    <p>
+      Saya Đào Hồng Thuận, orang Vietnam yang sudah lebih dari sepuluh tahun tinggal dan bekerja di Jepang. Saat mulai belajar bahasa
+      Jepang, kanji adalah tantangan terbesar bagi saya, dan selama bertahun-tahun saya melihat teman dan rekan kerja
+      menghadapi kesulitan yang sama. Saya juga pengembang aplikasi dan telah membuat aplikasi Android untuk belajar bahasa
+      Jepang, termasuk aplikasi latihan JLPT.
+    </p>
+    <p>
+      Saya membuat {SITE.name} agar siapa pun yang ingin belajar bahasa Jepang bisa mendapatkan materi kanji yang jelas,
+      akurat, dan gratis dalam bahasanya sendiri. Jika menemukan kesalahan atau punya saran, kirim email ke <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>.
+    </p>
   </ProseLayout>
 ) : lang === 'zh' ? (
   <ProseLayout title="关于本站">
@@ -44,6 +65,14 @@ const lang = getLang(Astro);
       <li>汉字搜索、假名注音生成器和闪卡。</li>
     </ul>
     <p>汉字释义由开源词典 KANJIDIC2 的英文释义翻译而来（AI 辅助），例词释义也同样翻译而来，可能有不准确之处。</p>
+      <h2>关于我</h2>
+    <p>
+      我叫 Đào Hồng Thuận，是越南人，在日本生活和工作已经十多年了。刚开始学日语时，汉字是我遇到的最大难关，这些年来我也看到身边的朋友和同事被同样的问题困扰。
+      我同时是一名应用开发者，开发过学习日语的安卓应用，其中包括 JLPT 备考应用。
+    </p>
+    <p>
+      我制作 {SITE.name}，是希望每一个想学日语的人都能免费获得清楚、准确、并且用自己母语讲解的汉字资料。如果你发现错误或有任何建议，欢迎发邮件到 <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>。
+    </p>
   </ProseLayout>
 ) : lang === 'ko' ? (
   <ProseLayout title="소개">
@@ -58,6 +87,15 @@ const lang = getLang(Astro);
       <li>한자 검색, 후리가나 생성기, 플래시카드.</li>
     </ul>
     <p>한자의 뜻은 오픈 소스 사전 KANJIDIC2의 영어 뜻을 AI의 도움으로 번역한 것이라 부정확한 부분이 있을 수 있습니다. 예시 단어의 뜻도 같은 방식으로 번역했습니다.</p>
+      <h2>만든 사람</h2>
+    <p>
+      저는 Đào Hồng Thuận이라고 합니다. 일본에서 10년 넘게 살며 일하고 있는 베트남 사람입니다. 일본어를 처음 배울 때 가장 큰 벽은 한자였고, 그동안 주변 친구와 동료들도 같은
+      어려움을 겪는 모습을 많이 보았습니다. 저는 앱 개발자이기도 하며, JLPT 대비 앱을 비롯해 일본어 학습용 안드로이드 앱을 만들어 왔습니다.
+    </p>
+    <p>
+      {SITE.name}은 일본어를 배우고 싶은 누구나 자신의 언어로 된 정확하고 알기 쉬운 한자 자료를 무료로 볼 수 있도록 만들었습니다. 잘못된 부분을
+      발견하거나 제안이 있으면 <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>로 메일을 보내 주세요.
+    </p>
   </ProseLayout>
 ) : (
   <ProseLayout title="Giới thiệu">
@@ -71,5 +109,15 @@ const lang = getLang(Astro);
       <li>Bảng Hiragana và Katakana.</li>
       <li>Công cụ tìm kanji, tạo furigana và flashcards.</li>
     </ul>
+      <h2>Về người làm site</h2>
+    <p>
+      Tôi là Đào Hồng Thuận, người Việt, đã sống và làm việc ở Nhật Bản hơn 10 năm. Hồi mới học tiếng Nhật, kanji là bức tường lớn nhất
+      với tôi, và suốt những năm qua tôi cũng thấy bạn bè, đồng nghiệp gặp đúng khó khăn đó. Tôi là một lập trình viên làm
+      ứng dụng, và đã làm một số ứng dụng Android học tiếng Nhật, trong đó có ứng dụng luyện thi JLPT.
+    </p>
+    <p>
+      Tôi làm {SITE.name} với mong muốn đưa kiến thức kanji đến với tất cả mọi người: miễn phí, rõ ràng, chính xác và
+      bằng chính ngôn ngữ của người học. Nếu bạn thấy chỗ nào sai hoặc có góp ý, hãy gửi email cho tôi qua <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>.
+    </p>
   </ProseLayout>
 )}

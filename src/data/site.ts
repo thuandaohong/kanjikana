@@ -4,7 +4,7 @@ import { type Lang, linker, pick } from '../i18n';
 export const SITE = {
   name: 'kanjiba',
   /** Email liên hệ hiện ở trang Chính sách quyền riêng tư; để trống thì ẩn mục liên hệ. */
-  contactEmail: '',
+  contactEmail: 'thuandao93haiduong@gmail.com',
   nameParts: ['kanji', 'ba'] as const,
   title: {
     vi: 'Kanjiba – Học kanji dễ hơn',
