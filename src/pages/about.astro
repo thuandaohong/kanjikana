@@ -1,16 +1,34 @@
 ---
 import ProseLayout from '../layouts/ProseLayout.astro';
 import { SITE } from '../data/site';
+import { getLang } from '../i18n';
+const lang = getLang(Astro);
 ---
-<ProseLayout title="Giới thiệu">
-  <p>
-    {SITE.name} là bộ danh sách và công cụ miễn phí giúp người Việt học kanji và từ vựng tiếng Nhật,
-    từ người mới bắt đầu đến người luyện thi JLPT N1.
-  </p>
-  <h2>Có gì ở đây?</h2>
-  <ul>
-    <li>Danh sách kanji theo cấp JLPT, Kanken, bộ thủ và chủ đề.</li>
-    <li>Bảng Hiragana và Katakana.</li>
-    <li>Công cụ tìm kanji, tạo furigana và flashcards.</li>
-  </ul>
-</ProseLayout>
+{lang === 'en' ? (
+  <ProseLayout title="About">
+    <p>
+      {SITE.name} is a free collection of kanji lists and tools for learners of Japanese, from complete beginners to
+      JLPT N1. It is made primarily for Vietnamese speakers, so every kanji also shows its Sino-Vietnamese (Hán Việt)
+      reading.
+    </p>
+    <h2>What's here?</h2>
+    <ul>
+      <li>Kanji lists by JLPT level, Kanken level, radical and theme.</li>
+      <li>Hiragana and katakana charts.</li>
+      <li>Kanji search, a furigana generator and flashcards.</li>
+    </ul>
+  </ProseLayout>
+) : (
+  <ProseLayout title="Giới thiệu">
+    <p>
+      {SITE.name} là bộ danh sách và công cụ miễn phí giúp người Việt học kanji và từ vựng tiếng Nhật, từ người mới bắt
+      đầu đến người luyện thi JLPT N1.
+    </p>
+    <h2>Có gì ở đây?</h2>
+    <ul>
+      <li>Danh sách kanji theo cấp JLPT, Kanken, bộ thủ và chủ đề.</li>
+      <li>Bảng Hiragana và Katakana.</li>
+      <li>Công cụ tìm kanji, tạo furigana và flashcards.</li>
+    </ul>
+  </ProseLayout>
+)}

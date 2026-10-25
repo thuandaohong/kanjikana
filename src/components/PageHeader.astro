@@ -1,15 +1,18 @@
 ---
 import { publicPath } from '../lib/text';
+import { getLang, localize, pick } from '../i18n';
 interface Crumb { label: string; href?: string }
 interface Props { title: string; crumbs?: Crumb[]; lead?: string }
 const { title, crumbs = [], lead } = Astro.props;
+const lang = getLang(Astro);
+const home = { label: pick(lang, { vi: 'Trang chủ', en: 'Home' }), href: localize('/', lang) };
 
 // Breadcrumb cho máy tìm kiếm; mục cuối (trang hiện tại) dùng URL của trang.
 const breadcrumbLd = crumbs.length
   ? {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
-      itemListElement: [{ label: 'Trang chủ', href: '/' }, ...crumbs]
+      itemListElement: [home, ...crumbs]
         // Mục không có link (như "Công cụ") bị bỏ, trừ mục cuối là trang hiện tại.
         .filter((c, i, all) => c.href || i === all.length - 1)
         .map((c, i) => ({
@@ -27,7 +30,7 @@ const breadcrumbLd = crumbs.length
     {crumbs.length > 0 && (
       <nav aria-label="Breadcrumb" class="mb-4 text-sm text-fg-muted">
         <ol class="flex flex-wrap items-center gap-1.5">
-          <li><a href="/" class="hover:text-brand">Trang chủ</a></li>
+          <li><a href={home.href} class="hover:text-brand">{home.label}</a></li>
           {crumbs.map((c) => (
             <li class="flex items-center gap-1.5">
               <span aria-hidden="true">/</span>

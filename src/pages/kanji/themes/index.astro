@@ -3,17 +3,25 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import CardLink from '../../../components/CardLink.astro';
 import { THEMES } from '../../../data/kanji';
+import { getLang, linker, pick } from '../../../i18n';
+
+const lang = getLang(Astro);
+const l = linker(lang);
+const t = (vi: string, en: string) => pick(lang, { vi, en });
 ---
-<BaseLayout title="Kanji theo chủ đề" description="Học kanji theo nhóm chủ đề: số đếm, động vật, thiên nhiên, cơ thể…">
+<BaseLayout
+  title={t('Kanji theo chủ đề', 'Kanji by theme')}
+  description={t('Học kanji theo nhóm chủ đề: số đếm, động vật, thiên nhiên, cơ thể…', 'Learn kanji by theme: numbers, animals, nature, the body…')}
+>
   <PageHeader
-    title="Kanji theo chủ đề"
-    crumbs={[{ label: 'Kanji', href: '/kanji' }, { label: 'Chủ đề' }]}
-    lead="Học kanji theo nhóm nghĩa giúp dễ nhớ và dễ liên tưởng hơn."
+    title={t('Kanji theo chủ đề', 'Kanji by theme')}
+    crumbs={[{ label: 'Kanji', href: l('/kanji') }, { label: t('Chủ đề', 'Themes') }]}
+    lead={t('Học kanji theo nhóm nghĩa giúp dễ nhớ và dễ liên tưởng hơn.', 'Grouping kanji by meaning makes them easier to remember.')}
   />
   <section class="container-page py-12">
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {THEMES.map((t) => (
-        <CardLink href={`/kanji/themes/${t.slug}`} title={t.name} subtitle={`${t.kanji.length} kanji · ${t.kanji.slice(0, 5).map((k) => k.c).join(' ')}…`} />
+      {THEMES.map((th) => (
+        <CardLink href={l(`/kanji/themes/${th.slug}`)} title={th.name[lang]} subtitle={`${th.kanji.length} kanji · ${th.kanji.slice(0, 5).map((k) => k.c).join(' ')}…`} />
       ))}
     </div>
   </section>

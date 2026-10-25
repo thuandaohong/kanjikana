@@ -4,3 +4,4 @@ dist/
 .DS_Store
 .cache/
 public/kuromoji/
+src/pages/en/

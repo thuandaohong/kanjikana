@@ -1,13 +1,18 @@
 ---
+// Cloudflare Pages chỉ dùng một trang 404 cho mọi URL, nên trang này hiện cả hai ngôn ngữ.
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="Không tìm thấy trang" noindex>
+<BaseLayout title="Không tìm thấy trang · Page not found" noindex>
   <section class="container-page grid place-items-center py-24 text-center">
     <p class="font-jp text-8xl text-brand">迷</p>
     <h1 class="mt-6 text-3xl font-bold">Không tìm thấy trang</h1>
     <p class="mt-3 max-w-md text-fg-muted">
       Trang này không tồn tại hoặc đang được xây dựng. Hãy quay lại trang chủ để tiếp tục học nhé.
     </p>
-    <a href="/" class="mt-8 rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90">Về trang chủ</a>
+    <p lang="en" class="mt-6 max-w-md text-sm text-fg-muted">Page not found. This page doesn't exist or is still being built.</p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="/" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90">Về trang chủ</a>
+      <a href="/en" lang="en" class="rounded-lg border border-line px-5 py-2.5 font-semibold hover:border-brand">English home</a>
+    </div>
   </section>
 </BaseLayout>

@@ -1,3 +1,5 @@
+import { type Lang, pick } from '../i18n';
+
 // Bảng kana. Mỗi ô là [hiragana, romaji] hoặc null cho ô trống.
 // Katakana suy ra từ hiragana bằng cách cộng 0x60 vào mã Unicode.
 export type Cell = [string, string] | null;
@@ -54,30 +56,60 @@ const convert = (rows: Cell[][]): Cell[][] => rows.map((r) => r.map((c) => (c ? 
 
 export type Script = 'hiragana' | 'katakana';
 
-export function kanaTables(script: Script): KanaTable[] {
+export function kanaTables(script: Script, lang: Lang): KanaTable[] {
   const conv = script === 'katakana' ? convert : (r: Cell[][]) => r;
+  const t = (vi: string, en: string) => pick(lang, { vi, en });
   const tables: KanaTable[] = [
-    { title: 'Âm cơ bản', note: 'Bảng gojūon (五十音) gồm 46 chữ.', cols: 5, rows: conv(GOJUON) },
-    { title: 'Âm đục và bán đục', note: 'Thêm dấu ゛ (dakuten) hoặc ゜ (handakuten) vào âm cơ bản.', cols: 5, rows: conv(DAKUTEN) },
-    { title: 'Âm ghép', note: 'Chữ có cột i ghép với ya, yu, yo viết nhỏ.', cols: 3, rows: conv(YOON) },
+    {
+      title: t('Âm cơ bản', 'Basic sounds'),
+      note: t('Bảng gojūon (五十音) gồm 46 chữ.', 'The gojūon (五十音) table of 46 characters.'),
+      cols: 5,
+      rows: conv(GOJUON),
+    },
+    {
+      title: t('Âm đục và bán đục', 'Voiced sounds'),
+      note: t(
+        'Thêm dấu ゛ (dakuten) hoặc ゜ (handakuten) vào âm cơ bản.',
+        'Add ゛ (dakuten) or ゜ (handakuten) to a basic sound.',
+      ),
+      cols: 5,
+      rows: conv(DAKUTEN),
+    },
+    {
+      title: t('Âm ghép', 'Combined sounds'),
+      note: t('Chữ có cột i ghép với ya, yu, yo viết nhỏ.', 'An i-column character followed by a small ya, yu or yo.'),
+      cols: 3,
+      rows: conv(YOON),
+    },
   ];
   if (script === 'katakana') {
-    tables.push({ title: 'Âm mở rộng', note: 'Dùng để phiên âm từ nước ngoài.', cols: 4, rows: EXTENDED });
+    tables.push({
+      title: t('Âm mở rộng', 'Extended sounds'),
+      note: t('Dùng để phiên âm từ nước ngoài.', 'Used to write sounds from foreign words.'),
+      cols: 4,
+      rows: EXTENDED,
+    });
   }
   return tables;
 }
 
-export const SCRIPTS: Record<Script, { name: string; jp: string; lead: string; other: Script }> = {
+export const SCRIPTS: Record<Script, { name: string; jp: string; lead: Record<Lang, string>; other: Script }> = {
   hiragana: {
     name: 'Hiragana',
     jp: 'ひらがな',
-    lead: 'Hiragana là bảng chữ mềm, dùng cho từ thuần Nhật, trợ từ và đuôi động từ, tính từ. Đây là bảng chữ nên học đầu tiên.',
+    lead: {
+      vi: 'Hiragana là bảng chữ mềm, dùng cho từ thuần Nhật, trợ từ và đuôi động từ, tính từ. Đây là bảng chữ nên học đầu tiên.',
+      en: 'Hiragana is the cursive syllabary used for native Japanese words, particles and verb and adjective endings. It is the first script to learn.',
+    },
     other: 'katakana',
   },
   katakana: {
     name: 'Katakana',
     jp: 'カタカナ',
-    lead: 'Katakana là bảng chữ cứng, chủ yếu dùng cho từ mượn nước ngoài, tên riêng nước ngoài và từ tượng thanh.',
+    lead: {
+      vi: 'Katakana là bảng chữ cứng, chủ yếu dùng cho từ mượn nước ngoài, tên riêng nước ngoài và từ tượng thanh.',
+      en: 'Katakana is the angular syllabary, mostly used for loanwords, foreign names and onomatopoeia.',
+    },
     other: 'hiragana',
   },
 };

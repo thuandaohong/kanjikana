@@ -2,20 +2,31 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import KanjiList from '../../components/KanjiList.astro';
-import { GRADE_LABELS, JOYO } from '../../data/kanji';
+import { JOYO, JOYO_GRADES, gradeLabel } from '../../data/kanji';
+import { getLang, linker, pick } from '../../i18n';
 
-const groups = Object.entries(GRADE_LABELS).map(([g, label]) => ({
-  label,
-  kanji: JOYO.filter((k) => k.grade === Number(g)),
-}));
+const lang = getLang(Astro);
+const l = linker(lang);
+const t = (vi: string, en: string) => pick(lang, { vi, en });
+const groups = JOYO_GRADES.map((g) => ({ label: gradeLabel(g, lang), kanji: JOYO.filter((k) => k.grade === g) }));
+const elementary = groups.slice(0, 6).reduce((s, g) => s + g.kanji.length, 0);
 ---
-<BaseLayout title="Toàn bộ kanji jōyō" description={`Danh sách đầy đủ ${JOYO.length} kanji thường dụng (jōyō) chia theo cấp lớp.`}>
+<BaseLayout
+  title={t('Toàn bộ kanji jōyō', 'All jōyō kanji')}
+  description={t(
+    `Danh sách đầy đủ ${JOYO.length} kanji thường dụng (jōyō) chia theo cấp lớp.`,
+    `The complete list of ${JOYO.length} jōyō kanji, grouped by school grade.`,
+  )}
+>
   <PageHeader
-    title="Toàn bộ kanji jōyō"
-    crumbs={[{ label: 'Kanji', href: '/kanji' }, { label: 'Jōyō' }]}
-    lead={`Jōyō kanji (常用漢字) là ${JOYO.length} chữ Hán thường dùng do Bộ Giáo dục Nhật Bản quy định. Học sinh Nhật học ${groups.slice(0, 6).reduce((s, g) => s + g.kanji.length, 0)} chữ ở tiểu học, phần còn lại ở trung học.`}
+    title={t('Toàn bộ kanji jōyō', 'All jōyō kanji')}
+    crumbs={[{ label: 'Kanji', href: l('/kanji') }, { label: 'Jōyō' }]}
+    lead={t(
+      `Jōyō kanji (常用漢字) là ${JOYO.length} chữ Hán thường dùng do Bộ Giáo dục Nhật Bản quy định. Học sinh Nhật học ${elementary} chữ ở tiểu học, phần còn lại ở trung học.`,
+      `The jōyō kanji (常用漢字) are the ${JOYO.length} characters designated for everyday use by the Japanese Ministry of Education. Japanese students learn ${elementary} of them in elementary school and the rest in secondary school.`,
+    )}
   >
-    <nav class="mt-6 flex flex-wrap gap-2" aria-label="Đi đến cấp lớp">
+    <nav class="mt-6 flex flex-wrap gap-2" aria-label={t('Đi đến cấp lớp', 'Jump to grade')}>
       {groups.map((g, i) => (
         <a href={`#grade-${i}`} class="rounded-full border border-line px-4 py-1.5 text-sm hover:border-brand">{g.label}</a>
       ))}

@@ -1,8 +1,14 @@
 ---
-import { NAV } from '../data/site';
+import { nav } from '../data/site';
+import { getLang, pick } from '../i18n';
+import LangSwitch from './LangSwitch.astro';
 import Logo from './Logo.astro';
 import SearchBox from './SearchBox.astro';
 import ThemeToggle from './ThemeToggle.astro';
+
+const lang = getLang(Astro);
+const t = (vi: string, en: string) => pick(lang, { vi, en });
+const NAV = nav(lang);
 
 const chevron = 'm6 9 6 6 6-6';
 ---
@@ -11,7 +17,7 @@ const chevron = 'm6 9 6 6 6-6';
     <Logo />
 
     <!-- Menu desktop -->
-    <nav class="hidden items-center gap-1 lg:flex" aria-label="Điều hướng chính">
+    <nav class="hidden items-center gap-1 lg:flex" aria-label={t('Điều hướng chính', 'Main navigation')}>
       {NAV.map((menu, i) => (
         <div class="dropdown relative">
           <button
@@ -47,6 +53,7 @@ const chevron = 'm6 9 6 6 6-6';
 
     <div class="ml-auto hidden items-center gap-2 md:ml-0 lg:flex">
       <ThemeToggle />
+      <LangSwitch />
     </div>
 
     <!-- Nút menu mobile -->
@@ -56,7 +63,9 @@ const chevron = 'm6 9 6 6 6-6';
       class="ml-auto grid size-10 place-items-center rounded-md hover:bg-bg-muted md:ml-0 lg:hidden"
       aria-expanded="false"
       aria-controls="mobile-menu"
-      aria-label="Mở menu"
+      aria-label={t('Mở menu', 'Open menu')}
+      data-label-open={t('Mở menu', 'Open menu')}
+      data-label-close={t('Đóng menu', 'Close menu')}
     >
       <svg viewBox="0 0 24 24" class="size-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
         <path class="icon-open" d="M4 7h16M4 12h16M4 17h16" />
@@ -80,7 +89,7 @@ const chevron = 'm6 9 6 6 6-6';
         </section>
       ))}
       <div class="flex items-center justify-between border-t border-line pt-4">
-        <span class="text-sm text-fg-muted">Giao diện</span>
+        <LangSwitch />
         <ThemeToggle />
       </div>
     </div>
@@ -126,7 +135,7 @@ const chevron = 'm6 9 6 6 6-6';
     const open = menu.hidden;
     menu.hidden = !open;
     toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
+    toggle.setAttribute('aria-label', (open ? toggle.dataset.labelClose : toggle.dataset.labelOpen)!);
     toggle.querySelector('.icon-open')!.classList.toggle('hidden', open);
     toggle.querySelector('.icon-close')!.classList.toggle('hidden', !open);
   });

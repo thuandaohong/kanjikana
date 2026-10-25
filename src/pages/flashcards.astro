@@ -1,37 +1,66 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
+import { getLang, linker, pick } from '../i18n';
+
+const lang = getLang(Astro);
+const t = (vi: string, en: string) => pick(lang, { vi, en });
+// Chuỗi cho script phía trình duyệt; {n}, {known}, {total}, {deck} được thay khi hiển thị.
+const strings = {
+  lang,
+  kanjiBase: linker(lang)('/kanji/'),
+  deckInfo: t('{n} thẻ · đã thuộc {known}/{n}', '{n} cards · {known}/{n} learned'),
+  allKnown: t(
+    'Bạn đã thuộc hết bộ này. Bỏ chọn “Chỉ ôn những chữ chưa thuộc” để ôn lại.',
+    'You have learned every card in this deck. Untick “Only cards I haven’t learned” to review them again.',
+  ),
+  remaining: t('Còn {n} thẻ', '{n} cards left'),
+  details: t('Xem chi tiết', 'Details'),
+  summary: t('Bạn đã ôn xong {total} thẻ của bộ {deck}.', 'You reviewed all {total} cards in {deck}.'),
+  confirmReset: t('Xoá tiến độ của bộ {deck}?', 'Reset progress for {deck}?'),
+  error: t('Không tải được dữ liệu. Hãy thử tải lại trang.', 'Could not load data. Please reload the page.'),
+};
 ---
-<BaseLayout title="Flashcards kanji" description="Ôn kanji bằng flashcards theo cấp JLPT, Kanken hoặc chủ đề. Tiến độ được lưu trên trình duyệt.">
+<BaseLayout
+  title={t('Flashcards kanji', 'Kanji flashcards')}
+  description={t(
+    'Ôn kanji bằng flashcards theo cấp JLPT, Kanken hoặc chủ đề. Tiến độ được lưu trên trình duyệt.',
+    'Review kanji with flashcards by JLPT level, Kanken level or theme. Progress is saved in your browser.',
+  )}
+>
+  <script is:inline type="application/json" id="page-strings" set:html={JSON.stringify(strings)} />
   <PageHeader
     title="Flashcards"
-    crumbs={[{ label: 'Công cụ' }, { label: 'Flashcards' }]}
-    lead="Chọn một bộ thẻ, lật thẻ để xem đáp án, rồi đánh dấu đã nhớ hoặc chưa nhớ. Thẻ chưa nhớ sẽ quay lại sau vài lượt."
+    crumbs={[{ label: t('Công cụ', 'Tools') }, { label: 'Flashcards' }]}
+    lead={t(
+      'Chọn một bộ thẻ, lật thẻ để xem đáp án, rồi đánh dấu đã nhớ hoặc chưa nhớ. Thẻ chưa nhớ sẽ quay lại sau vài lượt.',
+      'Pick a deck, flip a card to see the answer, then mark whether you knew it. Cards you missed come back after a few turns.',
+    )}
   />
 
   <section class="container-page py-10">
     <!-- Bước 1: chọn bộ thẻ -->
     <form id="fc-setup" class="max-w-xl space-y-5">
       <div>
-        <label for="fc-deck" class="mb-1.5 block text-sm font-semibold">Bộ thẻ</label>
+        <label for="fc-deck" class="mb-1.5 block text-sm font-semibold">{t('Bộ thẻ', 'Deck')}</label>
         <select id="fc-deck" class="h-11 w-full rounded-lg border border-line bg-surface px-3" disabled>
-          <option>Đang tải…</option>
+          <option>{t('Đang tải…', 'Loading…')}</option>
         </select>
         <p id="fc-deck-info" class="mt-2 text-sm text-fg-muted"></p>
       </div>
       <fieldset>
-        <legend class="mb-1.5 text-sm font-semibold">Mặt trước</legend>
+        <legend class="mb-1.5 text-sm font-semibold">{t('Mặt trước', 'Front of card')}</legend>
         <div class="flex flex-wrap gap-4 text-sm">
-          <label class="inline-flex items-center gap-2"><input type="radio" name="mode" value="kanji" checked class="accent-brand" /> Kanji → nghĩa</label>
-          <label class="inline-flex items-center gap-2"><input type="radio" name="mode" value="meaning" class="accent-brand" /> Hán Việt, nghĩa → kanji</label>
+          <label class="inline-flex items-center gap-2"><input type="radio" name="mode" value="kanji" checked class="accent-brand" /> {t('Kanji → nghĩa', 'Kanji → meaning')}</label>
+          <label class="inline-flex items-center gap-2"><input type="radio" name="mode" value="meaning" class="accent-brand" /> {t('Hán Việt, nghĩa → kanji', 'Meaning → kanji')}</label>
         </div>
       </fieldset>
       <label class="flex items-center gap-2 text-sm">
-        <input type="checkbox" id="fc-only-new" checked class="size-4 accent-brand" /> Chỉ ôn những chữ chưa thuộc
+        <input type="checkbox" id="fc-only-new" checked class="size-4 accent-brand" /> {t('Chỉ ôn những chữ chưa thuộc', 'Only cards I haven’t learned')}
       </label>
       <div class="flex flex-wrap gap-3">
-        <button type="submit" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90 disabled:opacity-50">Bắt đầu</button>
-        <button type="button" id="fc-reset" class="rounded-lg border border-line px-4 py-2.5 text-sm hover:border-brand">Xoá tiến độ bộ này</button>
+        <button type="submit" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90 disabled:opacity-50">{t('Bắt đầu', 'Start')}</button>
+        <button type="button" id="fc-reset" class="rounded-lg border border-line px-4 py-2.5 text-sm hover:border-brand">{t('Xoá tiến độ bộ này', 'Reset this deck')}</button>
       </div>
     </form>
 
@@ -53,28 +82,28 @@ import PageHeader from '../components/PageHeader.astro';
       >
         <div id="fc-front"></div>
         <div id="fc-back" hidden class="mt-6 w-full border-t border-dashed border-line pt-6"></div>
-        <span id="fc-hint" class="mt-6 text-xs text-fg-muted">Bấm vào thẻ hoặc nhấn phím cách để lật</span>
+        <span id="fc-hint" class="mt-6 text-xs text-fg-muted">{t('Bấm vào thẻ hoặc nhấn phím cách để lật', 'Click the card or press Space to flip')}</span>
       </button>
 
       <div class="mt-5 grid grid-cols-2 gap-3">
         <button type="button" id="fc-again" disabled class="rounded-lg border border-line py-3 font-semibold hover:border-brand disabled:opacity-40">
-          Chưa nhớ <span class="text-xs text-fg-muted">(1)</span>
+          {t('Chưa nhớ', 'Again')} <span class="text-xs text-fg-muted">(1)</span>
         </button>
         <button type="button" id="fc-good" disabled class="rounded-lg bg-brand py-3 font-semibold text-white hover:opacity-90 disabled:opacity-40">
-          Đã nhớ <span class="text-xs opacity-80">(2)</span>
+          {t('Đã nhớ', 'Got it')} <span class="text-xs opacity-80">(2)</span>
         </button>
       </div>
-      <button type="button" id="fc-quit" class="link-underline mt-6 text-sm">← Chọn bộ khác</button>
+      <button type="button" id="fc-quit" class="link-underline mt-6 text-sm">← {t('Chọn bộ khác', 'Choose another deck')}</button>
     </div>
 
     <!-- Bước 3: kết thúc -->
     <div id="fc-done" hidden class="mx-auto max-w-xl rounded-2xl border border-line bg-surface p-8 text-center">
       <p class="font-jp text-6xl">完</p>
-      <h2 class="mt-4 text-2xl font-bold">Hoàn thành!</h2>
+      <h2 class="mt-4 text-2xl font-bold">{t('Hoàn thành!', 'Done!')}</h2>
       <p id="fc-summary" class="mt-2 text-fg-muted"></p>
       <div class="mt-6 flex justify-center gap-3">
-        <button type="button" id="fc-restart" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90">Ôn lại</button>
-        <button type="button" id="fc-back-setup" class="rounded-lg border border-line px-5 py-2.5 hover:border-brand">Chọn bộ khác</button>
+        <button type="button" id="fc-restart" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90">{t('Ôn lại', 'Review again')}</button>
+        <button type="button" id="fc-back-setup" class="rounded-lg border border-line px-5 py-2.5 hover:border-brand">{t('Chọn bộ khác', 'Choose another deck')}</button>
       </div>
     </div>
   </section>
@@ -82,7 +111,11 @@ import PageHeader from '../components/PageHeader.astro';
 
 <script>
   type Entry = { c: string; hv: string[]; en: string[]; on: string[]; kun: string[]; jlpt: number | null };
-  type Deck = { id: string; group: string; name: string; chars: string };
+  type Deck = { id: string; group: Record<string, string>; name: Record<string, string>; chars: string };
+
+  const S = JSON.parse(document.getElementById('page-strings')!.textContent!);
+  const fill = (tpl: string, vars: Record<string, string | number>) => tpl.replace(/\{(\w+)\}/g, (_, k) => String(vars[k]));
+  const deckName = (d: Deck) => d.name[S.lang];
 
   const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
   const setup = $<HTMLFormElement>('fc-setup');
@@ -124,7 +157,7 @@ import PageHeader from '../components/PageHeader.astro';
     const d = currentDeck();
     const known = getKnown(d);
     const n = [...d.chars].length;
-    $('fc-deck-info').textContent = `${n} thẻ · đã thuộc ${[...d.chars].filter((c) => known.has(c)).length}/${n}`;
+    $('fc-deck-info').textContent = fill(S.deckInfo, { n, known: [...d.chars].filter((c) => known.has(c)).length });
     store.set('fc-last-deck', d.id);
   }
 
@@ -151,13 +184,13 @@ import PageHeader from '../components/PageHeader.astro';
     let chars = [...deck.chars].filter((c) => byChar.has(c));
     if (onlyNew.checked) chars = chars.filter((c) => !known.has(c));
     if (!chars.length) {
-      $('fc-deck-info').textContent = 'Bạn đã thuộc hết bộ này. Bỏ chọn “Chỉ ôn những chữ chưa thuộc” để ôn lại.';
+      $('fc-deck-info').textContent = S.allKnown;
       return;
     }
     queue = shuffle(chars);
     total = queue.length;
     learned = 0;
-    $('fc-deck-name').textContent = deck.name;
+    $('fc-deck-name').textContent = deckName(deck);
     setup.hidden = true;
     done.hidden = true;
     study.hidden = false;
@@ -171,28 +204,32 @@ import PageHeader from '../components/PageHeader.astro';
     btnAgain.disabled = btnGood.disabled = true;
     back.hidden = true;
     $('fc-hint').hidden = false;
-    $('fc-count').textContent = `Còn ${queue.length} thẻ`;
+    $('fc-count').textContent = fill(S.remaining, { n: queue.length });
     $('fc-bar').style.width = `${(learned / total) * 100}%`;
 
     const meaning = k.en.slice(0, 3).join(', ');
+    const hv = k.hv.join(', ');
+    // Tiếng Việt: Hán Việt là gợi ý chính, nghĩa là phụ. Tiếng Anh: chỉ dùng nghĩa.
+    const primary = (S.lang === 'en' ? meaning : hv) || '—';
+    const secondary = S.lang === 'en' ? '' : meaning;
     if (mode === 'kanji') {
       front.replaceChildren(el('p', 'font-jp text-8xl leading-none', k.c, true));
     } else {
       front.replaceChildren(
-        el('p', 'font-serif text-3xl font-bold text-brand', k.hv.join(', ') || '—'),
-        el('p', 'mt-2 text-lg', meaning),
+        el('p', 'font-serif text-3xl font-bold text-brand', primary),
+        el('p', 'mt-2 text-lg', secondary),
       );
     }
 
     const details = [
       mode === 'kanji'
-        ? el('p', 'font-serif text-2xl font-bold text-brand', k.hv.join(', ') || '—')
+        ? el('p', 'font-serif text-2xl font-bold text-brand', primary)
         : el('p', 'font-jp text-7xl leading-none', k.c, true),
-      el('p', 'mt-2 text-fg-muted', mode === 'kanji' ? meaning : ''),
+      el('p', 'mt-2 text-fg-muted', mode === 'kanji' ? secondary : ''),
       el('p', 'mt-3 text-sm', [...k.on, ...k.kun].slice(0, 6).join('、'), true),
     ];
-    const link = el('a', 'link-underline mt-4 inline-block text-sm', 'Xem chi tiết') as HTMLAnchorElement;
-    link.href = `/kanji/${k.c}`;
+    const link = el('a', 'link-underline mt-4 inline-block text-sm', S.details) as HTMLAnchorElement;
+    link.href = S.kanjiBase + k.c;
     link.target = '_blank';
     back.replaceChildren(...details, link);
   }
@@ -224,7 +261,7 @@ import PageHeader from '../components/PageHeader.astro';
   function finish() {
     study.hidden = true;
     done.hidden = false;
-    $('fc-summary').textContent = `Bạn đã ôn xong ${total} thẻ của bộ ${deck.name}.`;
+    $('fc-summary').textContent = fill(S.summary, { total, deck: deckName(deck) });
   }
 
   function backToSetup() {
@@ -240,7 +277,7 @@ import PageHeader from '../components/PageHeader.astro';
   deckSelect.addEventListener('change', showDeckInfo);
   $('fc-reset').addEventListener('click', () => {
     const d = currentDeck();
-    if (confirm(`Xoá tiến độ của bộ ${d.name}?`)) {
+    if (confirm(fill(S.confirmReset, { deck: deckName(d) }))) {
       saveKnown(d, new Set());
       showDeckInfo();
     }
@@ -271,18 +308,19 @@ import PageHeader from '../components/PageHeader.astro';
       const groups = new Map<string, HTMLOptGroupElement>();
       deckSelect.replaceChildren();
       for (const d of decks) {
-        if (!groups.has(d.group)) {
+        const group = d.group[S.lang];
+        if (!groups.has(group)) {
           const g = document.createElement('optgroup');
-          g.label = d.group;
-          groups.set(d.group, g);
+          g.label = group;
+          groups.set(group, g);
           deckSelect.append(g);
         }
-        groups.get(d.group)!.append(new Option(d.name, d.id));
+        groups.get(group)!.append(new Option(deckName(d), d.id));
       }
       const last = store.get('fc-last-deck');
       if (last && decks.some((d) => d.id === last)) deckSelect.value = last;
       deckSelect.disabled = false;
       showDeckInfo();
     })
-    .catch(() => ($('fc-deck-info').textContent = 'Không tải được dữ liệu. Hãy thử tải lại trang.'));
+    .catch(() => ($('fc-deck-info').textContent = S.error));
 </script>

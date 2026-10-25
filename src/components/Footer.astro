@@ -1,12 +1,15 @@
 ---
-import { FOOTER, SITE } from '../data/site';
+import { SITE, footer } from '../data/site';
+import { getLang, localize } from '../i18n';
+
+const lang = getLang(Astro);
 import Logo from './Logo.astro';
 ---
 <footer class="border-t border-line bg-bg-muted">
   <div class="container-page py-14">
     <Logo showText={false} />
     <div class="mt-8 grid grid-cols-2 gap-8 md:grid-cols-4">
-      {FOOTER.map((col) => (
+      {footer(lang).map((col) => (
         <div>
           <h2 class="mb-4 text-lg font-semibold">{col.title}</h2>
           <ul class="space-y-2.5">
@@ -18,8 +21,12 @@ import Logo from './Logo.astro';
       ))}
     </div>
     <p class="mt-12 text-sm text-fg-muted">
-      © {new Date().getFullYear()} {SITE.name}. Dữ liệu kanji từ các dự án mã nguồn mở – xem{' '}
-      <a href="/credits" class="link-underline">nguồn dữ liệu</a>.
+      © {new Date().getFullYear()} {SITE.name}.{' '}
+      {lang === 'en' ? (
+        <>Kanji data from open-source projects – see <a href={localize('/credits', lang)} class="link-underline">credits</a>.</>
+      ) : (
+        <>Dữ liệu kanji từ các dự án mã nguồn mở – xem <a href={localize('/credits', lang)} class="link-underline">nguồn dữ liệu</a>.</>
+      )}
     </p>
   </div>
 </footer>

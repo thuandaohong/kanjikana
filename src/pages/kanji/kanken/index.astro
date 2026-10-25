@@ -3,22 +3,35 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import CardLink from '../../../components/CardLink.astro';
 import { ALL, KANKEN } from '../../../data/kanji';
+import { getLang, linker, pick } from '../../../i18n';
+
+const lang = getLang(Astro);
+const l = linker(lang);
+const t = (vi: string, en: string) => pick(lang, { vi, en });
 ---
-<BaseLayout title="Kanji theo cấp Kanken" description="Danh sách kanji theo cấp của kỳ thi năng lực Hán tự (Kanken).">
+<BaseLayout
+  title={t('Kanji theo cấp Kanken', 'Kanji by Kanken level')}
+  description={t('Danh sách kanji theo cấp của kỳ thi năng lực Hán tự (Kanken).', 'Kanji lists for each level of the Kanji Aptitude Test (Kanken).')}
+>
   <PageHeader
-    title="Kanji theo cấp Kanken"
-    crumbs={[{ label: 'Kanji', href: '/kanji' }, { label: 'Kanken' }]}
-    lead="Kanken (漢検 – Kiểm định năng lực Hán tự) là kỳ thi kanji dành cho cả người Nhật, từ cấp 10 (dễ nhất) đến cấp 1."
+    title={t('Kanji theo cấp Kanken', 'Kanji by Kanken level')}
+    crumbs={[{ label: 'Kanji', href: l('/kanji') }, { label: 'Kanken' }]}
+    lead={t(
+      'Kanken (漢検 – Kiểm định năng lực Hán tự) là kỳ thi kanji dành cho cả người Nhật, từ cấp 10 (dễ nhất) đến cấp 1.',
+      'The Kanken (漢検, Japan Kanji Aptitude Test) is a kanji exam taken by native speakers too, from level 10 (easiest) to level 1.',
+    )}
   />
   <section class="container-page py-12">
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {KANKEN.map((g) => (
-        <CardLink href={`/kanji/kanken/${g.slug}`} title={g.name} subtitle={`${ALL.filter(g.match).length} kanji · ${g.note}`} />
+        <CardLink href={l(`/kanji/kanken/${g.slug}`)} title={g.name} subtitle={`${ALL.filter(g.match).length} kanji · ${g.note[lang]}`} />
       ))}
     </div>
     <p class="mt-8 max-w-2xl text-sm text-fg-muted">
-      Các cấp 4, 3, 準2 và 2 hiện được gộp chung vì dữ liệu nguồn chưa tách riêng. Cấp 準1 và 1 chỉ gồm những chữ ngoài
-      jōyō có trong các danh sách của trang này.
+      {t(
+        'Các cấp 4, 3, 準2 và 2 hiện được gộp chung vì dữ liệu nguồn chưa tách riêng. Cấp 準1 và 1 chỉ gồm những chữ ngoài jōyō có trong các danh sách của trang này.',
+        'Levels 4, 3, pre-2 and 2 are currently grouped together because the source data does not separate them. Levels pre-1 and 1 only include the non-jōyō kanji found in this site’s lists.',
+      )}
     </p>
   </section>
 </BaseLayout>

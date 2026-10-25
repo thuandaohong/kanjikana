@@ -1,17 +1,39 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
+import { getLang, pick } from '../../i18n';
+
+const lang = getLang(Astro);
+const t = (vi: string, en: string) => pick(lang, { vi, en });
+// Chuỗi cho script phía trình duyệt.
+const strings = {
+  processing: t('Đang xử lý…', 'Processing…'),
+  loadingDict: t('Đang tải từ điển…', 'Loading dictionary…'),
+  dictError: t('Không tải được từ điển. Hãy kiểm tra kết nối và thử lại.', 'Could not load the dictionary. Check your connection and try again.'),
+  copied: t('Đã chép!', 'Copied!'),
+  copyError: t('Trình duyệt không cho phép chép tự động.', 'Your browser blocked copying to the clipboard.'),
+};
 ---
-<BaseLayout title="Tạo furigana" description="Tự động thêm furigana (cách đọc) lên trên kanji cho văn bản tiếng Nhật. Chạy hoàn toàn trên trình duyệt.">
+<BaseLayout
+  title={t('Tạo furigana', 'Furigana generator')}
+  description={t(
+    'Tự động thêm furigana (cách đọc) lên trên kanji cho văn bản tiếng Nhật. Chạy hoàn toàn trên trình duyệt.',
+    'Automatically add furigana (readings) above the kanji in Japanese text. Runs entirely in your browser.',
+  )}
+>
+  <script is:inline type="application/json" id="page-strings" set:html={JSON.stringify(strings)} />
   <PageHeader
-    title="Tạo furigana"
-    crumbs={[{ label: 'Công cụ' }, { label: 'Furigana' }]}
-    lead="Dán văn bản tiếng Nhật để thêm cách đọc lên trên kanji. Mọi xử lý diễn ra ngay trên trình duyệt, văn bản không được gửi đi đâu."
+    title={t('Tạo furigana', 'Furigana generator')}
+    crumbs={[{ label: t('Công cụ', 'Tools') }, { label: 'Furigana' }]}
+    lead={t(
+      'Dán văn bản tiếng Nhật để thêm cách đọc lên trên kanji. Mọi xử lý diễn ra ngay trên trình duyệt, văn bản không được gửi đi đâu.',
+      'Paste Japanese text to add readings above the kanji. Everything runs in your browser – your text is never sent anywhere.',
+    )}
   />
 
   <section class="container-page grid gap-8 py-10 lg:grid-cols-2">
     <form id="fg-form" class="space-y-4">
-      <label for="fg-input" class="block text-sm font-semibold">Văn bản tiếng Nhật</label>
+      <label for="fg-input" class="block text-sm font-semibold">{t('Văn bản tiếng Nhật', 'Japanese text')}</label>
       <textarea
         id="fg-input"
         lang="ja"
@@ -22,7 +44,7 @@ import PageHeader from '../../components/PageHeader.astro';
 
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
-          <label for="fg-script" class="mb-1.5 block text-sm font-semibold">Kiểu chữ đọc</label>
+          <label for="fg-script" class="mb-1.5 block text-sm font-semibold">{t('Kiểu chữ đọc', 'Reading script')}</label>
           <select id="fg-script" class="h-10 w-full rounded-lg border border-line bg-surface px-3">
             <option value="hiragana">Hiragana</option>
             <option value="katakana">Katakana</option>
@@ -30,9 +52,9 @@ import PageHeader from '../../components/PageHeader.astro';
           </select>
         </div>
         <div>
-          <label for="fg-skip" class="mb-1.5 block text-sm font-semibold">Bỏ furigana cho kanji đã biết</label>
+          <label for="fg-skip" class="mb-1.5 block text-sm font-semibold">{t('Bỏ furigana cho kanji đã biết', 'Skip kanji I already know')}</label>
           <select id="fg-skip" class="h-10 w-full rounded-lg border border-line bg-surface px-3">
-            <option value="0">Không bỏ (thêm cho tất cả)</option>
+            <option value="0">{t('Không bỏ (thêm cho tất cả)', 'None (annotate everything)')}</option>
             <option value="5">Kanji N5</option>
             <option value="4">Kanji N5–N4</option>
             <option value="3">Kanji N5–N3</option>
@@ -43,26 +65,28 @@ import PageHeader from '../../components/PageHeader.astro';
 
       <div class="flex flex-wrap items-center gap-3">
         <button type="submit" id="fg-run" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90 disabled:opacity-50">
-          Tạo furigana
+          {t('Tạo furigana', 'Add furigana')}
         </button>
         <span id="fg-status" class="text-sm text-fg-muted" aria-live="polite"></span>
       </div>
       <p class="text-xs text-fg-muted">
-        Lần đầu dùng, trình duyệt sẽ tải bộ từ điển tách từ (khoảng 18MB, được lưu cache cho lần sau). Kết quả do máy
-        phân tích nên đôi khi đọc sai, nhất là với tên riêng.
+        {t(
+          'Lần đầu dùng, trình duyệt sẽ tải bộ từ điển tách từ (khoảng 18MB, được lưu cache cho lần sau). Kết quả do máy phân tích nên đôi khi đọc sai, nhất là với tên riêng.',
+          'The first time, your browser downloads a ~18MB dictionary (cached afterwards). Readings are machine-generated and can be wrong, especially for names.',
+        )}
       </p>
     </form>
 
     <div>
       <div class="mb-1.5 flex items-center justify-between gap-2">
-        <span class="text-sm font-semibold">Kết quả</span>
+        <span class="text-sm font-semibold">{t('Kết quả', 'Result')}</span>
         <div class="flex gap-2">
-          <button type="button" id="fg-copy-text" disabled class="rounded-md border border-line px-3 py-1 text-sm hover:border-brand disabled:opacity-40">Chép dạng 漢字(かんじ)</button>
-          <button type="button" id="fg-copy-html" disabled class="rounded-md border border-line px-3 py-1 text-sm hover:border-brand disabled:opacity-40">Chép HTML</button>
+          <button type="button" id="fg-copy-text" disabled class="rounded-md border border-line px-3 py-1 text-sm hover:border-brand disabled:opacity-40">{t('Chép dạng 漢字(かんじ)', 'Copy as 漢字(かんじ)')}</button>
+          <button type="button" id="fg-copy-html" disabled class="rounded-md border border-line px-3 py-1 text-sm hover:border-brand disabled:opacity-40">{t('Chép HTML', 'Copy HTML')}</button>
         </div>
       </div>
       <div id="fg-output" lang="ja" class="min-h-60 rounded-xl border border-line bg-surface p-5 font-jp text-2xl leading-[2.4] whitespace-pre-wrap">
-        <span class="font-sans text-base text-fg-muted">Kết quả sẽ hiện ở đây.</span>
+        <span class="font-sans text-base text-fg-muted">{t('Kết quả sẽ hiện ở đây.', 'Your result will appear here.')}</span>
       </div>
     </div>
   </section>
@@ -78,6 +102,8 @@ import PageHeader from '../../components/PageHeader.astro';
 <script>
   import { alignReading, type Segment } from '../../lib/furigana';
   import { toHiragana, toRomaji } from '../../lib/text';
+
+  const S = JSON.parse(document.getElementById('page-strings')!.textContent!);
 
   type Token = { surface_form: string; reading?: string };
   type Tokenizer = { tokenize(text: string): Token[] };
@@ -163,7 +189,7 @@ import PageHeader from '../../components/PageHeader.astro';
     const text = input.value.trim();
     if (!text) return;
     runBtn.disabled = true;
-    status.textContent = tokenizerPromise ? 'Đang xử lý…' : 'Đang tải từ điển…';
+    status.textContent = tokenizerPromise ? S.processing : S.loadingDict;
     try {
       const [t, jlpt] = await Promise.all([getTokenizer(), getJlpt()]);
       lines = annotate(t, text, jlpt, Number(skipSel.value));
@@ -171,7 +197,7 @@ import PageHeader from '../../components/PageHeader.astro';
       status.textContent = '';
     } catch (e) {
       console.error(e);
-      status.textContent = 'Không tải được từ điển. Hãy kiểm tra kết nối và thử lại.';
+      status.textContent = S.dictError;
     } finally {
       runBtn.disabled = false;
     }
@@ -181,10 +207,10 @@ import PageHeader from '../../components/PageHeader.astro';
     try {
       await navigator.clipboard.writeText(text);
       const old = btn.textContent;
-      btn.textContent = 'Đã chép!';
+      btn.textContent = S.copied;
       setTimeout(() => (btn.textContent = old), 1200);
     } catch {
-      status.textContent = 'Trình duyệt không cho phép chép tự động.';
+      status.textContent = S.copyError;
     }
   }
 

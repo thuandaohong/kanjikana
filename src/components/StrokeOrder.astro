@@ -1,16 +1,18 @@
 ---
+import { getLang, pick } from '../i18n';
 // Thứ tự nét viết từ KanjiVG: một ô lớn có hoạt ảnh và các ô nhỏ cho từng bước.
 // Path chỉ khai báo một lần trong ô lớn; các ô nhỏ dùng <use> để tái sử dụng.
 interface Props { char: string; paths: string[] }
 const { char, paths } = Astro.props;
 const id = `s${char.codePointAt(0)!.toString(16)}`;
+const lang = getLang(Astro);
 ---
 <div class="stroke-order" data-stroke-order>
   <div class="relative mx-auto aspect-square w-full max-w-60 rounded-2xl border border-line bg-surface md:max-w-none">
     <svg viewBox="0 0 109 109" class="guide absolute inset-0 size-full" aria-hidden="true">
       <path d="M54.5 0v109M0 54.5h109" />
     </svg>
-    <svg viewBox="0 0 109 109" class="strokes relative size-full" role="img" aria-label={`Thứ tự nét viết chữ ${char}`}>
+    <svg viewBox="0 0 109 109" class="strokes relative size-full" role="img" aria-label={pick(lang, { vi: `Thứ tự nét viết chữ ${char}`, en: `Stroke order of ${char}` })}>
       <defs>
         {paths.map((d, i) => <path id={`${id}-${i}`} d={d} />)}
       </defs>
@@ -19,10 +21,10 @@ const id = `s${char.codePointAt(0)!.toString(16)}`;
     </svg>
   </div>
   <div class="mx-auto mt-3 flex max-w-60 items-center justify-between md:max-w-none">
-    <span class="text-sm text-fg-muted">{paths.length} nét</span>
+    <span class="text-sm text-fg-muted">{paths.length} {pick(lang, { vi: 'nét', en: paths.length === 1 ? 'stroke' : 'strokes' })}</span>
     <button type="button" data-play class="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm font-semibold hover:border-brand hover:text-brand">
       <svg viewBox="0 0 24 24" class="size-4" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-      Xem cách viết
+      {pick(lang, { vi: 'Xem cách viết', en: 'Play' })}
     </button>
   </div>
 </div>

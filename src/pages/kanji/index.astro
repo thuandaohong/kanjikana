@@ -1,32 +1,67 @@
 ---
 import ProseLayout from '../../layouts/ProseLayout.astro';
 import { JOYO } from '../../data/kanji';
+import { getLang, linker } from '../../i18n';
+const lang = getLang(Astro);
+const l = linker(lang);
 ---
-<ProseLayout title="Giới thiệu về kanji" description="Kanji là gì, âm On, âm Kun và vì sao âm Hán Việt giúp người Việt học kanji nhanh hơn.">
-  <p>
-    Kanji (漢字 – Hán tự) là chữ Hán được người Nhật dùng cùng với hai bảng chữ kana là
-    <a href="/hiragana">hiragana</a> và <a href="/katakana">katakana</a>. Một câu tiếng Nhật thường kết hợp cả ba loại
-    chữ này.
-  </p>
+{lang === 'en' ? (
+  <ProseLayout title="About kanji" description="What kanji are, on and kun readings, and how many kanji you need to learn.">
+    <p>
+      Kanji (漢字) are the Chinese characters used in Japanese alongside the two kana syllabaries,{' '}
+      <a href={l('/hiragana')}>hiragana</a> and <a href={l('/katakana')}>katakana</a>. A typical Japanese sentence mixes
+      all three.
+    </p>
 
-  <h2>Âm On và âm Kun</h2>
-  <p>
-    Mỗi kanji thường có hai kiểu đọc. <strong>Onyomi</strong> (âm On) là cách đọc gốc Hán, thường dùng trong từ ghép,
-    ví dụ 学生 (がくせい). <strong>Kunyomi</strong> (âm Kun) là cách đọc thuần Nhật, thường dùng khi chữ đứng một mình
-    hoặc đi kèm okurigana, ví dụ 学ぶ (まなぶ).
-  </p>
+    <h2>On and kun readings</h2>
+    <p>
+      Most kanji have two kinds of readings. The <strong>on'yomi</strong> is derived from the original Chinese
+      pronunciation and is mostly used in compounds, such as 学生 (がくせい, student). The <strong>kun'yomi</strong> is the
+      native Japanese reading, used when the kanji stands alone or with okurigana, such as 学ぶ (まなぶ, to learn).
+    </p>
 
-  <h2>Lợi thế của người Việt: âm Hán Việt</h2>
-  <p>
-    Tiếng Việt có khoảng 60% từ gốc Hán, nên rất nhiều kanji có âm Hán Việt quen thuộc: 学 là <em>Học</em>, 生 là
-    <em>Sinh</em>, 学生 là <em>Học sinh</em>. Âm Hán Việt giúp đoán nghĩa của từ ghép và ghi nhớ âm On dễ hơn, vì hai
-    âm này cùng bắt nguồn từ cách đọc chữ Hán cổ.
-  </p>
+    <h2>Sino-Vietnamese readings</h2>
+    <p>
+      Each kanji on this site also shows its Sino-Vietnamese (Hán Việt) reading. Vietnamese borrowed a large share of
+      its vocabulary from Chinese, so for Vietnamese speakers these readings make kanji compounds much easier to guess
+      and remember: 学 is <em>Học</em>, 生 is <em>Sinh</em>, and 学生 is <em>Học sinh</em> – “student”.
+    </p>
 
-  <h2>Nên học bao nhiêu kanji?</h2>
-  <p>
-    Bảng <a href="/kanji/all">jōyō kanji</a> gồm {JOYO.length} chữ thường dùng, đủ để đọc báo chí và phần lớn văn bản
-    hằng ngày. Nếu học để thi, hãy bắt đầu theo <a href="/kanji/jlpt">cấp JLPT</a> từ N5. Bạn cũng có thể học theo
-    <a href="/kanji/radicals">bộ thủ</a> hoặc <a href="/kanji/themes">chủ đề</a>.
-  </p>
-</ProseLayout>
+    <h2>How many kanji should I learn?</h2>
+    <p>
+      The <a href={l('/kanji/all')}>jōyō kanji</a> list contains {JOYO.length} characters in common use, enough to read
+      newspapers and most everyday text. If you are studying for an exam, start with the{' '}
+      <a href={l('/kanji/jlpt')}>JLPT levels</a> from N5. You can also learn by{' '}
+      <a href={l('/kanji/radicals')}>radical</a> or <a href={l('/kanji/themes')}>theme</a>.
+    </p>
+  </ProseLayout>
+) : (
+  <ProseLayout title="Giới thiệu về kanji" description="Kanji là gì, âm On, âm Kun và vì sao âm Hán Việt giúp người Việt học kanji nhanh hơn.">
+    <p>
+      Kanji (漢字 – Hán tự) là chữ Hán được người Nhật dùng cùng với hai bảng chữ kana là{' '}
+      <a href={l('/hiragana')}>hiragana</a> và <a href={l('/katakana')}>katakana</a>. Một câu tiếng Nhật thường kết hợp
+      cả ba loại chữ này.
+    </p>
+
+    <h2>Âm On và âm Kun</h2>
+    <p>
+      Mỗi kanji thường có hai kiểu đọc. <strong>Onyomi</strong> (âm On) là cách đọc gốc Hán, thường dùng trong từ ghép,
+      ví dụ 学生 (がくせい). <strong>Kunyomi</strong> (âm Kun) là cách đọc thuần Nhật, thường dùng khi chữ đứng một mình
+      hoặc đi kèm okurigana, ví dụ 学ぶ (まなぶ).
+    </p>
+
+    <h2>Lợi thế của người Việt: âm Hán Việt</h2>
+    <p>
+      Tiếng Việt có khoảng 60% từ gốc Hán, nên rất nhiều kanji có âm Hán Việt quen thuộc: 学 là <em>Học</em>, 生 là{' '}
+      <em>Sinh</em>, 学生 là <em>Học sinh</em>. Âm Hán Việt giúp đoán nghĩa của từ ghép và ghi nhớ âm On dễ hơn, vì hai
+      âm này cùng bắt nguồn từ cách đọc chữ Hán cổ.
+    </p>
+
+    <h2>Nên học bao nhiêu kanji?</h2>
+    <p>
+      Bảng <a href={l('/kanji/all')}>jōyō kanji</a> gồm {JOYO.length} chữ thường dùng, đủ để đọc báo chí và phần lớn văn
+      bản hằng ngày. Nếu học để thi, hãy bắt đầu theo <a href={l('/kanji/jlpt')}>cấp JLPT</a> từ N5. Bạn cũng có thể học
+      theo <a href={l('/kanji/radicals')}>bộ thủ</a> hoặc <a href={l('/kanji/themes')}>chủ đề</a>.
+    </p>
+  </ProseLayout>
+)}

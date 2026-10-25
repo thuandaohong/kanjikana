@@ -12,6 +12,17 @@ export default defineConfig({
   // sang /trang/ như khi dùng /trang/index.html.
   trailingSlash: 'never',
   build: { format: 'file' },
-  integrations: [sitemap({ filter: (page) => !page.includes('/404') })],
+  // Tiếng Việt ở URL gốc, tiếng Anh dưới /en/.
+  i18n: {
+    defaultLocale: 'vi',
+    locales: ['vi', 'en'],
+    routing: { prefixDefaultLocale: false },
+  },
+  integrations: [
+    sitemap({
+      filter: (page) => !page.includes('/404'),
+      i18n: { defaultLocale: 'vi', locales: { vi: 'vi-VN', en: 'en-US' } },
+    }),
+  ],
   vite: { plugins: [tailwindcss()] },
 });

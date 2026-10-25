@@ -4,29 +4,38 @@ import PageHeader from './PageHeader.astro';
 import StrokeOrder from './StrokeOrder.astro';
 import { SCRIPTS, kanaTables, type Script } from '../data/kana';
 import kanaStrokes from '../data/generated/kana-strokes.json';
+import { getLang, localize, pick } from '../i18n';
 
 interface Props { script: Script }
 const { script } = Astro.props;
 const info = SCRIPTS[script];
-const tables = kanaTables(script);
+const lang = getLang(Astro);
+const t = (vi: string, en: string) => pick(lang, { vi, en });
+const tables = kanaTables(script, lang);
 const strokes = kanaStrokes as Record<string, string[]>;
 
 // Mỗi chữ đơn có thứ tự nét sẽ có một hộp thoại riêng.
 const singles = [...new Set(tables.flatMap((t) => t.rows.flat()).filter((c) => c && c[0].length === 1 && strokes[c[0]]))] as [string, string][];
 const dialogId = (ch: string) => `kana-${ch.codePointAt(0)!.toString(16)}`;
 ---
-<BaseLayout title={`Bảng ${info.name}`} description={`Bảng chữ ${info.name} (${info.jp}) đầy đủ: âm cơ bản, âm đục, âm ghép, kèm phát âm và thứ tự nét.`}>
-  <PageHeader title={`Bảng ${info.name}`} crumbs={[{ label: 'Kana' }, { label: info.name }]} lead={info.lead}>
+<BaseLayout
+  title={t(`Bảng ${info.name}`, `${info.name} chart`)}
+  description={t(
+    `Bảng chữ ${info.name} (${info.jp}) đầy đủ: âm cơ bản, âm đục, âm ghép, kèm phát âm và thứ tự nét.`,
+    `Complete ${info.name} (${info.jp}) chart: basic, voiced and combined sounds, with pronunciation and stroke order.`,
+  )}
+>
+  <PageHeader title={t(`Bảng ${info.name}`, `${info.name} chart`)} crumbs={[{ label: 'Kana' }, { label: info.name }]} lead={info.lead[lang]}>
     <div class="mt-6 flex flex-wrap items-center gap-3">
-      <a href={`/${info.other}`} class="rounded-full border border-line px-4 py-1.5 text-sm font-semibold hover:border-brand">
-        Xem bảng {SCRIPTS[info.other].name}
+      <a href={localize(`/${info.other}`, lang)} class="rounded-full border border-line px-4 py-1.5 text-sm font-semibold hover:border-brand">
+        {t(`Xem bảng ${SCRIPTS[info.other].name}`, `${SCRIPTS[info.other].name} chart`)}
       </a>
       <label class="inline-flex cursor-pointer items-center gap-2 text-sm">
         <input type="checkbox" id="toggle-romaji" checked class="size-4 accent-brand" />
-        Hiện romaji
+        {t('Hiện romaji', 'Show romaji')}
       </label>
     </div>
-    <p class="mt-4 text-sm text-fg-muted">Bấm vào một chữ để nghe phát âm và xem cách viết.</p>
+    <p class="mt-4 text-sm text-fg-muted">{t('Bấm vào một chữ để nghe phát âm và xem cách viết.', 'Click a character to hear it and see how to write it.')}</p>
   </PageHeader>
 
   <div id="kana-tables" class="container-page space-y-14 py-10">
@@ -60,14 +69,14 @@ const dialogId = (ch: string) => `kana-${ch.codePointAt(0)!.toString(16)}`;
       <div class="mb-4 flex items-center justify-between">
         <p class="text-2xl font-bold"><span lang="ja" class="font-jp">{ch}</span> <span class="text-fg-muted">· {romaji}</span></p>
         <form method="dialog">
-          <button class="grid size-9 place-items-center rounded-md hover:bg-bg-muted" aria-label="Đóng">
+          <button class="grid size-9 place-items-center rounded-md hover:bg-bg-muted" aria-label={t('Đóng', 'Close')}>
             <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18" /></svg>
           </button>
         </form>
       </div>
       <StrokeOrder char={ch} paths={strokes[ch]} />
       <button type="button" data-speak={ch} class="mt-4 w-full rounded-lg bg-brand py-2.5 font-semibold text-white hover:opacity-90">
-        🔊 Nghe phát âm
+        🔊 {t('Nghe phát âm', 'Listen')}
       </button>
     </dialog>
   ))}

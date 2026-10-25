@@ -7,8 +7,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "data": "node scripts/build-data.mjs",
-    "predev": "node scripts/copy-kuromoji.mjs",
-    "prebuild": "node scripts/copy-kuromoji.mjs",
+    "predev": "node scripts/copy-kuromoji.mjs && node scripts/gen-en-routes.mjs",
+    "prebuild": "node scripts/copy-kuromoji.mjs && node scripts/gen-en-routes.mjs",
     "preview:cf": "wrangler pages dev dist"
   },
   "keywords": [],

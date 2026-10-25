@@ -4,16 +4,20 @@ import PageHeader from '../../components/PageHeader.astro';
 import KanjiList from '../../components/KanjiList.astro';
 import StrokeOrder from '../../components/StrokeOrder.astro';
 import StrokeSteps from '../../components/StrokeSteps.astro';
-import { ALL, GRADE_LABELS, KANKEN, RADICALS, STROKES, THEMES, VOCAB, hvText, jlptSlug, kanjiUrl, type Kanji } from '../../data/kanji';
+import { ALL, KANKEN, RADICALS, STROKES, THEMES, VOCAB, gradeLabel, hvText, jlptSlug, kanjiUrl, radicalName, type Kanji } from '../../data/kanji';
+import { getLang, linker, pick } from '../../i18n';
 
 export function getStaticPaths() {
   return ALL.map((k) => ({ params: { char: k.c }, props: { k } }));
 }
 const { k } = Astro.props as { k: Kanji };
+const lang = getLang(Astro);
+const l = linker(lang);
+const t = (vi: string, en: string) => pick(lang, { vi, en });
 
 const radical = RADICALS[k.rad - 1];
 const kanken = KANKEN.find((g) => g.match(k))!;
-const themes = THEMES.filter((t) => t.kanji.some((x) => x.c === k.c));
+const themes = THEMES.filter((th) => th.kanji.some((x) => x.c === k.c));
 
 // Chữ trước/sau trong cùng danh sách JLPT (hoặc cùng cấp lớp nếu không thuộc JLPT).
 const siblings = ALL.filter((x) => (k.jlpt ? x.jlpt === k.jlpt : x.grade === k.grade));
@@ -29,23 +33,26 @@ const hv = hvText(k);
 const kun = k.kun.filter((r, i) => k.kun.findIndex((x) => x.replace('.', '') === r.replace('.', '')) === i);
 const meaning = k.en.join(', ');
 const facts: [string, string, string?][] = [
-  ['Số nét', String(k.strokes)],
-  ['Bộ thủ', `${radical.char} ${radical.name} (${radical.n})`, `/kanji/radicals/${radical.n}`],
-  ['JLPT', k.jlpt ? `N${k.jlpt}` : '—', k.jlpt ? `/kanji/jlpt/${jlptSlug(k.jlpt)}` : undefined],
-  ['Cấp lớp', k.grade ? (GRADE_LABELS[k.grade] ?? 'Jinmeiyō') : '—'],
-  ['Kanken', kanken.name, `/kanji/kanken/${kanken.slug}`],
-  ['Tần suất', k.freq ? `#${k.freq} / 2500` : '—'],
+  [t('Số nét', 'Strokes'), String(k.strokes)],
+  [t('Bộ thủ', 'Radical'), `${radical.char} ${radicalName(radical, lang)} (${radical.n})`, l(`/kanji/radicals/${radical.n}`)],
+  ['JLPT', k.jlpt ? `N${k.jlpt}` : '—', k.jlpt ? l(`/kanji/jlpt/${jlptSlug(k.jlpt)}`) : undefined],
+  [t('Cấp lớp', 'School grade'), k.grade ? (k.grade <= 8 ? gradeLabel(k.grade, lang) : 'Jinmeiyō') : '—'],
+  ['Kanken', kanken.name, l(`/kanji/kanken/${kanken.slug}`)],
+  [t('Tần suất', 'Frequency'), k.freq ? `#${k.freq} / 2500` : '—'],
 ];
 ---
 <BaseLayout
-  title={`${k.c} – ${hv || meaning}`}
-  description={`Kanji ${k.c}${hv ? ` (Hán Việt: ${hv})` : ''}: ${meaning}. Onyomi ${k.on.join('、') || '—'}, kunyomi ${k.kun.join('、') || '—'}, ${k.strokes} nét.`}
+  title={t(`${k.c} – ${hv || meaning}`, `${k.c} – ${k.en.slice(0, 3).join(', ') || hv}`)}
+  description={t(
+    `Kanji ${k.c}${hv ? ` (Hán Việt: ${hv})` : ''}: ${meaning}. Onyomi ${k.on.join('、') || '—'}, kunyomi ${k.kun.join('、') || '—'}, ${k.strokes} nét.`,
+    `Kanji ${k.c} means ${meaning || '—'}. On'yomi ${k.on.join('、') || '—'}, kun'yomi ${k.kun.join('、') || '—'}, ${k.strokes} strokes, with stroke order and example words.`,
+  )}
 >
   <PageHeader
     title={`Kanji ${k.c}`}
     crumbs={[
-      { label: 'Kanji', href: '/kanji' },
-      ...(k.jlpt ? [{ label: `N${k.jlpt}`, href: `/kanji/jlpt/${jlptSlug(k.jlpt)}` }] : []),
+      { label: 'Kanji', href: l('/kanji') },
+      ...(k.jlpt ? [{ label: `N${k.jlpt}`, href: l(`/kanji/jlpt/${jlptSlug(k.jlpt)}`) }] : []),
       { label: k.c },
     ]}
   />
@@ -59,29 +66,46 @@ const facts: [string, string, string?][] = [
           <span lang="ja" class="font-jp text-[9rem] leading-none">{k.c}</span>
         </div>
       )}
-      <nav class="mx-auto mt-4 flex max-w-60 justify-between text-sm md:max-w-none" aria-label="Kanji trước và sau">
-        {prev ? <a href={kanjiUrl(prev.c)} class="link-underline">← <span lang="ja">{prev.c}</span></a> : <span />}
-        {next && <a href={kanjiUrl(next.c)} class="link-underline"><span lang="ja">{next.c}</span> →</a>}
+      <nav class="mx-auto mt-4 flex max-w-60 justify-between text-sm md:max-w-none" aria-label={t('Kanji trước và sau', 'Previous and next kanji')}>
+        {prev ? <a href={kanjiUrl(prev.c, lang)} class="link-underline">← <span lang="ja">{prev.c}</span></a> : <span />}
+        {next && <a href={kanjiUrl(next.c, lang)} class="link-underline"><span lang="ja">{next.c}</span> →</a>}
       </nav>
     </div>
 
     <div>
-      {hv && (<>
-        <p class="text-sm font-semibold tracking-wide text-fg-muted uppercase">Hán Việt</p>
-        <p class="mt-1 font-serif text-3xl font-bold text-brand">{hv}</p>
-      </>)}
-      <p class="mt-6 text-sm font-semibold tracking-wide text-fg-muted uppercase">Nghĩa (tiếng Anh)</p>
-      <p class="mt-1 text-lg">{meaning || '—'}</p>
+      {lang === 'en' ? (
+        <>
+          <p class="text-sm font-semibold tracking-wide text-fg-muted uppercase">Meaning</p>
+          <p class="mt-1 font-serif text-3xl font-bold text-brand">{meaning || '—'}</p>
+          {hv && (
+            <>
+              <p class="mt-6 text-sm font-semibold tracking-wide text-fg-muted uppercase">Sino-Vietnamese (Hán Việt)</p>
+              <p class="mt-1 text-lg">{hv}</p>
+            </>
+          )}
+        </>
+      ) : (
+        <>
+          {hv && (
+            <>
+              <p class="text-sm font-semibold tracking-wide text-fg-muted uppercase">Hán Việt</p>
+              <p class="mt-1 font-serif text-3xl font-bold text-brand">{hv}</p>
+            </>
+          )}
+          <p class="mt-6 text-sm font-semibold tracking-wide text-fg-muted uppercase">Nghĩa (tiếng Anh)</p>
+          <p class="mt-1 text-lg">{meaning || '—'}</p>
+        </>
+      )}
 
       <dl class="mt-8 grid gap-6 sm:grid-cols-2">
         <div>
-          <dt class="text-sm font-semibold tracking-wide text-fg-muted uppercase">Onyomi (âm On)</dt>
+          <dt class="text-sm font-semibold tracking-wide text-fg-muted uppercase">{t('Onyomi (âm On)', "On'yomi")}</dt>
           <dd lang="ja" class="mt-2 flex flex-wrap gap-2">
             {k.on.length ? k.on.map((r) => <span class="rounded-md bg-bg-muted px-2.5 py-1 font-jp text-lg">{r}</span>) : '—'}
           </dd>
         </div>
         <div>
-          <dt class="text-sm font-semibold tracking-wide text-fg-muted uppercase">Kunyomi (âm Kun)</dt>
+          <dt class="text-sm font-semibold tracking-wide text-fg-muted uppercase">{t('Kunyomi (âm Kun)', "Kun'yomi")}</dt>
           <dd lang="ja" class="mt-2 flex flex-wrap gap-2">
             {kun.length
               ? kun.map((r) => {
@@ -109,9 +133,9 @@ const facts: [string, string, string?][] = [
 
       {themes.length > 0 && (
         <p class="mt-6 text-sm text-fg-muted">
-          Chủ đề:{' '}
-          {themes.map((t, i) => (
-            <>{i > 0 && ', '}<a href={`/kanji/themes/${t.slug}`} class="link-underline text-fg">{t.name}</a></>
+          {t('Chủ đề:', 'Themes:')}{' '}
+          {themes.map((th, i) => (
+            <>{i > 0 && ', '}<a href={l(`/kanji/themes/${th.slug}`)} class="link-underline text-fg">{th.name[lang]}</a></>
           ))}
         </p>
       )}
@@ -121,7 +145,7 @@ const facts: [string, string, string?][] = [
   {paths.length > 0 && (
     <section class="border-t border-dashed border-line">
       <div class="container-page py-10">
-        <h2 class="mb-6 text-xl font-bold">Thứ tự nét</h2>
+        <h2 class="mb-6 text-xl font-bold">{t('Thứ tự nét', 'Stroke order')}</h2>
         <StrokeSteps char={k.c} count={paths.length} />
       </div>
     </section>
@@ -130,7 +154,7 @@ const facts: [string, string, string?][] = [
   {words.length > 0 && (
     <section class="border-t border-dashed border-line">
       <div class="container-page py-10">
-        <h2 class="mb-6 text-xl font-bold">Từ vựng chứa <span lang="ja">{k.c}</span></h2>
+        <h2 class="mb-6 text-xl font-bold">{t('Từ vựng chứa', 'Words with')} <span lang="ja">{k.c}</span></h2>
         <ul class="grid gap-3 sm:grid-cols-2">
           {words.map(([word, reading, gloss, level]) => (
             <li class="flex items-start gap-4 rounded-xl border border-line bg-surface px-4 py-3">
@@ -141,7 +165,7 @@ const facts: [string, string, string?][] = [
                 <p lang="ja" class="text-sm text-fg-muted">{reading}</p>
                 <p class="mt-1 text-sm">{gloss}</p>
               </div>
-              <a href={`/kanji/jlpt/${jlptSlug(level)}`} class="shrink-0 rounded-full bg-bg-muted px-2 py-0.5 text-xs font-semibold text-fg-muted hover:text-brand">N{level}</a>
+              <a href={l(`/kanji/jlpt/${jlptSlug(level)}`)} class="shrink-0 rounded-full bg-bg-muted px-2 py-0.5 text-xs font-semibold text-fg-muted hover:text-brand">N{level}</a>
             </li>
           ))}
         </ul>
@@ -152,7 +176,7 @@ const facts: [string, string, string?][] = [
   {sameRadical.length > 0 && (
     <section class="border-t border-dashed border-line">
       <div class="container-page py-10">
-        <h2 class="mb-6 text-xl font-bold">Cùng bộ {radical.name} <span lang="ja">{radical.char}</span></h2>
+        <h2 class="mb-6 text-xl font-bold">{t(`Cùng bộ ${radical.name}`, `Other kanji with radical “${radical.nameEn}”`)} <span lang="ja">{radical.char}</span></h2>
         <KanjiList kanji={sameRadical} showToggle={false} />
       </div>
     </section>

@@ -1,0 +1,25 @@
+---
+// Liên kết sang cùng trang ở ngôn ngữ còn lại.
+import { LANG_LABELS, getLang, localize, pick } from '../i18n';
+import { publicPath } from '../lib/text';
+interface Props { class?: string }
+const { class: className = '' } = Astro.props;
+const lang = getLang(Astro);
+const other = lang === 'vi' ? 'en' : 'vi';
+const path = publicPath(Astro.url.pathname);
+// Trang 404 chỉ có một bản, nên chuyển sang trang chủ của ngôn ngữ kia.
+const href = localize(path === '/404' ? '/' : path, other);
+---
+<a
+  href={href}
+  hreflang={other}
+  lang={other}
+  title={pick(lang, { vi: 'Xem bằng tiếng Anh', en: 'Xem bằng tiếng Việt' })}
+  class={`inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-3 text-sm font-semibold hover:border-brand hover:text-brand ${className}`}
+>
+  <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+  </svg>
+  <span class="sm:hidden">{other.toUpperCase()}</span>
+  <span class="hidden sm:inline">{LANG_LABELS[other]}</span>
+</a>

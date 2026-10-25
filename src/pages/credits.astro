@@ -1,27 +1,62 @@
 ---
 import ProseLayout from '../layouts/ProseLayout.astro';
+import { getLang } from '../i18n';
+const lang = getLang(Astro);
 ---
-<ProseLayout title="Nguồn dữ liệu">
-  <p>Trang web sử dụng dữ liệu từ các dự án mã nguồn mở sau. Xin cảm ơn các tác giả!</p>
-  <ul>
-    <li>
-      <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project">KANJIDIC2</a> và{' '}
-      <a href="https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project">JMdict</a> –
-      © Electronic Dictionary Research and Development Group, giấy phép{' '}
-      <a href="https://www.edrdg.org/edrdg/licence.html">CC BY-SA 4.0</a>.
-    </li>
-    <li>
-      <a href="https://kanjivg.tagaini.net/">KanjiVG</a> – © Ulrich Apel, giấy phép{' '}
-      <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.
-    </li>
-    <li>
-      Danh sách kanji theo cấp JLPT: tổng hợp của Jonathan Waller (<a href="https://www.tanos.co.uk/jlpt/">tanos.co.uk</a>),
-      qua dự án <a href="https://github.com/davidluzgouveia/kanji-data">kanji-data</a> (MIT).
-    </li>
-    <li>
-      Từ vựng ví dụ theo cấp JLPT:
-      <a href="https://github.com/jamsinclair/open-anki-jlpt-decks">open-anki-jlpt-decks</a> – © Jamie Sinclair (MIT),
-      dựa trên danh sách của tanos.co.uk.
-    </li>
-  </ul>
-</ProseLayout>
+{lang === 'en' ? (
+  <ProseLayout title="Credits">
+    <p>This site is built on the following open data and open-source projects. Many thanks to their authors!</p>
+    <ul>
+      <li>
+        <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project">KANJIDIC2</a> – © Electronic Dictionary Research
+        and Development Group, licensed under <a href="https://www.edrdg.org/edrdg/licence.html">CC BY-SA 4.0</a>.
+      </li>
+      <li>
+        <a href="https://kanjivg.tagaini.net/">KanjiVG</a> (stroke order) – © Ulrich Apel, licensed under{' '}
+        <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.
+      </li>
+      <li>
+        JLPT kanji lists compiled by Jonathan Waller (<a href="https://www.tanos.co.uk/jlpt/">tanos.co.uk</a>), via{' '}
+        <a href="https://github.com/davidluzgouveia/kanji-data">kanji-data</a> (MIT).
+      </li>
+      <li>
+        JLPT vocabulary examples from{' '}
+        <a href="https://github.com/jamsinclair/open-anki-jlpt-decks">open-anki-jlpt-decks</a> – © Jamie Sinclair (MIT),
+        based on the tanos.co.uk lists.
+      </li>
+      <li>
+        Furigana generator: <a href="https://github.com/takuyaa/kuromoji.js">kuromoji.js</a> (Apache 2.0) with the
+        IPADIC dictionary.
+      </li>
+      <li>Fonts: Be Vietnam Pro, Noto Serif and Noto Serif JP (SIL Open Font License).</li>
+    </ul>
+  </ProseLayout>
+) : (
+  <ProseLayout title="Nguồn dữ liệu">
+    <p>Trang web được xây dựng từ các dữ liệu và dự án mã nguồn mở sau. Xin cảm ơn các tác giả!</p>
+    <ul>
+      <li>
+        <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project">KANJIDIC2</a> – © Electronic Dictionary Research
+        and Development Group, giấy phép <a href="https://www.edrdg.org/edrdg/licence.html">CC BY-SA 4.0</a>.
+      </li>
+      <li>
+        <a href="https://kanjivg.tagaini.net/">KanjiVG</a> (thứ tự nét) – © Ulrich Apel, giấy phép{' '}
+        <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.
+      </li>
+      <li>
+        Danh sách kanji theo cấp JLPT: tổng hợp của Jonathan Waller (<a href="https://www.tanos.co.uk/jlpt/">tanos.co.uk</a>),
+        qua dự án <a href="https://github.com/davidluzgouveia/kanji-data">kanji-data</a> (MIT).
+      </li>
+      <li>
+        Từ vựng ví dụ theo cấp JLPT:{' '}
+        <a href="https://github.com/jamsinclair/open-anki-jlpt-decks">open-anki-jlpt-decks</a> – © Jamie Sinclair (MIT),
+        dựa trên danh sách của tanos.co.uk.
+      </li>
+      <li>
+        Công cụ furigana: <a href="https://github.com/takuyaa/kuromoji.js">kuromoji.js</a> (Apache 2.0) với từ điển
+        IPADIC.
+      </li>
+      <li>Phông chữ: Be Vietnam Pro, Noto Serif và Noto Serif JP (SIL Open Font License).</li>
+    </ul>
+  </ProseLayout>
+)}
