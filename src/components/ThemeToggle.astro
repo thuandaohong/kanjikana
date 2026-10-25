@@ -1,14 +1,14 @@
 ---
 import { getLang, pick } from '../i18n';
 const lang = getLang(Astro);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 const options = [
-  { value: 'light', label: t('Giao diện sáng', 'Light theme'), icon: 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z' },
-  { value: 'dark', label: t('Giao diện tối', 'Dark theme'), icon: 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z' },
-  { value: 'system', label: t('Theo hệ thống', 'System theme'), icon: 'M4 5h16v10H4zM8 19h8m-4-4v4' },
+  { value: 'light', label: t('Giao diện sáng', 'Light theme', '浅色模式', '라이트 모드', 'Tema terang'), icon: 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z' },
+  { value: 'dark', label: t('Giao diện tối', 'Dark theme', '深色模式', '다크 모드', 'Tema gelap'), icon: 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z' },
+  { value: 'system', label: t('Theo hệ thống', 'System theme', '跟随系统', '시스템 설정', 'Ikuti sistem'), icon: 'M4 5h16v10H4zM8 19h8m-4-4v4' },
 ];
 ---
-<div class="theme-toggle inline-flex items-center gap-0.5 rounded-full border border-line p-1" role="radiogroup" aria-label={t('Chọn giao diện', 'Theme')}>
+<div class="theme-toggle inline-flex items-center gap-0.5 rounded-full border border-line p-1" role="radiogroup" aria-label={t('Chọn giao diện', 'Theme', '外观', '화면 모드', 'Tema')}>
   {options.map((o) => (
     <button
       type="button"

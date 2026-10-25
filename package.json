@@ -1,5 +1,5 @@
 {
-  "name": "kanji-site",
+  "name": "kanjiba",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -7,8 +7,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "data": "node scripts/build-data.mjs",
-    "predev": "node scripts/copy-kuromoji.mjs && node scripts/gen-en-routes.mjs",
-    "prebuild": "node scripts/copy-kuromoji.mjs && node scripts/gen-en-routes.mjs",
+    "og": "node scripts/build-og.mjs",
+    "predev": "node scripts/copy-kuromoji.mjs && node scripts/gen-locale-routes.mjs",
+    "prebuild": "node scripts/copy-kuromoji.mjs && node scripts/gen-locale-routes.mjs",
     "preview:cf": "wrangler pages dev dist"
   },
   "keywords": [],
@@ -24,6 +25,9 @@
     "tailwindcss": "^4.3.3"
   },
   "type": "module",
+  "engines": {
+    "node": ">=22.22.0"
+  },
   "devDependencies": {
     "@astrojs/sitemap": "^3.7.4",
     "kanjidic2-json": "^0.1.0",

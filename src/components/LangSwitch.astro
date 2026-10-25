@@ -1,25 +1,66 @@
 ---
-// Liên kết sang cùng trang ở ngôn ngữ còn lại.
-import { LANG_LABELS, getLang, localize, pick } from '../i18n';
+// Chuyển sang cùng trang ở ngôn ngữ khác. Mặc định là menu thả xuống; `inline` hiện thành một hàng nút (menu mobile).
+import { HTML_LANGS, LANGS, LANG_LABELS, LANG_SHORT, getLang, localize, pick } from '../i18n';
 import { publicPath } from '../lib/text';
-interface Props { class?: string }
-const { class: className = '' } = Astro.props;
+interface Props { class?: string; inline?: boolean }
+const { class: className = '', inline = false } = Astro.props;
 const lang = getLang(Astro);
-const other = lang === 'vi' ? 'en' : 'vi';
 const path = publicPath(Astro.url.pathname);
 // Trang 404 chỉ có một bản, nên chuyển sang trang chủ của ngôn ngữ kia.
-const href = localize(path === '/404' ? '/' : path, other);
+const links = LANGS.map((l) => ({ lang: l, href: localize(path === '/404' ? '/' : path, l), label: LANG_LABELS[l] }));
+const label = pick(lang, { vi: 'Ngôn ngữ', en: 'Language', zh: '语言', ko: '언어', id: 'Bahasa' });
+const globe = 'M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18';
 ---
-<a
-  href={href}
-  hreflang={other}
-  lang={other}
-  title={pick(lang, { vi: 'Xem bằng tiếng Anh', en: 'Xem bằng tiếng Việt' })}
-  class={`inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-3 text-sm font-semibold hover:border-brand hover:text-brand ${className}`}
->
-  <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-    <circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
-  </svg>
-  <span class="sm:hidden">{other.toUpperCase()}</span>
-  <span class="hidden sm:inline">{LANG_LABELS[other]}</span>
-</a>
+{inline ? (
+  <nav aria-label={label} class={`flex flex-wrap gap-1.5 ${className}`}>
+    {links.map((x) => (
+      <a
+        href={x.href}
+        hreflang={HTML_LANGS[x.lang]}
+        lang={HTML_LANGS[x.lang]}
+        aria-current={x.lang === lang ? 'true' : undefined}
+        class="rounded-full border border-line px-3 py-1.5 text-sm font-semibold hover:border-brand hover:text-brand aria-[current=true]:border-brand aria-[current=true]:text-brand"
+      >{x.label}</a>
+    ))}
+  </nav>
+) : (
+  <details class={`lang-switch relative ${className}`}>
+    <summary
+      class="inline-flex h-10 cursor-pointer list-none items-center gap-1.5 whitespace-nowrap rounded-full border border-line px-3 text-sm font-semibold hover:border-brand hover:text-brand [&::-webkit-details-marker]:hidden"
+      aria-label={label}
+      title={label}
+    >
+      <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" /><path d={globe} />
+      </svg>
+      <span class="xl:hidden">{LANG_SHORT[lang]}</span>
+      <span class="hidden xl:inline">{LANG_LABELS[lang]}</span>
+    </summary>
+    <ul class="absolute top-full right-0 z-50 mt-2 min-w-40 rounded-xl border border-line bg-surface p-1.5 shadow-lg">
+      {links.map((x) => (
+        <li>
+          <a
+            href={x.href}
+            hreflang={HTML_LANGS[x.lang]}
+            lang={HTML_LANGS[x.lang]}
+            aria-current={x.lang === lang ? 'true' : undefined}
+            class="block rounded-md px-3 py-1.5 text-sm hover:bg-bg-muted hover:text-brand aria-[current=true]:font-semibold aria-[current=true]:text-brand"
+          >{x.label}</a>
+        </li>
+      ))}
+    </ul>
+  </details>
+)}
+
+<script>
+  // Đóng menu ngôn ngữ khi click ra ngoài hoặc nhấn Esc.
+  const menus = [...document.querySelectorAll<HTMLDetailsElement>('.lang-switch')];
+  document.addEventListener('click', (e) => {
+    menus.forEach((d) => {
+      if (d.open && !d.contains(e.target as Node)) d.open = false;
+    });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') menus.forEach((d) => (d.open = false));
+  });
+</script>

@@ -2,6 +2,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import KanjiList from '../../../components/KanjiList.astro';
+import AdSlot from '../../../components/AdSlot.astro';
 import { ALL, KANKEN } from '../../../data/kanji';
 import { getLang, linker, pick } from '../../../i18n';
 
@@ -12,18 +13,18 @@ const { group } = Astro.props;
 const kanji = ALL.filter(group.match);
 const lang = getLang(Astro);
 const l = linker(lang);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 ---
 <BaseLayout
-  title={`Kanji Kanken ${group.name}`}
-  description={t(`Danh sách ${kanji.length} kanji Kanken ${group.name}.`, `All ${kanji.length} kanji for Kanken ${group.name}.`)}
+  title={t(`Kanji Kanken ${group.name}`, `Kanji Kanken ${group.name}`, `汉检 ${group.name} 汉字`, `한자검정 ${group.name} 한자`, `Kanji Kanken ${group.name}`)}
+  description={t(`Danh sách ${kanji.length} kanji Kanken ${group.name}.`, `All ${kanji.length} kanji for Kanken ${group.name}.`, `汉检 ${group.name} 全部 ${kanji.length} 个汉字。`, `한자검정 ${group.name} 한자 ${kanji.length}자 전체.`, `Semua ${kanji.length} kanji untuk Kanken ${group.name}.`)}
 >
   <PageHeader
-    title={`Kanken ${group.name}`}
-    crumbs={[{ label: 'Kanji', href: l('/kanji') }, { label: 'Kanken', href: l('/kanji/kanken') }, { label: group.name }]}
+    title={t(`Kanken ${group.name}`, `Kanken ${group.name}`, `汉检 ${group.name}`, `한자검정 ${group.name}`, `Kanken ${group.name}`)}
+    crumbs={[{ label: t('Kanji', 'Kanji', '汉字', '한자', 'Kanji'), href: l('/kanji') }, { label: t('Kanken', 'Kanken', '汉检', '한자검정', 'Kanken'), href: l('/kanji/kanken') }, { label: group.name }]}
     lead={group.note[lang]}
   >
-    <nav class="mt-6 flex flex-wrap gap-2" aria-label={t('Cấp Kanken khác', 'Other Kanken levels')}>
+    <nav class="mt-6 flex flex-wrap gap-2" aria-label={t('Cấp Kanken khác', 'Other Kanken levels', '其他汉检级别', '다른 한자검정 급수', 'Level Kanken lainnya')}>
       {KANKEN.map((g) => (
         <a
           href={l(`/kanji/kanken/${g.slug}`)}
@@ -34,6 +35,7 @@ const t = (vi: string, en: string) => pick(lang, { vi, en });
       ))}
     </nav>
   </PageHeader>
+  <AdSlot placement="list" class="pt-8" />
   <section class="container-page py-10">
     <KanjiList kanji={kanji} />
   </section>

@@ -5,52 +5,64 @@ import { getLang, linker, pick } from '../../i18n';
 
 const lang = getLang(Astro);
 const l = linker(lang);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 // Chuỗi cho script phía trình duyệt; {n}, {q}, {max}, {chars} được thay khi hiển thị.
 const strings = {
   lang,
   kanjiBase: l('/kanji/'),
-  loading: t('Đang tải dữ liệu…', 'Loading data…'),
-  idle: t('Có {n} kanji trong dữ liệu. Hãy nhập từ khoá.', '{n} kanji available. Type something to search.'),
-  none: t('Không tìm thấy kết quả cho “{q}”.', 'No results for “{q}”.'),
-  count: t('{n} kết quả', '{n} results'),
-  countOne: t('1 kết quả', '1 result'),
-  truncated: t(' (hiển thị {max} kết quả đầu)', ' (showing the first {max})'),
-  missing: t('Chưa có dữ liệu cho: {chars}', 'No data yet for: {chars}'),
-  error: t('Không tải được dữ liệu. Hãy thử tải lại trang.', 'Could not load data. Please reload the page.'),
+  loading: t('Đang tải dữ liệu…', 'Loading data…', '正在加载数据…', '데이터를 불러오는 중…', 'Memuat data…'),
+  idle: t('Có {n} kanji trong dữ liệu. Hãy nhập từ khoá.', '{n} kanji available. Type something to search.', '共有 {n} 个汉字，请输入关键词。', '한자 {n}자가 있습니다. 검색어를 입력하세요.', 'Tersedia {n} kanji. Ketik kata kunci untuk mencari.'),
+  none: t('Không tìm thấy kết quả cho “{q}”.', 'No results for “{q}”.', '没有找到“{q}”的结果。', '“{q}”에 대한 결과가 없습니다.', 'Tidak ada hasil untuk “{q}”.'),
+  count: t('{n} kết quả', '{n} results', '{n} 个结果', '결과 {n}개', '{n} hasil'),
+  countOne: t('1 kết quả', '1 result', '1 个结果', '결과 1개', '1 hasil'),
+  truncated: t(' (hiển thị {max} kết quả đầu)', ' (showing the first {max})', '（显示前 {max} 个）', ' (처음 {max}개 표시)', ' (menampilkan {max} hasil pertama)'),
+  missing: t('Chưa có dữ liệu cho: {chars}', 'No data yet for: {chars}', '暂无以下汉字的数据：{chars}', '데이터가 없는 한자: {chars}', 'Belum ada data untuk: {chars}'),
+  error: t('Không tải được dữ liệu. Hãy thử tải lại trang.', 'Could not load data. Please reload the page.', '无法加载数据，请刷新页面重试。', '데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.', 'Gagal memuat data. Silakan muat ulang halaman.'),
 };
-const examples = lang === 'en' ? ['water', 'tree', 'やま', 'kaku', 'hoc', '日本語を勉強します'] : ['hoc', 'thủy', 'tree', 'やま', 'kaku', '日本語を勉強します'];
+const examples = pick(lang, {
+  vi: ['hoc', 'thủy', 'tree', 'やま', 'kaku', '日本語を勉強します'],
+  en: ['water', 'tree', 'やま', 'kaku', 'manabu', '日本語を勉強します'],
+  zh: ['xue', 'shui', 'tree', 'やま', 'kaku', '日本語を勉強します'],
+  ko: ['학', '수', 'tree', 'やま', 'kaku', '日本語を勉強します'],
+  id: ['water', 'tree', 'やま', 'kaku', 'manabu', '日本語を勉強します'],
+});
 ---
 <BaseLayout
-  title={t('Tìm kanji', 'Kanji search')}
+  title={t('Tìm kanji', 'Kanji search', '汉字搜索', '한자 검색', 'Cari kanji')}
   description={t(
     'Tìm kanji theo chữ, âm Hán Việt (có dấu hoặc không dấu), nghĩa tiếng Anh, âm On/Kun hoặc romaji.',
-    'Search kanji by character, English meaning, on/kun reading in kana or romaji, or Sino-Vietnamese reading.',
+    'Search kanji by character, English meaning, or on/kun reading in kana or romaji.',
+    '按汉字、拼音、英文释义、假名或罗马字的音读/训读搜索日语汉字。',
+    '한자, 한국 한자음, 영어 뜻, 가나나 로마자로 쓴 음독·훈독으로 일본 한자를 검색합니다.',
+    'Cari kanji berdasarkan huruf, arti dalam bahasa Inggris, atau cara baca on/kun dalam kana maupun romaji.',
   )}
 >
   <script is:inline type="application/json" id="page-strings" set:html={JSON.stringify(strings)} />
   <PageHeader
-    title={t('Tìm kanji', 'Kanji search')}
-    crumbs={[{ label: 'Kanji', href: l('/kanji') }, { label: t('Tìm kiếm', 'Search') }]}
+    title={t('Tìm kanji', 'Kanji search', '汉字搜索', '한자 검색', 'Cari kanji')}
+    crumbs={[{ label: t('Kanji', 'Kanji', '汉字', '한자', 'Kanji'), href: l('/kanji') }, { label: t('Tìm kiếm', 'Search', '搜索', '검색', 'Cari') }]}
     lead={t(
       'Gõ âm Hán Việt (có dấu hoặc không), nghĩa tiếng Anh, cách đọc bằng kana hoặc romaji. Bạn cũng có thể dán cả một câu tiếng Nhật để liệt kê các kanji trong đó.',
-      'Type an English meaning, a reading in kana or romaji, or a Sino-Vietnamese reading. You can also paste a Japanese sentence to list the kanji it contains.',
+      'Type an English meaning or a reading in kana or romaji. You can also paste a Japanese sentence to list the kanji it contains.',
+      '输入拼音（可不带声调）、英文释义，或用假名、罗马字输入读音。也可以粘贴一句日语，列出其中的汉字。',
+      '한국 한자음(예: 학), 영어 뜻, 가나나 로마자로 쓴 읽기를 입력하세요. 일본어 문장을 붙여 넣으면 그 안의 한자를 모두 보여 줍니다.',
+      'Ketik arti dalam bahasa Inggris, atau cara baca dalam kana maupun romaji. Kamu juga bisa menempelkan kalimat bahasa Jepang untuk melihat semua kanji di dalamnya.',
     )}
   >
     <form id="search-form" class="relative mt-6 max-w-2xl" role="search">
-      <label for="search-q" class="sr-only">{t('Từ khoá', 'Search term')}</label>
+      <label for="search-q" class="sr-only">{t('Từ khoá', 'Search term', '关键词', '검색어', 'Kata kunci')}</label>
       <input
         id="search-q"
         name="q"
         type="search"
         autocomplete="off"
         autofocus
-        placeholder={t('Ví dụ: hoc, thủy, water, がく, manabu, 日本語…', 'e.g. water, がく, manabu, 日本語…')}
+        placeholder={t('Ví dụ: hoc, thủy, water, がく, manabu, 日本語…', 'e.g. water, がく, manabu, 日本語…', '例如：xue、water、がく、manabu、日本語…', '예: 학, water, がく, manabu, 日本語…', 'mis. water, がく, manabu, 日本語…')}
         class="h-12 w-full rounded-xl border border-line bg-surface px-4 text-lg placeholder:text-fg-muted focus:border-brand focus:outline-none"
       />
     </form>
     <p class="mt-3 text-sm text-fg-muted">
-      {t('Thử:', 'Try:')}{' '}
+      {t('Thử:', 'Try:', '试试：', '예시:', 'Coba:')}{' '}
       {examples.map((s, i) => (
         <>{i > 0 && ' · '}<button type="button" data-example={s} class="link-underline">{s}</button></>
       ))}
@@ -67,8 +79,10 @@ const examples = lang === 'en' ? ['water', 'tree', 'やま', 'kaku', 'hoc', '日
   import { foldVi, toHiragana } from '../../lib/text';
 
   type Entry = {
-    c: string; hv: string[]; en: string[]; on: string[]; kun: string[];
-    jlpt: number | null; grade: number | null; strokes: number; hvf: string[]; ro: string[];
+    c: string; hv: string[]; py: string[]; ko: string[]; en: string[]; on: string[]; kun: string[];
+    jlpt: number | null; grade: number | null; strokes: number; hvf: string[]; pyf: string[]; ro: string[];
+    /** Nghĩa đã dịch theo ngôn ngữ của trang (tải riêng), và bản không dấu từng nghĩa để tìm kiếm */
+    m?: string; mf?: string[];
   };
 
   const S = JSON.parse(document.getElementById('page-strings')!.textContent!);
@@ -80,19 +94,34 @@ const examples = lang === 'en' ? ['water', 'tree', 'やま', 'kaku', 'hoc', '日
 
   const CJK = /[㐀-鿿豈-﫿]/g;
   const KANA = /^[ぁ-ヿー]+$/;
+  const HANGUL = /^[가-힣\s]+$/;
 
   let data: Entry[] = [];
   let byChar = new Map<string, Entry>();
 
   function scoreLatin(k: Entry, token: string): number {
     let s = 0;
-    for (const h of k.hvf) {
+    // Âm Hán Việt chỉ tính ở bản tiếng Việt.
+    for (const h of S.lang === 'vi' ? k.hvf : []) {
       if (h === token) s = Math.max(s, 100);
       else if (h.startsWith(token)) s = Math.max(s, 40);
+    }
+    // Pinyin chỉ tính ở bản tiếng Trung, vì các âm ngắn (li, shi…) trùng với rất nhiều chữ.
+    if (S.lang === 'zh') {
+      for (const p of k.pyf) {
+        if (p === token) s = Math.max(s, 95);
+        else if (token.length >= 2 && p.startsWith(token)) s = Math.max(s, 35);
+      }
     }
     for (const r of k.ro) {
       if (r === token) s = Math.max(s, 90);
       else if (token.length >= 2 && r.startsWith(token)) s = Math.max(s, 30);
+    }
+    // Nghĩa đã dịch (tiếng Việt, Indonesia): khớp cả nghĩa hoặc một từ trong nghĩa.
+    for (const m of k.mf ?? []) {
+      if (m === token) s = Math.max(s, 85);
+      else if (m.split(/\s+/).includes(token)) s = Math.max(s, 70);
+      else if (token.length >= 4 && m.includes(token)) s = Math.max(s, 15);
     }
     for (const m of k.en) {
       const words = m.toLowerCase().split(/[^a-z]+/);
@@ -128,7 +157,18 @@ const examples = lang === 'en' ? ['water', 'tree', 'やま', 'kaku', 'hoc', '日
     }
 
     let scored: [Entry, number][];
-    if (KANA.test(q)) {
+    if (HANGUL.test(q)) {
+      // Âm Hán-Hàn: mỗi âm tiết hangul là một từ khoá ("학생" → 학, 생).
+      const tokens = [...q.replace(/\s+/g, '')];
+      // Cả chuỗi khớp một nghĩa tiếng Hàn ("배우다") thì xếp trên mọi kết quả khớp âm theo từng âm tiết.
+      const whole = q.replace(/\s+/g, '');
+      const meaningScore = (k: Entry) => {
+        if (whole.length < 2 || !k.mf) return 0;
+        const senses = k.mf.map((m) => m.replace(/\s+/g, ''));
+        return senses.includes(whole) ? 1000 : senses.some((m) => m.startsWith(whole)) ? 500 : 0;
+      };
+      scored = data.map((k) => [k, tokens.reduce((sum, t) => sum + (k.ko.includes(t) ? 100 : 0), 0) + meaningScore(k)]);
+    } else if (KANA.test(q)) {
       const h = toHiragana(q);
       scored = data.map((k) => [k, scoreKana(k, h)]);
     } else {
@@ -158,9 +198,12 @@ const examples = lang === 'en' ? ['water', 'tree', 'やま', 'kaku', 'hoc', '日
         big.lang = 'ja';
         const body = el('div', 'min-w-0 flex-1');
         const head = el('p', 'flex items-baseline justify-between gap-2');
-        // Bản tiếng Việt nổi bật âm Hán Việt, bản tiếng Anh nổi bật nghĩa.
-        const title = S.lang === 'en' ? k.en.slice(0, 2).join(', ') : k.hv.join(', ');
-        const sub = S.lang === 'en' ? k.en.slice(2).join(', ') : k.en.join(', ');
+        // Bản vi/zh/ko nổi bật âm đọc của người học (Hán Việt, pinyin, âm Hán-Hàn).
+        // Tiếng Anh và tiếng Indonesia không có âm đọc riêng (local là undefined) nên nổi bật nghĩa.
+        const local: string[] | undefined = ({ vi: k.hv, zh: k.py, ko: k.ko } as Record<string, string[]>)[S.lang];
+        const meaning = k.m ?? k.en.join(', ');
+        const title = local ? local.join(', ') : k.m ?? k.en.slice(0, 2).join(', ');
+        const sub = local ? meaning : k.m ? '' : k.en.slice(2).join(', ');
         head.append(el('span', 'font-serif text-lg font-bold text-brand', title || '—'));
         if (k.jlpt) head.append(el('span', 'shrink-0 rounded-full bg-bg-muted px-2 py-0.5 text-xs font-semibold text-fg-muted', `N${k.jlpt}`));
         const reading = el('p', 'mt-1 truncate text-sm', [...k.on, ...k.kun].slice(0, 5).join('、'));
@@ -197,10 +240,17 @@ const examples = lang === 'en' ? ['water', 'tree', 'やま', 'kaku', 'hoc', '日
     }),
   );
 
-  fetch('/data/kanji.json')
-    .then((r) => r.json())
-    .then((json) => {
+  // Bản không phải tiếng Anh tải thêm nghĩa đã dịch của ngôn ngữ đó.
+  Promise.all([
+    fetch('/data/kanji.json').then((r) => r.json()),
+    S.lang === 'en' ? {} : fetch(`/data/meanings/${S.lang}.json`).then((r) => r.json()),
+  ])
+    .then(([json, meanings]: [{ kanji: Entry[] }, Record<string, string>]) => {
       data = json.kanji;
+      for (const k of data) {
+        k.m = meanings[k.c];
+        k.mf = k.m?.split(/[,、]/).map((x) => foldVi(x.trim())).filter(Boolean);
+      }
       byChar = new Map(data.map((k) => [k.c, k]));
       render(input.value);
     })

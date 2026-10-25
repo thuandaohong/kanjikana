@@ -8,8 +8,7 @@ const lang = getLang(Astro);
   <ProseLayout title="About">
     <p>
       {SITE.name} is a free collection of kanji lists and tools for learners of Japanese, from complete beginners to
-      JLPT N1. It is made primarily for Vietnamese speakers, so every kanji also shows its Sino-Vietnamese (Hán Việt)
-      reading.
+      JLPT N1.
     </p>
     <h2>What's here?</h2>
     <ul>
@@ -17,6 +16,48 @@ const lang = getLang(Astro);
       <li>Hiragana and katakana charts.</li>
       <li>Kanji search, a furigana generator and flashcards.</li>
     </ul>
+  </ProseLayout>
+) : lang === 'id' ? (
+  <ProseLayout title="Tentang">
+    <p>
+      {SITE.name} adalah kumpulan daftar kanji dan alat bantu gratis untuk pelajar bahasa Jepang, dari pemula sampai
+      persiapan JLPT N1.
+    </p>
+    <h2>Apa saja yang ada di sini?</h2>
+    <ul>
+      <li>Daftar kanji per level JLPT, level Kanken, radikal, dan tema.</li>
+      <li>Tabel hiragana dan katakana.</li>
+      <li>Pencarian kanji, pembuat furigana, dan flashcard.</li>
+    </ul>
+    <p>Arti kanji diterjemahkan dengan bantuan AI dari arti bahasa Inggris di kamus sumber terbuka KANJIDIC2, begitu juga arti contoh kata, jadi mungkin ada yang kurang tepat.</p>
+  </ProseLayout>
+) : lang === 'zh' ? (
+  <ProseLayout title="关于本站">
+    <p>
+      {SITE.name} 是一套免费的日语汉字列表和学习工具，适合从零基础到备考 JLPT N1 的学习者。中文版为每个汉字标注拼音，
+      方便你把熟悉的汉语读音与日语的音读联系起来。
+    </p>
+    <h2>这里有什么？</h2>
+    <ul>
+      <li>按 JLPT 级别、汉检级别、部首和主题分类的汉字列表。</li>
+      <li>平假名和片假名表。</li>
+      <li>汉字搜索、假名注音生成器和闪卡。</li>
+    </ul>
+    <p>汉字释义由开源词典 KANJIDIC2 的英文释义翻译而来（AI 辅助），例词释义也同样翻译而来，可能有不准确之处。</p>
+  </ProseLayout>
+) : lang === 'ko' ? (
+  <ProseLayout title="소개">
+    <p>
+      {SITE.name}은 일본어를 처음 배우는 분부터 JLPT N1 수험생까지를 위한 무료 한자 목록과 학습 도구입니다. 한국어
+      버전에서는 모든 한자에 한국 한자음을 함께 보여 주어, 이미 알고 있는 한자 지식을 일본어 음독과 연결하기 쉽습니다.
+    </p>
+    <h2>무엇이 있나요?</h2>
+    <ul>
+      <li>JLPT 급수, 한자검정 급수, 부수, 주제별 한자 목록.</li>
+      <li>히라가나와 가타카나 표.</li>
+      <li>한자 검색, 후리가나 생성기, 플래시카드.</li>
+    </ul>
+    <p>한자의 뜻은 오픈 소스 사전 KANJIDIC2의 영어 뜻을 AI의 도움으로 번역한 것이라 부정확한 부분이 있을 수 있습니다. 예시 단어의 뜻도 같은 방식으로 번역했습니다.</p>
   </ProseLayout>
 ) : (
   <ProseLayout title="Giới thiệu">

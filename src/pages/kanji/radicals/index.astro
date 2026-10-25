@@ -1,26 +1,32 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/PageHeader.astro';
-import { RADICALS, radicalName } from '../../../data/kanji';
+import { RADICALS, kanjiCount, radicalName } from '../../../data/kanji';
 import { getLang, linker, pick } from '../../../i18n';
 
 const lang = getLang(Astro);
 const l = linker(lang);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 ---
 <BaseLayout
-  title={t('Kanji theo bộ thủ', 'Kanji by radical')}
+  title={t('Kanji theo bộ thủ', 'Kanji by radical', '按部首学汉字', '부수별 한자', 'Kanji per radikal')}
   description={t(
     '214 bộ thủ Khang Hy kèm tên Hán Việt và danh sách kanji thuộc mỗi bộ.',
     'The 214 Kangxi radicals with the kanji that belong to each one.',
+    '康熙字典 214 部首，附拼音和各部首下的汉字。',
+    '강희자전 214 부수와 한자음, 부수별 한자 목록.',
+    '214 radikal Kangxi beserta kanji yang termasuk di dalamnya.',
   )}
 >
   <PageHeader
-    title={t('Kanji theo bộ thủ', 'Kanji by radical')}
-    crumbs={[{ label: 'Kanji', href: l('/kanji') }, { label: t('Bộ thủ', 'Radicals') }]}
+    title={t('Kanji theo bộ thủ', 'Kanji by radical', '按部首学汉字', '부수별 한자', 'Kanji per radikal')}
+    crumbs={[{ label: t('Kanji', 'Kanji', '汉字', '한자', 'Kanji'), href: l('/kanji') }, { label: t('Bộ thủ', 'Radicals', '部首', '부수', 'Radikal') }]}
     lead={t(
       '214 bộ thủ Khang Hy, xếp theo số thứ tự. Bộ thủ là thành phần dùng để phân loại và tra cứu chữ Hán.',
       'The 214 Kangxi radicals, in traditional order. Radicals are the components used to classify and look up kanji.',
+      '康熙字典 214 部首，按传统顺序排列。部首是用来分类和查找汉字的组成部分。',
+      '강희자전 214 부수를 전통 순서로 배열했습니다. 부수는 한자를 분류하고 찾을 때 쓰는 구성 요소입니다.',
+      '214 radikal Kangxi menurut urutan tradisional. Radikal adalah komponen yang dipakai untuk mengelompokkan dan mencari kanji.',
     )}
   />
   <section class="container-page py-10">
@@ -32,14 +38,14 @@ const t = (vi: string, en: string) => pick(lang, { vi, en });
               <span class="self-start text-xs text-fg-muted tabular-nums">{r.n}</span>
               <span lang="ja" class="font-jp text-3xl leading-none">{r.char}</span>
               <span class="mt-2 text-center text-sm font-semibold">{radicalName(r, lang)}</span>
-              <span class="text-xs text-fg-muted">{r.kanji.length} kanji</span>
+              <span class="text-xs text-fg-muted">{kanjiCount(r.kanji.length, lang)}</span>
             </a>
           ) : (
             <div class="flex h-full flex-col items-center rounded-lg border border-dashed border-line px-2 py-3 text-fg-muted">
               <span class="self-start text-xs tabular-nums">{r.n}</span>
               <span lang="ja" class="font-jp text-3xl leading-none">{r.char}</span>
               <span class="mt-2 text-center text-sm">{radicalName(r, lang)}</span>
-              <span class="text-xs">0 kanji</span>
+              <span class="text-xs">{kanjiCount(0, lang)}</span>
             </div>
           )}
         </li>

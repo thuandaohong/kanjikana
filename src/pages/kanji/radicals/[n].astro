@@ -2,7 +2,8 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import KanjiList from '../../../components/KanjiList.astro';
-import { RADICALS, radicalName, radicalTitle } from '../../../data/kanji';
+import AdSlot from '../../../components/AdSlot.astro';
+import { RADICALS, radicalLabel, radicalName, radicalTitle } from '../../../data/kanji';
 import { getLang, linker, pick } from '../../../i18n';
 
 export function getStaticPaths() {
@@ -11,35 +12,38 @@ export function getStaticPaths() {
 const { r } = Astro.props;
 const lang = getLang(Astro);
 const l = linker(lang);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 const prev = RADICALS.slice(0, r.n - 1).findLast((x) => x.kanji.length > 0);
 const next = RADICALS.slice(r.n).find((x) => x.kanji.length > 0);
 ---
 <BaseLayout
-  title={`${radicalTitle(r, lang)} ${r.char}`}
+  title={radicalLabel(r, lang)}
   description={t(
     `Bộ thủ số ${r.n}: ${r.char} (${r.name}), gồm ${r.kanji.length} kanji.`,
     `Kangxi radical ${r.n}: ${r.char} (“${r.nameEn}”), with ${r.kanji.length} kanji.`,
+    `康熙部首第 ${r.n} 部：${r.char}（${radicalName(r, lang)}），共 ${r.kanji.length} 个汉字。`,
+    `강희 부수 ${r.n}번: ${r.char}(${radicalName(r, lang)}), 한자 ${r.kanji.length}자.`,
+    `Radikal Kangxi ${r.n}: ${r.char} (“${r.nameEn}”), dengan ${r.kanji.length} kanji.`,
   )}
 >
   <PageHeader
     title={radicalTitle(r, lang)}
-    crumbs={[{ label: 'Kanji', href: l('/kanji') }, { label: t('Bộ thủ', 'Radicals'), href: l('/kanji/radicals') }, { label: radicalName(r, lang) }]}
+    crumbs={[{ label: t('Kanji', 'Kanji', '汉字', '한자', 'Kanji'), href: l('/kanji') }, { label: t('Bộ thủ', 'Radicals', '部首', '부수', 'Radikal'), href: l('/kanji/radicals') }, { label: radicalName(r, lang) }]}
   >
     <div class="mt-6 flex items-center gap-5">
       <span lang="ja" class="grid size-24 place-items-center rounded-xl border border-line bg-surface font-jp text-6xl">{r.char}</span>
       <p class="text-fg-muted">
-        {t(`Bộ thủ số ${r.n}`, `Radical no. ${r.n}`)}
-        {lang === 'en' && <> · Hán Việt: {r.name}</>}
-        <br />{t(`${r.kanji.length} kanji trong danh sách`, `${r.kanji.length} kanji in our lists`)}
+        {t(`Bộ thủ số ${r.n}`, `Radical no. ${r.n}`, `第 ${r.n} 部`, `부수 ${r.n}번`, `Radikal no. ${r.n}`)}
+        <br />{t(`${r.kanji.length} kanji trong danh sách`, `${r.kanji.length} kanji in our lists`, `本站列表中有 ${r.kanji.length} 个汉字`, `이 사이트 목록의 한자 ${r.kanji.length}자`, `${r.kanji.length} kanji di daftar kami`)}
       </p>
     </div>
   </PageHeader>
+  <AdSlot placement="list" class="pt-8" />
   <section class="container-page py-10">
     <KanjiList kanji={r.kanji} />
     <nav class="mt-10 flex justify-between text-sm">
-      {prev ? <a href={l(`/kanji/radicals/${prev.n}`)} class="link-underline">← {radicalTitle(prev, lang)} <span lang="ja">{prev.char}</span></a> : <span />}
-      {next && <a href={l(`/kanji/radicals/${next.n}`)} class="link-underline">{radicalTitle(next, lang)} <span lang="ja">{next.char}</span> →</a>}
+      {prev ? <a href={l(`/kanji/radicals/${prev.n}`)} class="link-underline">← {radicalLabel(prev, lang)}</a> : <span />}
+      {next && <a href={l(`/kanji/radicals/${next.n}`)} class="link-underline">{radicalLabel(next, lang)} →</a>}
     </nav>
   </section>
 </BaseLayout>

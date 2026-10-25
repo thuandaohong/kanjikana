@@ -2,22 +2,22 @@
 // Danh sách kanji, xem dạng lưới hoặc bảng. Lựa chọn được nhớ cho mọi danh sách.
 // Các dòng của bảng nằm trong <template> và chỉ được dựng khi chuyển sang chế độ bảng,
 // để trang danh sách dài (N1 có hơn 1.200 chữ) không phải dựng gấp đôi số phần tử.
-import { type Kanji, hvText, kanjiUrl, kunPlain, shortLabel } from '../data/kanji';
+import { type Kanji, LOCAL_READING_LABEL, kanjiCount, kanjiUrl, kunPlain, localReadings, meaningText, shortLabel } from '../data/kanji';
 import { getLang, pick } from '../i18n';
 interface Props { kanji: Kanji[]; showToggle?: boolean }
 const { kanji, showToggle = true } = Astro.props;
 const lang = getLang(Astro);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
-// Cột Hán Việt chỉ hiện ở bản tiếng Việt.
-const showHv = lang === 'vi';
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
+// Cột âm đọc của người học: Hán Việt (vi), pinyin (zh), âm Hán-Hàn (ko); bản tiếng Anh không có.
+const readingLabel = LOCAL_READING_LABEL[lang];
 ---
 <div class="kanji-list" data-view="grid">
   {showToggle && (
     <div class="mb-5 flex items-center justify-between gap-4">
-      <p class="text-sm text-fg-muted">{kanji.length} kanji</p>
-      <div class="inline-flex rounded-lg border border-line p-0.5 text-sm" role="group" aria-label={t('Kiểu hiển thị', 'View')}>
-        <button type="button" data-set-view="grid" class="rounded-md px-3 py-1 aria-pressed:bg-bg-muted aria-pressed:font-semibold">{t('Lưới', 'Grid')}</button>
-        <button type="button" data-set-view="table" class="rounded-md px-3 py-1 aria-pressed:bg-bg-muted aria-pressed:font-semibold">{t('Bảng', 'Table')}</button>
+      <p class="text-sm text-fg-muted">{kanjiCount(kanji.length, lang)}</p>
+      <div class="inline-flex rounded-lg border border-line p-0.5 text-sm" role="group" aria-label={t('Kiểu hiển thị', 'View', '显示方式', '보기 방식', 'Tampilan')}>
+        <button type="button" data-set-view="grid" class="rounded-md px-3 py-1 aria-pressed:bg-bg-muted aria-pressed:font-semibold">{t('Lưới', 'Grid', '网格', '격자', 'Kisi')}</button>
+        <button type="button" data-set-view="table" class="rounded-md px-3 py-1 aria-pressed:bg-bg-muted aria-pressed:font-semibold">{t('Bảng', 'Table', '表格', '표', 'Tabel')}</button>
       </div>
     </div>
   )}
@@ -27,7 +27,7 @@ const showHv = lang === 'vi';
       <li>
         <a
           href={kanjiUrl(k.c, lang)}
-          title={k.en.slice(0, 3).join(', ')}
+          title={meaningText(k, lang)}
           class="flex aspect-square flex-col items-center justify-center rounded-lg border border-line bg-surface transition hover:border-brand/60 hover:text-brand"
         >
           <span lang="ja" class="font-jp text-3xl leading-none">{k.c}</span>
@@ -41,12 +41,12 @@ const showHv = lang === 'vi';
     <table class="w-full min-w-[40rem] text-left text-sm">
       <thead class="bg-bg-muted text-fg-muted">
         <tr>
-          <th class="px-4 py-2.5 font-semibold">Kanji</th>
-          {showHv && <th class="px-4 py-2.5 font-semibold">Hán Việt</th>}
-          <th class="px-4 py-2.5 font-semibold">{t('Nghĩa', 'Meaning')}</th>
-          <th class="px-4 py-2.5 font-semibold">Onyomi</th>
-          <th class="px-4 py-2.5 font-semibold">Kunyomi</th>
-          <th class="px-4 py-2.5 text-right font-semibold">{t('Nét', 'Strokes')}</th>
+          <th class="px-4 py-2.5 font-semibold">{t('Kanji', 'Kanji', '汉字', '한자', 'Kanji')}</th>
+          {readingLabel && <th class="px-4 py-2.5 font-semibold">{readingLabel}</th>}
+          <th class="px-4 py-2.5 font-semibold">{t('Nghĩa', 'Meaning', '释义', '뜻', 'Arti')}</th>
+          <th class="px-4 py-2.5 font-semibold">{t('Onyomi', "On'yomi", '音读', '음독', "On'yomi")}</th>
+          <th class="px-4 py-2.5 font-semibold">{t('Kunyomi', "Kun'yomi", '训读', '훈독', "Kun'yomi")}</th>
+          <th class="px-4 py-2.5 text-right font-semibold">{t('Nét', 'Strokes', '笔画', '획수', 'Goresan')}</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -55,8 +55,8 @@ const showHv = lang === 'vi';
       {kanji.map((k) => (
         <tr class="border-t border-line hover:bg-bg-muted/60">
           <td class="px-4 py-2"><a href={kanjiUrl(k.c, lang)} lang="ja" class="font-jp text-2xl hover:text-brand">{k.c}</a></td>
-          {showHv && <td class="px-4 py-2 font-semibold">{hvText(k)}</td>}
-          <td class="px-4 py-2 text-fg-muted">{k.en.slice(0, 3).join(', ')}</td>
+          {readingLabel && <td class="px-4 py-2 font-semibold">{localReadings(k, lang)?.join(', ')}</td>}
+          <td class="px-4 py-2 text-fg-muted">{meaningText(k, lang)}</td>
           <td class="px-4 py-2" lang="ja">{k.on.join('、')}</td>
           <td class="px-4 py-2" lang="ja">{kunPlain(k).slice(0, 4).join('、')}</td>
           <td class="px-4 py-2 text-right tabular-nums">{k.strokes}</td>

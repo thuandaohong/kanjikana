@@ -4,11 +4,12 @@
 //
 // Nguồn:
 // - KANJIDIC2 (EDRDG, CC BY-SA 4.0) qua gói npm `kanjidic2-json`: âm on/kun,
-//   âm Hán Việt, nghĩa tiếng Anh, số nét, bộ thủ, cấp lớp, tần suất.
+//   âm Hán Việt, pinyin, âm Hán-Hàn, nghĩa tiếng Anh, số nét, bộ thủ, cấp lớp, tần suất.
 // - Cấp JLPT mới (N5–N1) từ davidluzgouveia/kanji-data (MIT), dựa trên danh
 //   sách của Jonathan Waller (tanos.co.uk).
 // - Thứ tự nét từ KanjiVG (CC BY-SA 3.0), lưu tạm trong .cache/kanjivg.
 // - Từ vựng ví dụ từ jamsinclair/open-anki-jlpt-decks (MIT), cũng dựa trên tanos.
+//   Các cách đọc và nghĩa tiếng Anh sai trong nguồn được sửa bằng src/data/vocab-fixes.json.
 //
 // File kết quả được commit vào repo, nên khi deploy không cần chạy lại script.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
@@ -39,6 +40,24 @@ for (const k of kanjidic) if (JOYO_GRADES.has(k.grade)) chars.add(k.literal);
 for (const [c, v] of Object.entries(jlptData)) if (v.jlpt_new) chars.add(c);
 for (const t of themes) for (const c of t.kanji) chars.add(c);
 
+// KANJIDIC2 ghi pinyin bằng số thanh điệu ("xue2", "lu:4", "e^2"); đổi sang dấu ("xué", "lǜ", "ế").
+const TONE_MARKS = ['\u0304', '\u0301', '\u030c', '\u0300'];
+function pinyin(raw) {
+  const m = raw.replace(/u:/g, 'ü').replace(/e\^/g, 'ê').match(/^(\D+)(\d?)/);
+  if (!m) return raw;
+  const [, syl, tone] = m;
+  const mark = TONE_MARKS[Number(tone) - 1];
+  if (!mark) return syl;
+  // Dấu đặt trên a hoặc e nếu có, trên o của "ou", còn lại trên nguyên âm cuối.
+  let i = syl.search(/[aeê]/);
+  if (i < 0) i = syl.indexOf('ou');
+  if (i < 0) i = Math.max(...[...'iouü'].map((v) => syl.lastIndexOf(v)));
+  if (i < 0) return syl;
+  return (syl.slice(0, i) + (syl[i] + mark).normalize('NFC') + syl.slice(i + 1)).normalize('NFC');
+}
+// Một số mục gộp nhiều âm trong một chuỗi ("fu3 tiao4"); tách ra và bỏ trùng.
+const pinyinList = (list = []) => [...new Set(list.flatMap((p) => p.split(' ')).map(pinyin))];
+
 const out = [];
 for (const c of chars) {
   const k = byChar.get(c);
@@ -50,6 +69,8 @@ for (const c of chars) {
   out.push({
     c,
     hv: r.vietnam ?? [],
+    py: pinyinList(r.pinyin),
+    ko: r.korean_h ?? [],
     en: k.meanings?.en ?? [],
     on: r.ja_on ?? [],
     kun: r.ja_kun ?? [],
@@ -70,6 +91,15 @@ const count = (f) => out.filter(f).length;
 console.log(`Đã ghi ${out.length} kanji vào ${OUT.pathname}`);
 console.log(`  jōyō: ${count((k) => JOYO_GRADES.has(k.grade))}`);
 for (const n of [5, 4, 3, 2, 1]) console.log(`  N${n}: ${count((k) => k.jlpt === n)}`);
+
+// ---------- Âm đọc của 214 bộ thủ ----------
+// [pinyin, âm Hán-Hàn] của chữ đại diện cho mỗi bộ (khối Kangxi Radicals chuẩn hoá NFKC), theo thứ tự.
+const radicals = Array.from({ length: 214 }, (_, i) => {
+  const r = byChar.get(String.fromCodePoint(0x2f00 + i).normalize('NFKC'))?.readings ?? {};
+  return [pinyinList(r.pinyin)[0] ?? '', r.korean_h?.[0] ?? ''];
+});
+await writeFile(new URL('radicals.json', GEN), JSON.stringify(radicals));
+console.log(`Bộ thủ: ${radicals.filter(([p, k]) => p && k).length}/214 có đủ pinyin và âm Hán-Hàn`);
 
 // ---------- Thứ tự nét (KanjiVG) ----------
 // Mỗi chữ chỉ giữ lại danh sách path "d" theo đúng thứ tự nét, toạ độ trong khung 109×109.
@@ -123,13 +153,33 @@ function parseCsv(text) {
   return rows;
 }
 
+// Bản sửa tay cho dữ liệu nguồn: { "từ|cách đọc gốc": { reading?, en?, why } }.
+const vocabFixes = JSON.parse(await readFile(new URL('../src/data/vocab-fixes.json', import.meta.url), 'utf8'));
+const usedFixes = new Set();
+
 const words = [];
+const seenWords = new Set();
 for (const level of [5, 4, 3, 2, 1]) {
   const r = await fetch(`${VOCAB_URL}/n${level}.csv`);
   if (!r.ok) throw new Error(`Không tải được từ vựng N${level}: ${r.status}`);
   const [, ...rows] = parseCsv(await r.text());
-  for (const [word, reading, meaning] of rows) if (word) words.push([word, reading, meaning, level]);
+  for (let [word, reading, meaning] of rows) {
+    if (!word) continue;
+    const key = `${word}|${reading}`;
+    const fix = vocabFixes[key];
+    if (fix) {
+      usedFixes.add(key);
+      reading = fix.reading ?? reading;
+      meaning = fix.en ?? meaning;
+    }
+    // Sau khi sửa cách đọc có thể trùng với một mục khác; giữ mục ở cấp dễ hơn.
+    if (seenWords.has(`${word}|${reading}`)) continue;
+    seenWords.add(`${word}|${reading}`);
+    words.push([word, reading, meaning, level]);
+  }
 }
+const unusedFixes = Object.keys(vocabFixes).filter((k) => !usedFixes.has(k));
+console.log(`Sửa từ vựng: áp dụng ${usedFixes.size}/${Object.keys(vocabFixes).length}` + (unusedFixes.length ? `, không khớp: ${unusedFixes.join(' ')}` : ''));
 
 // Với mỗi kanji: lấy tối đa 8 từ chứa chữ đó, ưu tiên cấp dễ rồi từ ngắn.
 const MAX_WORDS = 8;

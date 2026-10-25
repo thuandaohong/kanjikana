@@ -4,12 +4,14 @@
 export const toHiragana = (s: string) =>
   s.replace(/[ァ-ヶ]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0x60));
 
-/** Bỏ dấu tiếng Việt và chữ hoa: "Học" → "hoc", "Đại" → "dai". */
+/** Bỏ dấu tiếng Việt và chữ hoa: "Học" → "hoc", "Đại" → "dai". Chữ khác (hangul…) được giữ nguyên. */
 export const foldVi = (s: string) =>
   s
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .replace(/[đĐ]/g, 'd')
+    // NFD tách hangul thành jamo; ghép lại để so khớp được với chuỗi người dùng gõ.
+    .normalize('NFC')
     .toLowerCase();
 
 const ROMAJI: Record<string, string> = {

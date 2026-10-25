@@ -2,20 +2,20 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CardLink from '../components/CardLink.astro';
 import HeroGrid from '../components/HeroGrid.astro';
-import { JLPT_LEVELS, THEMES, byJlpt, jlptSlug } from '../data/kanji';
+import { JLPT_LEVELS, THEMES, byJlpt, jlptSlug, kanjiCount } from '../data/kanji';
 import { SITE } from '../data/site';
-import { getLang, linker, pick } from '../i18n';
+import { HTML_LANGS, getLang, linker, pick } from '../i18n';
 
 const lang = getLang(Astro);
 const l = linker(lang);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: SITE.name,
   url: new URL(l('/'), Astro.site).href,
-  inLanguage: lang,
+  inLanguage: HTML_LANGS[lang],
   potentialAction: {
     '@type': 'SearchAction',
     target: `${new URL(l('/kanji/search'), Astro.site).href}?q={search_term_string}`,
@@ -29,7 +29,7 @@ const jsonLd = {
     <div class="container-page relative py-20 md:py-32">
       <div class="max-w-xl">
         <h1 class="text-4xl leading-tight font-bold text-balance md:text-[42px]">
-          {t('Danh sách kanji và công cụ cho người học tiếng Nhật.', 'Kanji lists and tools for Japanese learners.')}
+          {t('Danh sách kanji và công cụ cho người học tiếng Nhật.', 'Kanji lists and tools for Japanese learners.', '面向日语学习者的汉字列表与工具。', '일본어 학습자를 위한 한자 목록과 도구.', 'Daftar kanji dan alat bantu untuk pelajar bahasa Jepang.')}
         </h1>
         <p class="mt-6 text-lg text-fg-muted md:text-xl">{SITE.description[lang]}</p>
       </div>
@@ -37,10 +37,10 @@ const jsonLd = {
   </section>
 
   <section class="container-page py-16 md:py-20">
-    <h2 class="text-2xl font-bold">{t('Danh sách kanji', 'Kanji lists')}</h2>
+    <h2 class="text-2xl font-bold">{t('Danh sách kanji', 'Kanji lists', '汉字列表', '한자 목록', 'Daftar kanji')}</h2>
     <div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
       {JLPT_LEVELS.map((n) => (
-        <CardLink href={l(`/kanji/jlpt/${jlptSlug(n)}`)} title={`JLPT N${n}`} subtitle={`${byJlpt(n).length} kanji`} />
+        <CardLink href={l(`/kanji/jlpt/${jlptSlug(n)}`)} title={`JLPT N${n}`} subtitle={kanjiCount(byJlpt(n).length, lang)} />
       ))}
     </div>
     {lang === 'en' ? (
@@ -48,6 +48,24 @@ const jsonLd = {
         You can also browse kanji by <a href={l('/kanji/kanken')} class="link-underline text-fg">Kanken level</a>,{' '}
         <a href={l('/kanji/radicals')} class="link-underline text-fg">radical</a>, or see the full list of{' '}
         <a href={l('/kanji/all')} class="link-underline text-fg">jōyō kanji</a>.
+      </p>
+    ) : lang === 'id' ? (
+      <p class="mt-8 text-fg-muted">
+        Kamu juga bisa melihat kanji per <a href={l('/kanji/kanken')} class="link-underline text-fg">level Kanken</a>,{' '}
+        <a href={l('/kanji/radicals')} class="link-underline text-fg">radikal</a>, atau melihat daftar lengkap{' '}
+        <a href={l('/kanji/all')} class="link-underline text-fg">kanji jōyō</a>.
+      </p>
+    ) : lang === 'zh' ? (
+      <p class="mt-8 text-fg-muted">
+        你也可以按<a href={l('/kanji/kanken')} class="link-underline text-fg">汉检级别</a>、
+        <a href={l('/kanji/radicals')} class="link-underline text-fg">部首</a>浏览汉字，或查看完整的
+        <a href={l('/kanji/all')} class="link-underline text-fg">常用汉字</a>列表。
+      </p>
+    ) : lang === 'ko' ? (
+      <p class="mt-8 text-fg-muted">
+        <a href={l('/kanji/kanken')} class="link-underline text-fg">한자검정 급수</a>,{' '}
+        <a href={l('/kanji/radicals')} class="link-underline text-fg">부수</a>별로 한자를 볼 수도 있고,{' '}
+        <a href={l('/kanji/all')} class="link-underline text-fg">상용한자</a> 전체 목록을 볼 수도 있습니다.
       </p>
     ) : (
       <p class="mt-8 text-fg-muted">
@@ -60,17 +78,17 @@ const jsonLd = {
 
   <section class="border-t border-dashed border-line">
     <div class="container-page py-16 md:py-20">
-      <h2 class="text-2xl font-bold">{t('Kanji theo chủ đề', 'Kanji by theme')}</h2>
+      <h2 class="text-2xl font-bold">{t('Kanji theo chủ đề', 'Kanji by theme', '按主题学汉字', '주제별 한자', 'Kanji per tema')}</h2>
       <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {THEMES.map((th) => (
           <CardLink
             href={l(`/kanji/themes/${th.slug}`)}
             title={th.name[lang]}
-            subtitle={`${th.kanji.length} kanji · ${th.kanji.slice(0, 5).map((k) => k.c).join(' ')}…`}
+            subtitle={`${kanjiCount(th.kanji.length, lang)} · ${th.kanji.slice(0, 5).map((k) => k.c).join(' ')}…`}
           />
         ))}
       </div>
-      <a href={l('/kanji/themes')} class="link-underline mt-8 inline-block">{t('Xem tất cả chủ đề', 'Browse all kanji themes')}</a>
+      <a href={l('/kanji/themes')} class="link-underline mt-8 inline-block">{t('Xem tất cả chủ đề', 'Browse all kanji themes', '查看全部主题', '모든 주제 보기', 'Lihat semua tema')}</a>
     </div>
   </section>
 </BaseLayout>

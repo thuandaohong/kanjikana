@@ -24,6 +24,12 @@ import Logo from './Logo.astro';
       © {new Date().getFullYear()} {SITE.name}.{' '}
       {lang === 'en' ? (
         <>Kanji data from open-source projects – see <a href={localize('/credits', lang)} class="link-underline">credits</a>.</>
+      ) : lang === 'zh' ? (
+        <>汉字数据来自开源项目，详见<a href={localize('/credits', lang)} class="link-underline">数据来源</a>。</>
+      ) : lang === 'id' ? (
+        <>Data kanji dari proyek sumber terbuka – lihat <a href={localize('/credits', lang)} class="link-underline">sumber data</a>.</>
+      ) : lang === 'ko' ? (
+        <>한자 데이터는 오픈 소스 프로젝트에서 가져왔습니다. <a href={localize('/credits', lang)} class="link-underline">데이터 출처</a>를 참고하세요.</>
       ) : (
         <>Dữ liệu kanji từ các dự án mã nguồn mở – xem <a href={localize('/credits', lang)} class="link-underline">nguồn dữ liệu</a>.</>
       )}

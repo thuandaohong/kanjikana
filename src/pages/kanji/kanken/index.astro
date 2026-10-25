@@ -2,35 +2,41 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import CardLink from '../../../components/CardLink.astro';
-import { ALL, KANKEN } from '../../../data/kanji';
+import { ALL, KANKEN, kanjiCount } from '../../../data/kanji';
 import { getLang, linker, pick } from '../../../i18n';
 
 const lang = getLang(Astro);
 const l = linker(lang);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 ---
 <BaseLayout
-  title={t('Kanji theo cấp Kanken', 'Kanji by Kanken level')}
-  description={t('Danh sách kanji theo cấp của kỳ thi năng lực Hán tự (Kanken).', 'Kanji lists for each level of the Kanji Aptitude Test (Kanken).')}
+  title={t('Kanji theo cấp Kanken', 'Kanji by Kanken level', '按汉检级别学汉字', '한자검정 급수별 한자', 'Kanji per level Kanken')}
+  description={t('Danh sách kanji theo cấp của kỳ thi năng lực Hán tự (Kanken).', 'Kanji lists for each level of the Kanji Aptitude Test (Kanken).', '日本汉字能力检定（汉检）各级别的汉字列表。', '일본 한자능력검정(한자검정) 급수별 한자 목록.', 'Daftar kanji untuk setiap level Ujian Kemampuan Kanji (Kanken).')}
 >
   <PageHeader
-    title={t('Kanji theo cấp Kanken', 'Kanji by Kanken level')}
-    crumbs={[{ label: 'Kanji', href: l('/kanji') }, { label: 'Kanken' }]}
+    title={t('Kanji theo cấp Kanken', 'Kanji by Kanken level', '按汉检级别学汉字', '한자검정 급수별 한자', 'Kanji per level Kanken')}
+    crumbs={[{ label: t('Kanji', 'Kanji', '汉字', '한자', 'Kanji'), href: l('/kanji') }, { label: t('Kanken', 'Kanken', '汉检', '한자검정', 'Kanken') }]}
     lead={t(
       'Kanken (漢検 – Kiểm định năng lực Hán tự) là kỳ thi kanji dành cho cả người Nhật, từ cấp 10 (dễ nhất) đến cấp 1.',
       'The Kanken (漢検, Japan Kanji Aptitude Test) is a kanji exam taken by native speakers too, from level 10 (easiest) to level 1.',
+      '汉检（漢検，日本汉字能力检定）是日本人也会参加的汉字考试，从 10 级（最简单）到 1 级。',
+      '한자검정(漢検, 일본 한자능력검정)은 일본인도 응시하는 한자 시험으로, 10급(가장 쉬움)부터 1급까지 있습니다.',
+      'Kanken (漢検, Ujian Kemampuan Kanji Jepang) adalah ujian kanji yang juga diikuti penutur asli, dari level 10 (termudah) sampai level 1.',
     )}
   />
   <section class="container-page py-12">
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {KANKEN.map((g) => (
-        <CardLink href={l(`/kanji/kanken/${g.slug}`)} title={g.name} subtitle={`${ALL.filter(g.match).length} kanji · ${g.note[lang]}`} />
+        <CardLink href={l(`/kanji/kanken/${g.slug}`)} title={g.name} subtitle={`${kanjiCount(ALL.filter(g.match).length, lang)} · ${g.note[lang]}`} />
       ))}
     </div>
     <p class="mt-8 max-w-2xl text-sm text-fg-muted">
       {t(
         'Các cấp 4, 3, 準2 và 2 hiện được gộp chung vì dữ liệu nguồn chưa tách riêng. Cấp 準1 và 1 chỉ gồm những chữ ngoài jōyō có trong các danh sách của trang này.',
         'Levels 4, 3, pre-2 and 2 are currently grouped together because the source data does not separate them. Levels pre-1 and 1 only include the non-jōyō kanji found in this site’s lists.',
+        '由于源数据没有区分，4 级、3 级、准 2 级和 2 级暂时合并显示。准 1 级和 1 级只包含本站列表中出现的常用汉字以外的字。',
+        '원본 데이터가 구분하지 않아 4급, 3급, 준2급, 2급은 현재 함께 묶어 표시합니다. 준1급과 1급에는 이 사이트 목록에 있는 상용한자 외 한자만 포함됩니다.',
+        'Level 4, 3, pra-2, dan 2 untuk sementara digabung karena data sumbernya tidak memisahkannya. Level pra-1 dan 1 hanya berisi kanji di luar jōyō yang ada di daftar situs ini.',
       )}
     </p>
   </section>

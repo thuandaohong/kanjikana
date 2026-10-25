@@ -20,11 +20,11 @@ const l = linker(lang);
       native Japanese reading, used when the kanji stands alone or with okurigana, such as 学ぶ (まなぶ, to learn).
     </p>
 
-    <h2>Sino-Vietnamese readings</h2>
+    <h2>Learning tips</h2>
     <p>
-      Each kanji on this site also shows its Sino-Vietnamese (Hán Việt) reading. Vietnamese borrowed a large share of
-      its vocabulary from Chinese, so for Vietnamese speakers these readings make kanji compounds much easier to guess
-      and remember: 学 is <em>Học</em>, 生 is <em>Sinh</em>, and 学生 is <em>Học sinh</em> – “student”.
+      Kanji are built from a limited set of recurring components. Learning by <a href={l('/kanji/radicals')}>radical</a>
+      helps you guess meanings, and learning each kanji through the example words on its page – then reviewing with{' '}
+      <a href={l('/flashcards')}>flashcards</a> – works far better than memorising characters in isolation.
     </p>
 
     <h2>How many kanji should I learn?</h2>
@@ -33,6 +33,91 @@ const l = linker(lang);
       newspapers and most everyday text. If you are studying for an exam, start with the{' '}
       <a href={l('/kanji/jlpt')}>JLPT levels</a> from N5. You can also learn by{' '}
       <a href={l('/kanji/radicals')}>radical</a> or <a href={l('/kanji/themes')}>theme</a>.
+    </p>
+  </ProseLayout>
+) : lang === 'id' ? (
+  <ProseLayout title="Tentang kanji" description="Apa itu kanji, cara baca on dan kun, serta berapa banyak kanji yang perlu dipelajari.">
+    <p>
+      Kanji (漢字) adalah huruf Tionghoa yang dipakai dalam bahasa Jepang bersama dua aksara kana,{' '}
+      <a href={l('/hiragana')}>hiragana</a> dan <a href={l('/katakana')}>katakana</a>. Kalimat bahasa Jepang biasanya
+      memadukan ketiganya.
+    </p>
+
+    <h2>Cara baca on dan kun</h2>
+    <p>
+      Kebanyakan kanji punya dua jenis cara baca. <strong>On'yomi</strong> berasal dari pelafalan Tionghoa kuno dan
+      umumnya dipakai dalam kata majemuk, misalnya 学生 (がくせい, siswa). <strong>Kun'yomi</strong> adalah cara baca asli
+      Jepang, dipakai saat kanji berdiri sendiri atau diikuti okurigana, misalnya 学ぶ (まなぶ, belajar).
+    </p>
+
+    <h2>Tips untuk pelajar dari Indonesia</h2>
+    <p>
+      Kanji memang terlihat banyak, tetapi setiap kanji tersusun dari komponen yang berulang. Belajar per{' '}
+      <a href={l('/kanji/radicals')}>radikal</a> membantu menebak arti. Menghafal kanji lewat contoh kata di setiap halaman
+      kanji, lalu mengulanginya dengan <a href={l('/flashcards')}>flashcard</a>, jauh lebih efektif daripada menghafal satu
+      per satu.
+    </p>
+
+    <h2>Berapa banyak kanji yang perlu dipelajari?</h2>
+    <p>
+      Daftar <a href={l('/kanji/all')}>kanji jōyō</a> berisi {JOYO.length} huruf yang umum dipakai, cukup untuk membaca
+      koran dan sebagian besar teks sehari-hari. Kalau kamu belajar untuk ujian, mulailah dari{' '}
+      <a href={l('/kanji/jlpt')}>level JLPT</a> N5. Kamu juga bisa belajar per <a href={l('/kanji/themes')}>tema</a>.
+    </p>
+  </ProseLayout>
+) : lang === 'zh' ? (
+  <ProseLayout title="关于日语汉字" description="日语汉字是什么、音读与训读，以及中文母语者学日语汉字要注意什么。">
+    <p>
+      日语汉字（漢字）是日语中使用的汉字，与两套假名{' '}
+      <a href={l('/hiragana')}>平假名</a>和<a href={l('/katakana')}>片假名</a>一起使用。一句普通的日语通常同时包含这三种文字。
+    </p>
+
+    <h2>音读与训读</h2>
+    <p>
+      大多数汉字有两类读法。<strong>音读</strong>源自古代汉语的发音，多用于复合词，例如 学生（がくせい）。
+      <strong>训读</strong>是日本固有的读法，多在汉字单用或带送假名时使用，例如 学ぶ（まなぶ，学习）。
+    </p>
+
+    <h2>中文母语者的优势与陷阱</h2>
+    <p>
+      你已经认识大部分汉字，很多词的意思一看就懂，音读也常与普通话读音相近：学 xué → ガク，生 shēng → セイ。但要注意：
+      日语使用的是“新字体”，和简体字不完全相同（例如 学、国 写法相同，但 気／气、駅／驿、売／卖 写法不同）；还有不少同形异义词，
+      例如 手紙 是“信”，勉強 是“学习”。本站每个汉字都标注拼音，帮助你建立读音联系。
+    </p>
+
+    <h2>应该学多少汉字？</h2>
+    <p>
+      <a href={l('/kanji/all')}>常用汉字</a>表共有 {JOYO.length} 个字，足以阅读报纸和大部分日常文本。如果是为了考试，
+      可以从 <a href={l('/kanji/jlpt')}>JLPT</a> N5 开始，也可以按<a href={l('/kanji/radicals')}>部首</a>或
+      <a href={l('/kanji/themes')}>主题</a>学习。
+    </p>
+  </ProseLayout>
+) : lang === 'ko' ? (
+  <ProseLayout title="일본 한자란" description="일본 한자의 음독과 훈독, 그리고 한국어 화자가 한자음을 활용하는 방법.">
+    <p>
+      일본어의 한자(漢字)는 두 가지 가나 문자인 <a href={l('/hiragana')}>히라가나</a>, <a href={l('/katakana')}>가타카나</a>와
+      함께 쓰입니다. 일반적인 일본어 문장에는 세 가지 문자가 모두 섞여 있습니다.
+    </p>
+
+    <h2>음독과 훈독</h2>
+    <p>
+      대부분의 한자에는 두 종류의 읽기가 있습니다. <strong>음독</strong>은 옛 중국어 발음에서 온 읽기로 주로 한자어에
+      쓰입니다(예: 学生 がくせい). <strong>훈독</strong>은 일본 고유어 읽기로, 한자가 단독으로 쓰이거나 오쿠리가나와 함께
+      쓰일 때 사용합니다(예: 学ぶ まなぶ, 배우다).
+    </p>
+
+    <h2>한국어 화자의 장점: 한자음</h2>
+    <p>
+      한국어 어휘의 상당 부분이 한자어이기 때문에, 한자음을 알면 일본어 한자어의 뜻을 짐작하기 쉽습니다. 学은 <em>학</em>,
+      生은 <em>생</em>, 学生은 <em>학생</em>입니다. 한국 한자음과 일본어 음독은 같은 중국 고대음에서 왔기 때문에 규칙적인
+      대응이 많습니다(예: 받침 ㄱ → ク/キ, 学 학 → ガク). 이 사이트는 모든 한자에 한자음을 함께 표시합니다.
+    </p>
+
+    <h2>한자는 몇 자나 배워야 하나요?</h2>
+    <p>
+      <a href={l('/kanji/all')}>상용한자</a>는 {JOYO.length}자로, 신문과 대부분의 일상 글을 읽기에 충분합니다. 시험을
+      준비한다면 <a href={l('/kanji/jlpt')}>JLPT</a> N5부터 시작하세요. <a href={l('/kanji/radicals')}>부수</a>나{' '}
+      <a href={l('/kanji/themes')}>주제</a>별로 배울 수도 있습니다.
     </p>
   </ProseLayout>
 ) : (

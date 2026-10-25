@@ -2,6 +2,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import KanjiList from '../../../components/KanjiList.astro';
+import AdSlot from '../../../components/AdSlot.astro';
 import { JLPT_LEVELS, byJlpt, jlptSlug } from '../../../data/kanji';
 import { getLang, linker, pick } from '../../../i18n';
 
@@ -12,24 +13,30 @@ const { n } = Astro.props;
 const kanji = byJlpt(n);
 const lang = getLang(Astro);
 const l = linker(lang);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 ---
 <BaseLayout
-  title={`Kanji JLPT N${n}`}
+  title={t(`Kanji JLPT N${n}`, `Kanji JLPT N${n}`, `JLPT N${n} 汉字`, `JLPT N${n} 한자`, `Kanji JLPT N${n}`)}
   description={t(
     `Danh sách ${kanji.length} kanji JLPT N${n} kèm âm Hán Việt, nghĩa và cách đọc.`,
     `All ${kanji.length} JLPT N${n} kanji with meanings and readings.`,
+    `JLPT N${n} 全部 ${kanji.length} 个汉字，附拼音、释义和读音。`,
+    `JLPT N${n} 한자 ${kanji.length}자 전체, 한자음·뜻·읽기 포함.`,
+    `Semua ${kanji.length} kanji JLPT N${n} beserta arti dan cara bacanya.`,
   )}
 >
   <PageHeader
-    title={`Kanji JLPT N${n}`}
-    crumbs={[{ label: 'Kanji', href: l('/kanji') }, { label: 'JLPT', href: l('/kanji/jlpt') }, { label: `N${n}` }]}
+    title={t(`Kanji JLPT N${n}`, `Kanji JLPT N${n}`, `JLPT N${n} 汉字`, `JLPT N${n} 한자`, `Kanji JLPT N${n}`)}
+    crumbs={[{ label: t('Kanji', 'Kanji', '汉字', '한자', 'Kanji'), href: l('/kanji') }, { label: 'JLPT', href: l('/kanji/jlpt') }, { label: `N${n}` }]}
     lead={t(
       `${kanji.length} kanji cho cấp N${n}, xếp theo độ thông dụng. Bấm vào một chữ để xem chi tiết.`,
       `${kanji.length} kanji for level N${n}, ordered by frequency. Click a character for details.`,
+      `N${n} 级共 ${kanji.length} 个汉字，按使用频率排序。点击汉字查看详情。`,
+      `N${n} 급수 한자 ${kanji.length}자, 사용 빈도순. 한자를 누르면 자세히 볼 수 있습니다.`,
+      `${kanji.length} kanji untuk level N${n}, diurutkan menurut frekuensi. Klik sebuah huruf untuk melihat detail.`,
     )}
   >
-    <nav class="mt-6 flex flex-wrap gap-2" aria-label={t('Cấp JLPT khác', 'Other JLPT levels')}>
+    <nav class="mt-6 flex flex-wrap gap-2" aria-label={t('Cấp JLPT khác', 'Other JLPT levels', '其他 JLPT 级别', '다른 JLPT 급수', 'Level JLPT lainnya')}>
       {JLPT_LEVELS.map((m) => (
         <a
           href={l(`/kanji/jlpt/${jlptSlug(m)}`)}
@@ -39,6 +46,7 @@ const t = (vi: string, en: string) => pick(lang, { vi, en });
       ))}
     </nav>
   </PageHeader>
+  <AdSlot placement="list" class="pt-8" />
   <section class="container-page py-10">
     <KanjiList kanji={kanji} />
   </section>

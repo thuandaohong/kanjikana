@@ -5,7 +5,7 @@ interface Crumb { label: string; href?: string }
 interface Props { title: string; crumbs?: Crumb[]; lead?: string }
 const { title, crumbs = [], lead } = Astro.props;
 const lang = getLang(Astro);
-const home = { label: pick(lang, { vi: 'Trang chủ', en: 'Home' }), href: localize('/', lang) };
+const home = { label: pick(lang, { vi: 'Trang chủ', en: 'Home', zh: '首页', ko: '홈', id: 'Beranda' }), href: localize('/', lang) };
 
 // Breadcrumb cho máy tìm kiếm; mục cuối (trang hiện tại) dùng URL của trang.
 const breadcrumbLd = crumbs.length

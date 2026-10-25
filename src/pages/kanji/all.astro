@@ -2,36 +2,44 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import KanjiList from '../../components/KanjiList.astro';
+import AdSlot from '../../components/AdSlot.astro';
 import { JOYO, JOYO_GRADES, gradeLabel } from '../../data/kanji';
 import { getLang, linker, pick } from '../../i18n';
 
 const lang = getLang(Astro);
 const l = linker(lang);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 const groups = JOYO_GRADES.map((g) => ({ label: gradeLabel(g, lang), kanji: JOYO.filter((k) => k.grade === g) }));
 const elementary = groups.slice(0, 6).reduce((s, g) => s + g.kanji.length, 0);
 ---
 <BaseLayout
-  title={t('Toàn bộ kanji jōyō', 'All jōyō kanji')}
+  title={t('Toàn bộ kanji jōyō', 'All jōyō kanji', '全部常用汉字', '상용한자 전체', 'Semua kanji jōyō')}
   description={t(
     `Danh sách đầy đủ ${JOYO.length} kanji thường dụng (jōyō) chia theo cấp lớp.`,
     `The complete list of ${JOYO.length} jōyō kanji, grouped by school grade.`,
+    `全部 ${JOYO.length} 个常用汉字的完整列表，按年级分组。`,
+    `상용한자 ${JOYO.length}자 전체 목록, 학년별 분류.`,
+    `Daftar lengkap ${JOYO.length} kanji jōyō, dikelompokkan per kelas sekolah.`,
   )}
 >
   <PageHeader
-    title={t('Toàn bộ kanji jōyō', 'All jōyō kanji')}
-    crumbs={[{ label: 'Kanji', href: l('/kanji') }, { label: 'Jōyō' }]}
+    title={t('Toàn bộ kanji jōyō', 'All jōyō kanji', '全部常用汉字', '상용한자 전체', 'Semua kanji jōyō')}
+    crumbs={[{ label: t('Kanji', 'Kanji', '汉字', '한자', 'Kanji'), href: l('/kanji') }, { label: t('Jōyō', 'Jōyō', '常用汉字', '상용한자', 'Jōyō') }]}
     lead={t(
       `Jōyō kanji (常用漢字) là ${JOYO.length} chữ Hán thường dùng do Bộ Giáo dục Nhật Bản quy định. Học sinh Nhật học ${elementary} chữ ở tiểu học, phần còn lại ở trung học.`,
       `The jōyō kanji (常用漢字) are the ${JOYO.length} characters designated for everyday use by the Japanese Ministry of Education. Japanese students learn ${elementary} of them in elementary school and the rest in secondary school.`,
+      `常用汉字（常用漢字）是日本文部科学省规定的 ${JOYO.length} 个日常使用的汉字。日本学生在小学学习其中 ${elementary} 个，其余在初高中学习。`,
+      `상용한자(常用漢字)는 일본 문부과학성이 일상용으로 정한 ${JOYO.length}자입니다. 일본 학생은 초등학교에서 ${elementary}자를, 나머지는 중고등학교에서 배웁니다.`,
+      `Kanji jōyō (常用漢字) adalah ${JOYO.length} huruf yang ditetapkan Kementerian Pendidikan Jepang untuk pemakaian sehari-hari. Siswa di Jepang mempelajari ${elementary} di antaranya di SD, sisanya di SMP dan SMA.`,
     )}
   >
-    <nav class="mt-6 flex flex-wrap gap-2" aria-label={t('Đi đến cấp lớp', 'Jump to grade')}>
+    <nav class="mt-6 flex flex-wrap gap-2" aria-label={t('Đi đến cấp lớp', 'Jump to grade', '跳转到年级', '학년으로 이동', 'Langsung ke kelas')}>
       {groups.map((g, i) => (
         <a href={`#grade-${i}`} class="rounded-full border border-line px-4 py-1.5 text-sm hover:border-brand">{g.label}</a>
       ))}
     </nav>
   </PageHeader>
+  <AdSlot placement="list" class="pt-8" />
   {groups.map((g, i) => (
     <section id={`grade-${i}`} class="container-page scroll-mt-20 py-10">
       <h2 class="mb-6 text-2xl font-bold">{g.label}</h2>

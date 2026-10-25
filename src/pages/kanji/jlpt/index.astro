@@ -2,35 +2,41 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import CardLink from '../../../components/CardLink.astro';
-import { JLPT_LEVELS, byJlpt, jlptSlug } from '../../../data/kanji';
+import { JLPT_LEVELS, byJlpt, jlptSlug, kanjiCount } from '../../../data/kanji';
 import { getLang, linker, pick } from '../../../i18n';
 
 const lang = getLang(Astro);
 const l = linker(lang);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 ---
 <BaseLayout
-  title={t('Kanji theo cấp JLPT', 'Kanji by JLPT level')}
-  description={t('Danh sách kanji cần học cho từng cấp JLPT từ N5 đến N1.', 'Kanji lists for every JLPT level from N5 to N1.')}
+  title={t('Kanji theo cấp JLPT', 'Kanji by JLPT level', '按 JLPT 级别学汉字', 'JLPT 급수별 한자', 'Kanji per level JLPT')}
+  description={t('Danh sách kanji cần học cho từng cấp JLPT từ N5 đến N1.', 'Kanji lists for every JLPT level from N5 to N1.', 'JLPT N5 到 N1 各级别的汉字列表。', 'JLPT N5부터 N1까지 급수별 한자 목록.', 'Daftar kanji untuk setiap level JLPT dari N5 sampai N1.')}
 >
   <PageHeader
-    title={t('Kanji theo cấp JLPT', 'Kanji by JLPT level')}
-    crumbs={[{ label: 'Kanji', href: l('/kanji') }, { label: 'JLPT' }]}
+    title={t('Kanji theo cấp JLPT', 'Kanji by JLPT level', '按 JLPT 级别学汉字', 'JLPT 급수별 한자', 'Kanji per level JLPT')}
+    crumbs={[{ label: t('Kanji', 'Kanji', '汉字', '한자', 'Kanji'), href: l('/kanji') }, { label: 'JLPT' }]}
     lead={t(
       'JLPT (Kỳ thi năng lực tiếng Nhật) có 5 cấp, từ N5 (dễ nhất) đến N1 (khó nhất). Chọn một cấp để xem danh sách kanji.',
       'The JLPT (Japanese-Language Proficiency Test) has five levels, from N5 (easiest) to N1 (hardest). Pick a level to see its kanji.',
+      'JLPT（日本语能力测试）分为五个级别，从 N5（最简单）到 N1（最难）。选择一个级别查看汉字列表。',
+      'JLPT(일본어능력시험)는 N5(가장 쉬움)부터 N1(가장 어려움)까지 다섯 급수가 있습니다. 급수를 선택해 한자 목록을 보세요.',
+      'JLPT (Ujian Kemampuan Bahasa Jepang) memiliki lima level, dari N5 (termudah) sampai N1 (tersulit). Pilih level untuk melihat daftar kanjinya.',
     )}
   />
   <section class="container-page py-12">
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
       {JLPT_LEVELS.map((n) => (
-        <CardLink href={l(`/kanji/jlpt/${jlptSlug(n)}`)} title={`JLPT N${n}`} subtitle={`${byJlpt(n).length} kanji`} />
+        <CardLink href={l(`/kanji/jlpt/${jlptSlug(n)}`)} title={`JLPT N${n}`} subtitle={kanjiCount(byJlpt(n).length, lang)} />
       ))}
     </div>
     <p class="mt-8 max-w-2xl text-sm text-fg-muted">
       {t(
         'Từ năm 2010, JLPT không còn công bố danh sách kanji chính thức. Các danh sách ở đây dựa trên tổng hợp của Jonathan Waller (tanos.co.uk), được dùng rộng rãi trong cộng đồng người học.',
         'Since 2010 the JLPT no longer publishes official kanji lists. The lists here are based on the widely used compilation by Jonathan Waller (tanos.co.uk).',
+        '自 2010 年起，JLPT 不再公布官方汉字列表。这里的列表基于 Jonathan Waller（tanos.co.uk）整理、被广泛使用的版本。',
+        '2010년부터 JLPT는 공식 한자 목록을 발표하지 않습니다. 여기의 목록은 널리 쓰이는 Jonathan Waller(tanos.co.uk)의 정리를 바탕으로 합니다.',
+        'Sejak 2010, JLPT tidak lagi menerbitkan daftar kanji resmi. Daftar di sini berdasarkan kompilasi Jonathan Waller (tanos.co.uk) yang banyak dipakai.',
       )}
     </p>
   </section>

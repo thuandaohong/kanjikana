@@ -2,26 +2,26 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import CardLink from '../../../components/CardLink.astro';
-import { THEMES } from '../../../data/kanji';
+import { THEMES, kanjiCount } from '../../../data/kanji';
 import { getLang, linker, pick } from '../../../i18n';
 
 const lang = getLang(Astro);
 const l = linker(lang);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 ---
 <BaseLayout
-  title={t('Kanji theo chủ đề', 'Kanji by theme')}
-  description={t('Học kanji theo nhóm chủ đề: số đếm, động vật, thiên nhiên, cơ thể…', 'Learn kanji by theme: numbers, animals, nature, the body…')}
+  title={t('Kanji theo chủ đề', 'Kanji by theme', '按主题学汉字', '주제별 한자', 'Kanji per tema')}
+  description={t('Học kanji theo nhóm chủ đề: số đếm, động vật, thiên nhiên, cơ thể…', 'Learn kanji by theme: numbers, animals, nature, the body…', '按主题学习汉字：数字、动物、自然、身体……', '주제별로 한자 배우기: 숫자, 동물, 자연, 신체…', 'Belajar kanji per tema: angka, hewan, alam, tubuh…')}
 >
   <PageHeader
-    title={t('Kanji theo chủ đề', 'Kanji by theme')}
-    crumbs={[{ label: 'Kanji', href: l('/kanji') }, { label: t('Chủ đề', 'Themes') }]}
-    lead={t('Học kanji theo nhóm nghĩa giúp dễ nhớ và dễ liên tưởng hơn.', 'Grouping kanji by meaning makes them easier to remember.')}
+    title={t('Kanji theo chủ đề', 'Kanji by theme', '按主题学汉字', '주제별 한자', 'Kanji per tema')}
+    crumbs={[{ label: t('Kanji', 'Kanji', '汉字', '한자', 'Kanji'), href: l('/kanji') }, { label: t('Chủ đề', 'Themes', '主题', '주제', 'Tema') }]}
+    lead={t('Học kanji theo nhóm nghĩa giúp dễ nhớ và dễ liên tưởng hơn.', 'Grouping kanji by meaning makes them easier to remember.', '按意义分组学习汉字，更容易记住。', '뜻별로 묶어 배우면 한자를 더 쉽게 기억할 수 있습니다.', 'Mengelompokkan kanji menurut arti membuatnya lebih mudah diingat.')}
   />
   <section class="container-page py-12">
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {THEMES.map((th) => (
-        <CardLink href={l(`/kanji/themes/${th.slug}`)} title={th.name[lang]} subtitle={`${th.kanji.length} kanji · ${th.kanji.slice(0, 5).map((k) => k.c).join(' ')}…`} />
+        <CardLink href={l(`/kanji/themes/${th.slug}`)} title={th.name[lang]} subtitle={`${kanjiCount(th.kanji.length, lang)} · ${th.kanji.slice(0, 5).map((k) => k.c).join(' ')}…`} />
       ))}
     </div>
   </section>

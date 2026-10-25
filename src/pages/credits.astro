@@ -22,13 +22,97 @@ const lang = getLang(Astro);
       <li>
         JLPT vocabulary examples from{' '}
         <a href="https://github.com/jamsinclair/open-anki-jlpt-decks">open-anki-jlpt-decks</a> – © Jamie Sinclair (MIT),
-        based on the tanos.co.uk lists.
+        based on the tanos.co.uk lists, with some readings and glosses corrected.
       </li>
       <li>
         Furigana generator: <a href="https://github.com/takuyaa/kuromoji.js">kuromoji.js</a> (Apache 2.0) with the
         IPADIC dictionary.
       </li>
+      <li>Kanji meanings and example-word glosses in Vietnamese, Chinese, Korean and Indonesian are translated with AI assistance from the English meanings of KANJIDIC2 and the JLPT word lists, and are shared under the same CC BY-SA 4.0 license. They may contain mistakes.</li>
       <li>Fonts: Be Vietnam Pro, Noto Serif and Noto Serif JP (SIL Open Font License).</li>
+    </ul>
+  </ProseLayout>
+) : lang === 'id' ? (
+  <ProseLayout title="Sumber data">
+    <p>Situs ini dibangun dari data terbuka dan proyek sumber terbuka berikut. Terima kasih banyak kepada para pembuatnya!</p>
+    <ul>
+      <li>
+        <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project">KANJIDIC2</a> – © Electronic Dictionary Research
+        and Development Group, lisensi <a href="https://www.edrdg.org/edrdg/licence.html">CC BY-SA 4.0</a>.
+      </li>
+      <li>
+        <a href="https://kanjivg.tagaini.net/">KanjiVG</a> (urutan goresan) – © Ulrich Apel, lisensi{' '}
+        <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.
+      </li>
+      <li>
+        Daftar kanji JLPT disusun oleh Jonathan Waller (<a href="https://www.tanos.co.uk/jlpt/">tanos.co.uk</a>), melalui{' '}
+        <a href="https://github.com/davidluzgouveia/kanji-data">kanji-data</a> (MIT).
+      </li>
+      <li>
+        Contoh kosakata JLPT dari{' '}
+        <a href="https://github.com/jamsinclair/open-anki-jlpt-decks">open-anki-jlpt-decks</a> – © Jamie Sinclair (MIT),
+        berdasarkan daftar tanos.co.uk.
+      </li>
+      <li>
+        Pembuat furigana: <a href="https://github.com/takuyaa/kuromoji.js">kuromoji.js</a> (Apache 2.0) dengan kamus
+        IPADIC.
+      </li>
+      <li>Arti kanji dan contoh kata dalam bahasa Vietnam, Tionghoa, Korea, dan Indonesia diterjemahkan dengan bantuan AI dari arti bahasa Inggris KANJIDIC2 dan daftar kosakata JLPT dan dibagikan dengan lisensi yang sama, CC BY-SA 4.0. Mungkin masih ada kesalahan.</li>
+      <li>Font: Be Vietnam Pro, Noto Serif, dan Noto Serif JP (SIL Open Font License).</li>
+    </ul>
+  </ProseLayout>
+) : lang === 'zh' ? (
+  <ProseLayout title="数据来源">
+    <p>本站基于以下开放数据和开源项目构建，衷心感谢各位作者！</p>
+    <ul>
+      <li>
+        <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project">KANJIDIC2</a>（读音、拼音、释义）– © Electronic
+        Dictionary Research and Development Group，许可证 <a href="https://www.edrdg.org/edrdg/licence.html">CC BY-SA 4.0</a>。
+      </li>
+      <li>
+        <a href="https://kanjivg.tagaini.net/">KanjiVG</a>（笔顺）– © Ulrich Apel，许可证{' '}
+        <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>。
+      </li>
+      <li>
+        JLPT 汉字列表由 Jonathan Waller 整理（<a href="https://www.tanos.co.uk/jlpt/">tanos.co.uk</a>），经由{' '}
+        <a href="https://github.com/davidluzgouveia/kanji-data">kanji-data</a>（MIT）。
+      </li>
+      <li>
+        JLPT 例词来自 <a href="https://github.com/jamsinclair/open-anki-jlpt-decks">open-anki-jlpt-decks</a> – © Jamie
+        Sinclair（MIT），基于 tanos.co.uk 的列表。
+      </li>
+      <li>
+        假名注音工具：<a href="https://github.com/takuyaa/kuromoji.js">kuromoji.js</a>（Apache 2.0）及 IPADIC 词典。
+      </li>
+      <li>越南语、中文、韩语和印尼语的汉字释义和例词释义由 KANJIDIC2 及 JLPT 词表的英文释义在 AI 辅助下翻译，并以同样的 CC BY-SA 4.0 许可证共享，可能存在错误。</li>
+      <li>字体：Be Vietnam Pro、Noto Serif 和 Noto Serif JP（SIL Open Font License）。</li>
+    </ul>
+  </ProseLayout>
+) : lang === 'ko' ? (
+  <ProseLayout title="데이터 출처">
+    <p>이 사이트는 다음 공개 데이터와 오픈 소스 프로젝트를 바탕으로 만들어졌습니다. 제작자분들께 감사드립니다!</p>
+    <ul>
+      <li>
+        <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project">KANJIDIC2</a>(읽기, 한국 한자음, 뜻) – © Electronic
+        Dictionary Research and Development Group, 라이선스 <a href="https://www.edrdg.org/edrdg/licence.html">CC BY-SA 4.0</a>.
+      </li>
+      <li>
+        <a href="https://kanjivg.tagaini.net/">KanjiVG</a>(획순) – © Ulrich Apel, 라이선스{' '}
+        <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.
+      </li>
+      <li>
+        JLPT 한자 목록: Jonathan Waller 정리(<a href="https://www.tanos.co.uk/jlpt/">tanos.co.uk</a>),{' '}
+        <a href="https://github.com/davidluzgouveia/kanji-data">kanji-data</a>(MIT) 경유.
+      </li>
+      <li>
+        JLPT 예시 단어: <a href="https://github.com/jamsinclair/open-anki-jlpt-decks">open-anki-jlpt-decks</a> – © Jamie
+        Sinclair(MIT), tanos.co.uk 목록 기반.
+      </li>
+      <li>
+        후리가나 도구: <a href="https://github.com/takuyaa/kuromoji.js">kuromoji.js</a>(Apache 2.0)와 IPADIC 사전.
+      </li>
+      <li>베트남어, 중국어, 한국어, 인도네시아어 한자 뜻과 예시 단어 뜻은 KANJIDIC2와 JLPT 단어 목록의 영어 뜻을 AI의 도움으로 번역했으며, 같은 CC BY-SA 4.0 라이선스로 공유합니다. 오류가 있을 수 있습니다.</li>
+      <li>글꼴: Be Vietnam Pro, Noto Serif, Noto Serif JP(SIL Open Font License).</li>
     </ul>
   </ProseLayout>
 ) : (
@@ -50,12 +134,13 @@ const lang = getLang(Astro);
       <li>
         Từ vựng ví dụ theo cấp JLPT:{' '}
         <a href="https://github.com/jamsinclair/open-anki-jlpt-decks">open-anki-jlpt-decks</a> – © Jamie Sinclair (MIT),
-        dựa trên danh sách của tanos.co.uk.
+        dựa trên danh sách của tanos.co.uk, có sửa một số cách đọc và nghĩa.
       </li>
       <li>
         Công cụ furigana: <a href="https://github.com/takuyaa/kuromoji.js">kuromoji.js</a> (Apache 2.0) với từ điển
         IPADIC.
       </li>
+      <li>Nghĩa kanji và nghĩa từ vựng ví dụ bằng tiếng Việt, Trung, Hàn và Indonesia được dịch với sự hỗ trợ của AI từ nghĩa tiếng Anh của KANJIDIC2 và danh sách từ vựng JLPT, và được chia sẻ theo cùng giấy phép CC BY-SA 4.0. Có thể vẫn còn sai sót.</li>
       <li>Phông chữ: Be Vietnam Pro, Noto Serif và Noto Serif JP (SIL Open Font License).</li>
     </ul>
   </ProseLayout>

@@ -5,7 +5,7 @@ const { class: className = '', id = 'q' } = Astro.props;
 const lang = getLang(Astro);
 ---
 <form action={localize('/kanji/search', lang)} method="get" role="search" class={`relative ${className}`}>
-  <label for={id} class="sr-only">{pick(lang, { vi: 'Tìm kanji', en: 'Search kanji' })}</label>
+  <label for={id} class="sr-only">{pick(lang, { vi: 'Tìm kanji', en: 'Search kanji', zh: '搜索汉字', ko: '한자 검색', id: 'Cari kanji' })}</label>
   <svg viewBox="0 0 24 24" class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-fg-muted" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
     <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" stroke-linecap="round" />
   </svg>
@@ -13,7 +13,7 @@ const lang = getLang(Astro);
     id={id}
     name="q"
     type="search"
-    placeholder={pick(lang, { vi: 'Tìm kanji, nghĩa, âm đọc…', en: 'Search kanji, meaning, reading…' })}
+    placeholder={pick(lang, { vi: 'Tìm kanji, nghĩa, âm đọc…', en: 'Search kanji, meaning, reading…', zh: '搜索汉字、拼音、读音…', ko: '한자, 한자음, 읽기 검색…', id: 'Cari kanji, arti, cara baca…' })}
     class="h-10 w-full rounded-lg border border-line bg-surface pr-3 pl-9 text-sm placeholder:text-fg-muted focus:border-brand focus:outline-none"
   />
 </form>

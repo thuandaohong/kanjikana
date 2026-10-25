@@ -7,7 +7,7 @@ import SearchBox from './SearchBox.astro';
 import ThemeToggle from './ThemeToggle.astro';
 
 const lang = getLang(Astro);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 const NAV = nav(lang);
 
 const chevron = 'm6 9 6 6 6-6';
@@ -17,12 +17,12 @@ const chevron = 'm6 9 6 6 6-6';
     <Logo />
 
     <!-- Menu desktop -->
-    <nav class="hidden items-center gap-1 lg:flex" aria-label={t('Điều hướng chính', 'Main navigation')}>
+    <nav class="hidden items-center gap-1 lg:flex" aria-label={t('Điều hướng chính', 'Main navigation', '主导航', '주 메뉴', 'Navigasi utama')}>
       {NAV.map((menu, i) => (
         <div class="dropdown relative">
           <button
             type="button"
-            class="inline-flex items-center gap-1 rounded-md px-3 py-2 text-[15px] font-semibold hover:bg-bg-muted"
+            class="inline-flex items-center gap-1 whitespace-nowrap rounded-md px-3 py-2 text-[15px] font-semibold hover:bg-bg-muted"
             aria-expanded="false"
             aria-controls={`menu-${i}`}
           >
@@ -63,9 +63,9 @@ const chevron = 'm6 9 6 6 6-6';
       class="ml-auto grid size-10 place-items-center rounded-md hover:bg-bg-muted md:ml-0 lg:hidden"
       aria-expanded="false"
       aria-controls="mobile-menu"
-      aria-label={t('Mở menu', 'Open menu')}
-      data-label-open={t('Mở menu', 'Open menu')}
-      data-label-close={t('Đóng menu', 'Close menu')}
+      aria-label={t('Mở menu', 'Open menu', '打开菜单', '메뉴 열기', 'Buka menu')}
+      data-label-open={t('Mở menu', 'Open menu', '打开菜单', '메뉴 열기', 'Buka menu')}
+      data-label-close={t('Đóng menu', 'Close menu', '关闭菜单', '메뉴 닫기', 'Tutup menu')}
     >
       <svg viewBox="0 0 24 24" class="size-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
         <path class="icon-open" d="M4 7h16M4 12h16M4 17h16" />
@@ -88,8 +88,8 @@ const chevron = 'm6 9 6 6 6-6';
           </ul>
         </section>
       ))}
-      <div class="flex items-center justify-between border-t border-line pt-4">
-        <LangSwitch />
+      <div class="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-4">
+        <LangSwitch inline />
         <ThemeToggle />
       </div>
     </div>

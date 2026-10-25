@@ -15,9 +15,10 @@ import '@fontsource/noto-serif-jp/700.css';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import AdSlot from '../components/AdSlot.astro';
 import { SITE } from '../data/site';
 import { publicPath } from '../lib/text';
-import { LANGS, OG_LOCALES, getLang, localize, pick } from '../i18n';
+import { HTML_LANGS, LANGS, OG_LOCALES, getLang, localize, pick } from '../i18n';
 
 interface Props {
   title?: string;
@@ -31,14 +32,17 @@ const { title, description = SITE.description[lang], jsonLd, noindex = false } =
 const fullTitle = title ? `${title} – ${SITE.name}` : SITE.title[lang];
 const path = publicPath(Astro.url.pathname);
 const canonical = new URL(path, Astro.site);
-// Mỗi trang có bản tiếng Việt và tiếng Anh; báo cho máy tìm kiếm qua hreflang.
-const alternates = LANGS.map((l) => ({ lang: l, href: new URL(localize(path, l), Astro.site).href }));
-const ogImage = new URL('/og.png', Astro.site);
+// Mỗi trang có bản cho từng ngôn ngữ; báo cho máy tìm kiếm qua hreflang.
+const alternates = LANGS.map((l) => ({ lang: HTML_LANGS[l], href: new URL(localize(path, l), Astro.site).href }));
+// Ảnh chia sẻ riêng cho từng ngôn ngữ, tạo bằng scripts/build-og.mjs.
+const ogImage = new URL(`/og/${lang}.png`, Astro.site);
 // Token của Cloudflare Web Analytics (tuỳ chọn), đặt trong biến môi trường khi build.
 const beaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
+// Mã nhà xuất bản Google AdSense (tuỳ chọn). Không đặt thì site không nạp script quảng cáo nào.
+const adsenseClient = import.meta.env.PUBLIC_ADSENSE_CLIENT;
 ---
 <!doctype html>
-<html lang={lang}>
+<html lang={HTML_LANGS[lang]}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -65,6 +69,9 @@ const beaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
     {beaconToken && (
       <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: beaconToken })} />
     )}
+    {adsenseClient && (
+      <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`} crossorigin="anonymous" />
+    )}
 
     <!-- Áp giao diện trước khi render để tránh nháy sáng/tối -->
     <script is:inline>
@@ -77,11 +84,12 @@ const beaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
     </script>
   </head>
   <body class="flex min-h-dvh flex-col">
-    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-surface focus:px-3 focus:py-2">{pick(lang, { vi: 'Bỏ qua đến nội dung', en: 'Skip to content' })}</a>
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-surface focus:px-3 focus:py-2">{pick(lang, { vi: 'Bỏ qua đến nội dung', en: 'Skip to content', zh: '跳到正文', ko: '본문으로 건너뛰기', id: 'Langsung ke konten' })}</a>
     <Header />
     <main id="main" class="flex-1">
       <slot />
     </main>
+    {!noindex && <AdSlot placement="footer" class="py-8" />}
     <Footer />
   </body>
 </html>

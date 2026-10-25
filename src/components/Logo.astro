@@ -4,7 +4,7 @@ import { getLang, localize, pick } from '../i18n';
 interface Props { showText?: boolean; class?: string }
 const { showText = true, class: className = '' } = Astro.props;
 const lang = getLang(Astro);
-const home = pick(lang, { vi: 'Trang chủ', en: 'Home' });
+const home = pick(lang, { vi: 'Trang chủ', en: 'Home', zh: '首页', ko: '홈', id: 'Beranda' });
 ---
 <!-- Có chữ thì tên truy cập lấy từ chữ hiển thị; chỉ có biểu tượng thì dùng aria-label. -->
 <a href={localize('/', lang)} class={`inline-flex items-center gap-2 ${className}`} aria-label={showText ? undefined : `${SITE.name} – ${home}`}>

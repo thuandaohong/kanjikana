@@ -1,0 +1,56 @@
+---
+// Một vị trí quảng cáo (Google AdSense). Không hiện gì cho tới khi đặt biến môi trường lúc build:
+//   PUBLIC_ADSENSE_CLIENT=ca-pub-…            (bật quảng cáo; script nạp trong BaseLayout)
+//   PUBLIC_ADSENSE_SLOT_KANJI / _LIST / _FOOTER  (mã đơn vị quảng cáo cho từng vị trí)
+//   PUBLIC_ADS_PREVIEW=true                    (chưa có AdSense: hiện khung giữ chỗ để xem bố cục)
+import { getLang, pick } from '../i18n';
+
+interface Props {
+  /** Vị trí trên trang, ứng với một đơn vị quảng cáo */
+  placement: 'kanji' | 'list' | 'footer';
+  class?: string;
+}
+const { placement, class: className = '' } = Astro.props;
+const lang = getLang(Astro);
+
+const client = import.meta.env.PUBLIC_ADSENSE_CLIENT;
+const SLOTS = {
+  kanji: import.meta.env.PUBLIC_ADSENSE_SLOT_KANJI,
+  list: import.meta.env.PUBLIC_ADSENSE_SLOT_LIST,
+  footer: import.meta.env.PUBLIC_ADSENSE_SLOT_FOOTER,
+};
+const slot = SLOTS[placement];
+const preview = !client && import.meta.env.PUBLIC_ADS_PREVIEW === 'true';
+const label = pick(lang, { vi: 'Quảng cáo', en: 'Advertisement', zh: '广告', ko: '광고', id: 'Iklan' });
+---
+{(client && slot) || preview ? (
+  <aside class={`ad-slot container-page ${className}`} aria-label={label}>
+    <p class="mb-1 text-center text-[11px] tracking-wide text-fg-muted uppercase">{label}</p>
+    {preview ? (
+      <div class="ad-box grid place-items-center rounded-lg border border-dashed border-line text-sm text-fg-muted">
+        AdSlot · {placement}
+      </div>
+    ) : (
+      <ins
+        class="adsbygoogle ad-box block"
+        data-ad-client={client}
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+      <script is:inline>(window.adsbygoogle = window.adsbygoogle || []).push({});</script>
+    )}
+  </aside>
+) : null}
+
+<style>
+  /* Giữ sẵn chỗ để trang không bị nhảy khi quảng cáo tải xong (CLS). */
+  .ad-box {
+    min-height: 250px;
+  }
+  @media (min-width: 768px) {
+    .ad-box {
+      min-height: 120px;
+    }
+  }
+</style>

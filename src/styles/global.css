@@ -30,6 +30,18 @@
     --color-line: #2c2c32;
   }
 
+  /* Tiêu đề tiếng Trung/Hàn: bỏ Noto Serif JP (tự hình kiểu Nhật, thiếu chữ giản thể và hangul)
+     để trình duyệt chọn font serif của hệ thống theo ngôn ngữ. */
+  :lang(zh),
+  :lang(ko) {
+    --font-serif: 'Noto Serif', ui-serif, serif;
+  }
+
+  /* Tiếng Hàn xuống dòng theo từ (eojeol), không ngắt giữa từ. */
+  :lang(ko) {
+    word-break: keep-all;
+  }
+
   html {
     color-scheme: light;
   }

@@ -12,7 +12,7 @@ const lang = getLang(Astro);
     <svg viewBox="0 0 109 109" class="guide absolute inset-0 size-full" aria-hidden="true">
       <path d="M54.5 0v109M0 54.5h109" />
     </svg>
-    <svg viewBox="0 0 109 109" class="strokes relative size-full" role="img" aria-label={pick(lang, { vi: `Thứ tự nét viết chữ ${char}`, en: `Stroke order of ${char}` })}>
+    <svg viewBox="0 0 109 109" class="strokes relative size-full" role="img" aria-label={pick(lang, { vi: `Thứ tự nét viết chữ ${char}`, en: `Stroke order of ${char}`, zh: `${char} 的笔顺`, ko: `${char}의 획순`, id: `Urutan goresan ${char}` })}>
       <defs>
         {paths.map((d, i) => <path id={`${id}-${i}`} d={d} />)}
       </defs>
@@ -21,10 +21,10 @@ const lang = getLang(Astro);
     </svg>
   </div>
   <div class="mx-auto mt-3 flex max-w-60 items-center justify-between md:max-w-none">
-    <span class="text-sm text-fg-muted">{paths.length} {pick(lang, { vi: 'nét', en: paths.length === 1 ? 'stroke' : 'strokes' })}</span>
+    <span class="text-sm text-fg-muted">{pick(lang, { vi: `${paths.length} nét`, en: `${paths.length} ${paths.length === 1 ? 'stroke' : 'strokes'}`, zh: `${paths.length} 画`, ko: `${paths.length}획`, id: `${paths.length} goresan` })}</span>
     <button type="button" data-play class="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm font-semibold hover:border-brand hover:text-brand">
       <svg viewBox="0 0 24 24" class="size-4" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-      {pick(lang, { vi: 'Xem cách viết', en: 'Play' })}
+      {pick(lang, { vi: 'Xem cách viết', en: 'Play', zh: '演示笔顺', ko: '획순 보기', id: 'Putar' })}
     </button>
   </div>
 </div>

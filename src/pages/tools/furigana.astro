@@ -4,36 +4,42 @@ import PageHeader from '../../components/PageHeader.astro';
 import { getLang, pick } from '../../i18n';
 
 const lang = getLang(Astro);
-const t = (vi: string, en: string) => pick(lang, { vi, en });
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 // Chuỗi cho script phía trình duyệt.
 const strings = {
-  processing: t('Đang xử lý…', 'Processing…'),
-  loadingDict: t('Đang tải từ điển…', 'Loading dictionary…'),
-  dictError: t('Không tải được từ điển. Hãy kiểm tra kết nối và thử lại.', 'Could not load the dictionary. Check your connection and try again.'),
-  copied: t('Đã chép!', 'Copied!'),
-  copyError: t('Trình duyệt không cho phép chép tự động.', 'Your browser blocked copying to the clipboard.'),
+  processing: t('Đang xử lý…', 'Processing…', '处理中…', '처리 중…', 'Memproses…'),
+  loadingDict: t('Đang tải từ điển…', 'Loading dictionary…', '正在加载词典…', '사전을 불러오는 중…', 'Memuat kamus…'),
+  dictError: t('Không tải được từ điển. Hãy kiểm tra kết nối và thử lại.', 'Could not load the dictionary. Check your connection and try again.', '无法加载词典，请检查网络后重试。', '사전을 불러오지 못했습니다. 연결을 확인하고 다시 시도하세요.', 'Gagal memuat kamus. Periksa koneksi lalu coba lagi.'),
+  copied: t('Đã chép!', 'Copied!', '已复制！', '복사했습니다!', 'Tersalin!'),
+  copyError: t('Trình duyệt không cho phép chép tự động.', 'Your browser blocked copying to the clipboard.', '浏览器不允许自动复制。', '브라우저가 클립보드 복사를 막았습니다.', 'Browser kamu memblokir penyalinan ke clipboard.'),
 };
 ---
 <BaseLayout
-  title={t('Tạo furigana', 'Furigana generator')}
+  title={t('Tạo furigana', 'Furigana generator', '假名注音生成器', '후리가나 생성기', 'Pembuat furigana')}
   description={t(
     'Tự động thêm furigana (cách đọc) lên trên kanji cho văn bản tiếng Nhật. Chạy hoàn toàn trên trình duyệt.',
     'Automatically add furigana (readings) above the kanji in Japanese text. Runs entirely in your browser.',
+    '自动为日语文本中的汉字加上假名注音（振假名），完全在浏览器中运行。',
+    '일본어 문장의 한자 위에 후리가나(읽기)를 자동으로 달아 줍니다. 모든 처리는 브라우저에서 이루어집니다.',
+    'Tambahkan furigana (cara baca) di atas kanji pada teks bahasa Jepang secara otomatis. Berjalan sepenuhnya di browser.',
   )}
 >
   <script is:inline type="application/json" id="page-strings" set:html={JSON.stringify(strings)} />
   <PageHeader
-    title={t('Tạo furigana', 'Furigana generator')}
-    crumbs={[{ label: t('Công cụ', 'Tools') }, { label: 'Furigana' }]}
+    title={t('Tạo furigana', 'Furigana generator', '假名注音生成器', '후리가나 생성기', 'Pembuat furigana')}
+    crumbs={[{ label: t('Công cụ', 'Tools', '工具', '도구', 'Alat') }, { label: t('Furigana', 'Furigana', '假名注音', '후리가나', 'Furigana') }]}
     lead={t(
       'Dán văn bản tiếng Nhật để thêm cách đọc lên trên kanji. Mọi xử lý diễn ra ngay trên trình duyệt, văn bản không được gửi đi đâu.',
       'Paste Japanese text to add readings above the kanji. Everything runs in your browser – your text is never sent anywhere.',
+      '粘贴日语文本，即可在汉字上方加注读音。所有处理都在浏览器中完成，文本不会被发送到任何地方。',
+      '일본어 문장을 붙여 넣으면 한자 위에 읽기를 달아 줍니다. 모든 처리는 브라우저에서 이루어지며 문장은 어디에도 전송되지 않습니다.',
+      'Tempel teks bahasa Jepang untuk menambahkan cara baca di atas kanji. Semua diproses di browser – teks kamu tidak dikirim ke mana pun.',
     )}
   />
 
   <section class="container-page grid gap-8 py-10 lg:grid-cols-2">
     <form id="fg-form" class="space-y-4">
-      <label for="fg-input" class="block text-sm font-semibold">{t('Văn bản tiếng Nhật', 'Japanese text')}</label>
+      <label for="fg-input" class="block text-sm font-semibold">{t('Văn bản tiếng Nhật', 'Japanese text', '日语文本', '일본어 문장', 'Teks bahasa Jepang')}</label>
       <textarea
         id="fg-input"
         lang="ja"
@@ -44,7 +50,7 @@ const strings = {
 
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
-          <label for="fg-script" class="mb-1.5 block text-sm font-semibold">{t('Kiểu chữ đọc', 'Reading script')}</label>
+          <label for="fg-script" class="mb-1.5 block text-sm font-semibold">{t('Kiểu chữ đọc', 'Reading script', '注音文字', '읽기 표기', 'Huruf cara baca')}</label>
           <select id="fg-script" class="h-10 w-full rounded-lg border border-line bg-surface px-3">
             <option value="hiragana">Hiragana</option>
             <option value="katakana">Katakana</option>
@@ -52,9 +58,9 @@ const strings = {
           </select>
         </div>
         <div>
-          <label for="fg-skip" class="mb-1.5 block text-sm font-semibold">{t('Bỏ furigana cho kanji đã biết', 'Skip kanji I already know')}</label>
+          <label for="fg-skip" class="mb-1.5 block text-sm font-semibold">{t('Bỏ furigana cho kanji đã biết', 'Skip kanji I already know', '已认识的汉字不加注音', '이미 아는 한자는 건너뛰기', 'Lewati kanji yang sudah saya kenal')}</label>
           <select id="fg-skip" class="h-10 w-full rounded-lg border border-line bg-surface px-3">
-            <option value="0">{t('Không bỏ (thêm cho tất cả)', 'None (annotate everything)')}</option>
+            <option value="0">{t('Không bỏ (thêm cho tất cả)', 'None (annotate everything)', '不跳过（全部加注）', '건너뛰지 않음 (모두 표시)', 'Tidak ada (beri furigana semua)')}</option>
             <option value="5">Kanji N5</option>
             <option value="4">Kanji N5–N4</option>
             <option value="3">Kanji N5–N3</option>
@@ -65,7 +71,7 @@ const strings = {
 
       <div class="flex flex-wrap items-center gap-3">
         <button type="submit" id="fg-run" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90 disabled:opacity-50">
-          {t('Tạo furigana', 'Add furigana')}
+          {t('Tạo furigana', 'Add furigana', '添加注音', '후리가나 달기', 'Tambahkan furigana')}
         </button>
         <span id="fg-status" class="text-sm text-fg-muted" aria-live="polite"></span>
       </div>
@@ -73,20 +79,23 @@ const strings = {
         {t(
           'Lần đầu dùng, trình duyệt sẽ tải bộ từ điển tách từ (khoảng 18MB, được lưu cache cho lần sau). Kết quả do máy phân tích nên đôi khi đọc sai, nhất là với tên riêng.',
           'The first time, your browser downloads a ~18MB dictionary (cached afterwards). Readings are machine-generated and can be wrong, especially for names.',
+          '首次使用时，浏览器会下载约 18MB 的分词词典（之后会缓存）。读音由程序自动分析，可能出错，尤其是人名。',
+          '처음 사용할 때 브라우저가 약 18MB의 사전을 내려받습니다(이후 캐시됨). 읽기는 자동 분석이라 특히 이름은 틀릴 수 있습니다.',
+          'Pada pemakaian pertama, browser akan mengunduh kamus sekitar 18MB (disimpan untuk berikutnya). Cara baca dibuat otomatis oleh mesin dan bisa salah, terutama untuk nama.',
         )}
       </p>
     </form>
 
     <div>
       <div class="mb-1.5 flex items-center justify-between gap-2">
-        <span class="text-sm font-semibold">{t('Kết quả', 'Result')}</span>
+        <span class="text-sm font-semibold">{t('Kết quả', 'Result', '结果', '결과', 'Hasil')}</span>
         <div class="flex gap-2">
-          <button type="button" id="fg-copy-text" disabled class="rounded-md border border-line px-3 py-1 text-sm hover:border-brand disabled:opacity-40">{t('Chép dạng 漢字(かんじ)', 'Copy as 漢字(かんじ)')}</button>
-          <button type="button" id="fg-copy-html" disabled class="rounded-md border border-line px-3 py-1 text-sm hover:border-brand disabled:opacity-40">{t('Chép HTML', 'Copy HTML')}</button>
+          <button type="button" id="fg-copy-text" disabled class="rounded-md border border-line px-3 py-1 text-sm hover:border-brand disabled:opacity-40">{t('Chép dạng 漢字(かんじ)', 'Copy as 漢字(かんじ)', '复制为 漢字(かんじ)', '漢字(かんじ) 형식으로 복사', 'Salin sebagai 漢字(かんじ)')}</button>
+          <button type="button" id="fg-copy-html" disabled class="rounded-md border border-line px-3 py-1 text-sm hover:border-brand disabled:opacity-40">{t('Chép HTML', 'Copy HTML', '复制 HTML', 'HTML 복사', 'Salin HTML')}</button>
         </div>
       </div>
       <div id="fg-output" lang="ja" class="min-h-60 rounded-xl border border-line bg-surface p-5 font-jp text-2xl leading-[2.4] whitespace-pre-wrap">
-        <span class="font-sans text-base text-fg-muted">{t('Kết quả sẽ hiện ở đây.', 'Your result will appear here.')}</span>
+        <span class="font-sans text-base text-fg-muted">{t('Kết quả sẽ hiện ở đây.', 'Your result will appear here.', '结果将显示在这里。', '결과가 여기에 표시됩니다.', 'Hasilnya akan muncul di sini.')}</span>
       </div>
     </div>
   </section>

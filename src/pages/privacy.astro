@@ -1,0 +1,221 @@
+---
+import ProseLayout from '../layouts/ProseLayout.astro';
+import { SITE } from '../data/site';
+import { getLang } from '../i18n';
+const lang = getLang(Astro);
+const email = SITE.contactEmail;
+// Ngày cập nhật lần cuối; đổi khi sửa nội dung chính sách.
+const UPDATED = '2026-10-25';
+const CF = 'https://www.cloudflare.com/privacypolicy/';
+const GOOGLE_ADS = 'https://policies.google.com/technologies/ads';
+const AD_SETTINGS = 'https://adssettings.google.com/';
+---
+{lang === 'en' ? (
+  <ProseLayout title="Privacy policy" description={`How ${SITE.name} handles your data.`}>
+    <p>Last updated: {UPDATED}</p>
+    <p>{SITE.name} is a static website. You do not need an account, and we have no forms that collect your personal information.</p>
+
+    <h2>Data stored in your browser</h2>
+    <p>
+      Some settings are saved in your browser's local storage so they are still there next time: light/dark theme, grid
+      or table view, whether romaji is shown, and your flashcard progress. This data stays on your device and is never sent
+      to us. You can delete it at any time by clearing this site's data in your browser settings.
+    </p>
+
+    <h2>Tools that run in your browser</h2>
+    <p>
+      The furigana generator and kanji search run entirely in your browser; the text you type is not sent anywhere.
+      Pronunciation uses your operating system's built-in voice (Web Speech API).
+    </p>
+
+    <h2>Hosting and analytics</h2>
+    <p>
+      The site is hosted on Cloudflare Pages. Like any web server, Cloudflare processes technical data such as your IP
+      address and browser type to deliver pages and protect against attacks. We may use Cloudflare Web Analytics, which
+      counts visits without cookies and without tracking individual visitors. See{' '}
+      <a href={CF}>Cloudflare's privacy policy</a>.
+    </p>
+
+    <h2>Advertising</h2>
+    <p>
+      The site may show ads from Google AdSense. Google and its partners use cookies to show ads based on your previous
+      visits to this and other websites. You can turn off personalised ads in <a href={AD_SETTINGS}>Google Ad Settings</a>,
+      and learn more in <a href={GOOGLE_ADS}>how Google uses data in advertising</a>. Visitors in the European Economic Area,
+      the United Kingdom and Switzerland are asked for consent before such cookies are used.
+    </p>
+
+    <h2>Changes to this policy</h2>
+    <p>We may update this policy as the site changes. The date at the top shows the latest version.</p>
+    {email && (
+      <>
+        <h2>Contact</h2>
+        <p>If you have questions about this policy, email <a href={`mailto:${email}`}>{email}</a>.</p>
+      </>
+    )}
+  </ProseLayout>
+) : lang === 'zh' ? (
+  <ProseLayout title="隐私政策" description={`${SITE.name} 如何处理你的数据。`}>
+    <p>最后更新：{UPDATED}</p>
+    <p>{SITE.name} 是一个静态网站。你无需注册账号，本站也没有任何收集个人信息的表单。</p>
+
+    <h2>保存在浏览器中的数据</h2>
+    <p>
+      为了下次访问时保留你的设置，部分设置会保存在浏览器的本地存储中：浅色/深色模式、网格或表格视图、是否显示罗马字，以及闪卡学习进度。
+      这些数据只保存在你的设备上，不会发送给我们。你可以随时在浏览器设置中清除本站数据来删除它们。
+    </p>
+
+    <h2>在浏览器中运行的工具</h2>
+    <p>假名注音生成器和汉字搜索完全在你的浏览器中运行，你输入的文本不会被发送到任何地方。发音功能使用操作系统自带的语音（Web Speech API）。</p>
+
+    <h2>托管与访问统计</h2>
+    <p>
+      本站托管在 Cloudflare Pages 上。和所有网站服务器一样，Cloudflare 会处理 IP 地址、浏览器类型等技术数据，用于传送网页和防御攻击。
+      我们可能会使用 Cloudflare Web Analytics，它不使用 Cookie、不追踪单个访客，只统计访问量。详见{' '}
+      <a href={CF}>Cloudflare 隐私政策</a>。
+    </p>
+
+    <h2>广告</h2>
+    <p>
+      本站可能会展示 Google AdSense 广告。Google 及其合作伙伴会使用 Cookie，根据你之前访问本站或其他网站的情况展示广告。
+      你可以在 <a href={AD_SETTINGS}>Google 广告设置</a>中关闭个性化广告，并在
+      <a href={GOOGLE_ADS}>Google 如何在广告中使用数据</a>中了解更多。来自欧洲经济区、英国和瑞士的访客会在使用此类 Cookie 前被征求同意。
+    </p>
+
+    <h2>政策变更</h2>
+    <p>本政策可能会随网站变化而更新，页面顶部的日期即为最新版本。</p>
+    {email && (
+      <>
+        <h2>联系方式</h2>
+        <p>如对本政策有疑问，请发送邮件至 <a href={`mailto:${email}`}>{email}</a>。</p>
+      </>
+    )}
+  </ProseLayout>
+) : lang === 'ko' ? (
+  <ProseLayout title="개인정보 처리방침" description={`${SITE.name}의 데이터 처리 방식.`}>
+    <p>최종 업데이트: {UPDATED}</p>
+    <p>{SITE.name}은 정적 웹사이트입니다. 계정이 필요 없으며, 개인정보를 수집하는 양식도 없습니다.</p>
+
+    <h2>브라우저에 저장되는 데이터</h2>
+    <p>
+      다음 방문 때도 설정이 유지되도록 일부 설정을 브라우저의 로컬 저장소에 저장합니다: 라이트/다크 모드, 격자 또는 표 보기, 로마자
+      표시 여부, 플래시카드 진도. 이 데이터는 기기에만 남아 있으며 저희에게 전송되지 않습니다. 브라우저 설정에서 이 사이트의 데이터를
+      지우면 언제든지 삭제할 수 있습니다.
+    </p>
+
+    <h2>브라우저에서 실행되는 도구</h2>
+    <p>후리가나 생성기와 한자 검색은 모두 브라우저 안에서 실행되며, 입력한 문장은 어디에도 전송되지 않습니다. 발음 기능은 운영체제에 내장된 음성(Web Speech API)을 사용합니다.</p>
+
+    <h2>호스팅과 방문 통계</h2>
+    <p>
+      이 사이트는 Cloudflare Pages에서 호스팅됩니다. 모든 웹 서버와 마찬가지로 Cloudflare는 페이지 전송과 공격 방어를 위해 IP 주소, 브라우저
+      종류 등의 기술 정보를 처리합니다. 저희는 쿠키를 쓰지 않고 개별 방문자를 추적하지 않는 Cloudflare Web Analytics를 사용할 수 있습니다.
+      자세한 내용은 <a href={CF}>Cloudflare 개인정보 처리방침</a>을 참고하세요.
+    </p>
+
+    <h2>광고</h2>
+    <p>
+      이 사이트에는 Google AdSense 광고가 표시될 수 있습니다. Google과 파트너는 이 사이트나 다른 사이트의 이전 방문 기록을 바탕으로 광고를
+      보여 주기 위해 쿠키를 사용합니다. <a href={AD_SETTINGS}>Google 광고 설정</a>에서 맞춤 광고를 끌 수 있으며,{' '}
+      <a href={GOOGLE_ADS}>Google의 광고 데이터 사용 방식</a>에서 더 알아볼 수 있습니다. 유럽 경제 지역, 영국, 스위스의 방문자에게는 이러한
+      쿠키를 사용하기 전에 동의를 요청합니다.
+    </p>
+
+    <h2>방침 변경</h2>
+    <p>사이트가 바뀌면 이 방침도 업데이트될 수 있습니다. 맨 위의 날짜가 최신 버전입니다.</p>
+    {email && (
+      <>
+        <h2>문의</h2>
+        <p>이 방침에 대해 궁금한 점이 있으면 <a href={`mailto:${email}`}>{email}</a>로 이메일을 보내 주세요.</p>
+      </>
+    )}
+  </ProseLayout>
+) : lang === 'id' ? (
+  <ProseLayout title="Kebijakan privasi" description={`Cara ${SITE.name} menangani data kamu.`}>
+    <p>Terakhir diperbarui: {UPDATED}</p>
+    <p>{SITE.name} adalah situs statis. Kamu tidak perlu membuat akun, dan kami tidak punya formulir yang mengumpulkan data pribadi.</p>
+
+    <h2>Data yang disimpan di browser</h2>
+    <p>
+      Beberapa pengaturan disimpan di penyimpanan lokal browser agar tetap ada saat kamu kembali: tema terang/gelap, tampilan
+      kisi atau tabel, tampil tidaknya romaji, dan progres flashcard. Data ini tetap di perangkatmu dan tidak pernah dikirim ke
+      kami. Kamu bisa menghapusnya kapan saja dengan membersihkan data situs ini di pengaturan browser.
+    </p>
+
+    <h2>Alat yang berjalan di browser</h2>
+    <p>
+      Pembuat furigana dan pencarian kanji berjalan sepenuhnya di browser; teks yang kamu ketik tidak dikirim ke mana pun.
+      Fitur pelafalan memakai suara bawaan sistem operasi (Web Speech API).
+    </p>
+
+    <h2>Hosting dan statistik</h2>
+    <p>
+      Situs ini di-host di Cloudflare Pages. Seperti server web lainnya, Cloudflare memproses data teknis seperti alamat IP
+      dan jenis browser untuk mengirim halaman dan melindungi dari serangan. Kami mungkin memakai Cloudflare Web Analytics,
+      yang menghitung kunjungan tanpa cookie dan tanpa melacak pengunjung secara individual. Lihat{' '}
+      <a href={CF}>kebijakan privasi Cloudflare</a>.
+    </p>
+
+    <h2>Iklan</h2>
+    <p>
+      Situs ini mungkin menampilkan iklan dari Google AdSense. Google dan mitranya memakai cookie untuk menampilkan iklan
+      berdasarkan kunjunganmu sebelumnya ke situs ini atau situs lain. Kamu bisa mematikan iklan yang dipersonalisasi di{' '}
+      <a href={AD_SETTINGS}>Setelan Iklan Google</a>, dan mempelajari lebih lanjut di{' '}
+      <a href={GOOGLE_ADS}>cara Google memakai data dalam iklan</a>. Pengunjung dari Wilayah Ekonomi Eropa, Inggris, dan Swiss
+      akan dimintai persetujuan sebelum cookie tersebut dipakai.
+    </p>
+
+    <h2>Perubahan kebijakan</h2>
+    <p>Kebijakan ini bisa diperbarui seiring perubahan situs. Tanggal di bagian atas menunjukkan versi terbaru.</p>
+    {email && (
+      <>
+        <h2>Kontak</h2>
+        <p>Jika ada pertanyaan tentang kebijakan ini, kirim email ke <a href={`mailto:${email}`}>{email}</a>.</p>
+      </>
+    )}
+  </ProseLayout>
+) : (
+  <ProseLayout title="Chính sách quyền riêng tư" description={`Cách ${SITE.name} xử lý dữ liệu của bạn.`}>
+    <p>Cập nhật lần cuối: {UPDATED}</p>
+    <p>{SITE.name} là website tĩnh. Bạn không cần tạo tài khoản, và trang không có biểu mẫu nào thu thập thông tin cá nhân.</p>
+
+    <h2>Dữ liệu lưu trên trình duyệt</h2>
+    <p>
+      Một số tuỳ chọn được lưu trong bộ nhớ cục bộ (local storage) của trình duyệt để lần sau vẫn còn: giao diện sáng/tối,
+      kiểu xem lưới hoặc bảng, có hiện romaji hay không, và tiến độ flashcards. Dữ liệu này chỉ nằm trên thiết bị của bạn và
+      không bao giờ được gửi cho chúng tôi. Bạn có thể xoá bất cứ lúc nào bằng cách xoá dữ liệu của trang này trong cài đặt
+      trình duyệt.
+    </p>
+
+    <h2>Công cụ chạy trên trình duyệt</h2>
+    <p>
+      Công cụ tạo furigana và tìm kanji chạy hoàn toàn trên trình duyệt; văn bản bạn nhập không được gửi đi đâu. Tính năng
+      phát âm dùng giọng đọc có sẵn của hệ điều hành (Web Speech API).
+    </p>
+
+    <h2>Lưu trữ và thống kê truy cập</h2>
+    <p>
+      Trang được lưu trữ trên Cloudflare Pages. Như mọi máy chủ web, Cloudflare xử lý dữ liệu kỹ thuật như địa chỉ IP và loại
+      trình duyệt để phân phối trang và chống tấn công. Chúng tôi có thể dùng Cloudflare Web Analytics, công cụ đếm lượt truy
+      cập không dùng cookie và không theo dõi từng người. Xem thêm{' '}
+      <a href={CF}>chính sách quyền riêng tư của Cloudflare</a>.
+    </p>
+
+    <h2>Quảng cáo</h2>
+    <p>
+      Trang có thể hiển thị quảng cáo của Google AdSense. Google và các đối tác dùng cookie để hiển thị quảng cáo dựa trên các
+      lần bạn truy cập trang này hoặc trang khác trước đó. Bạn có thể tắt quảng cáo được cá nhân hoá trong{' '}
+      <a href={AD_SETTINGS}>Cài đặt quảng cáo của Google</a>, và tìm hiểu thêm về{' '}
+      <a href={GOOGLE_ADS}>cách Google sử dụng dữ liệu trong quảng cáo</a>. Người dùng ở Khu vực Kinh tế châu Âu, Vương quốc
+      Anh và Thuỵ Sĩ sẽ được hỏi ý kiến trước khi các cookie này được sử dụng.
+    </p>
+
+    <h2>Thay đổi chính sách</h2>
+    <p>Chính sách có thể được cập nhật khi trang thay đổi. Ngày ở đầu trang là phiên bản mới nhất.</p>
+    {email && (
+      <>
+        <h2>Liên hệ</h2>
+        <p>Nếu có câu hỏi về chính sách này, hãy gửi email tới <a href={`mailto:${email}`}>{email}</a>.</p>
+      </>
+    )}
+  </ProseLayout>
+)}
