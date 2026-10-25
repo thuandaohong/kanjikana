@@ -4,8 +4,10 @@
 
 @theme {
   --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Noto Serif', 'Noto Serif JP', ui-serif, Georgia, serif;
-  --font-jp: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+  /* Chữ Nhật: ưu tiên font Minchō có sẵn trên máy (macOS/iOS, Windows, Android); chỉ khi không có mới tải
+     Noto Serif JP, vì trang kanji có rất nhiều chữ khác nhau và mỗi nhóm chữ là một file font riêng. */
+  --font-serif: 'Noto Serif', 'Hiragino Mincho ProN', 'Yu Mincho', 'YuMincho', 'Noto Serif CJK JP', 'Noto Serif JP', ui-serif, Georgia, serif;
+  --font-jp: 'Hiragino Mincho ProN', 'Yu Mincho', 'YuMincho', 'Noto Serif CJK JP', 'Noto Serif JP', serif;
 
   --color-brand: #e11d2e;
   --color-brand-soft: #fde8ea;

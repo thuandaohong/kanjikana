@@ -152,9 +152,10 @@ const facts: [string, string, string?][] = [
             {r.extra.map((x) => (
               <li
                 title={[x[5], [x[6], x[7]].filter(Boolean).join(' / ')].filter(Boolean).join(' · ')}
-                class={`flex aspect-square flex-col items-center justify-center rounded-lg border border-dashed border-line ${x[1] === 2 ? 'opacity-60' : ''}`}
+                class="flex aspect-square flex-col items-center justify-center rounded-lg border border-dashed border-line"
               >
-                <span lang="ja" class="font-jp text-2xl leading-none">{x[0]}</span>
+                {/* Chữ ít gặp (JIS cấp 2): làm nhạt chữ, giữ nguyên nhãn để đủ độ tương phản. */}
+                <span lang="ja" class={`font-jp text-2xl leading-none ${x[1] === 2 ? 'text-fg-muted' : ''}`}>{x[0]}</span>
                 <span class="mt-1.5 max-w-full truncate px-1 text-[11px] text-fg-muted">{extraLabel(x, lang)}</span>
               </li>
             ))}
