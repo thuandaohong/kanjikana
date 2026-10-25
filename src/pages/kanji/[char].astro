@@ -5,7 +5,7 @@ import KanjiList from '../../components/KanjiList.astro';
 import StrokeOrder from '../../components/StrokeOrder.astro';
 import StrokeSteps from '../../components/StrokeSteps.astro';
 import AdSlot from '../../components/AdSlot.astro';
-import { ALL, KANKEN, RADICALS, STROKES, THEMES, VOCAB, gradeLabel, hvText, jlptSlug, kanjiUrl, localMeaning, meaningText, radicalName, wordMeaning, type Kanji } from '../../data/kanji';
+import { ALL, KANKEN, RADICALS, STROKES, THEMES, VOCAB, gradeLabel, hvText, jlptSlug, kanjiUrl, localMeaning, meaningText, radicalName, SENTENCES, sentenceTranslation, wordMeaning, type Kanji } from '../../data/kanji';
 import { HTML_LANGS } from '../../i18n';
 import { getLang, linker, pick } from '../../i18n';
 
@@ -30,6 +30,7 @@ const sameRadical = radical.kanji.filter((x) => x.c !== k.c).slice(0, 24);
 
 const paths = STROKES[k.c] ?? [];
 const words = VOCAB[k.c] ?? [];
+const sentences = SENTENCES[k.c] ?? [];
 const hv = hvText(k);
 const py = k.py.join(', ');
 const ko = k.ko.join(', ');
@@ -200,6 +201,36 @@ const facts: [string, string, string?][] = [
     </section>
   )}
 
+  {sentences.length > 0 && (
+    <section class="border-t border-dashed border-line">
+      <div class="container-page py-10">
+        <h2 class="mb-6 text-xl font-bold">{t('Câu ví dụ', 'Example sentences', '例句', '예문', 'Contoh kalimat')}</h2>
+        <ul class="space-y-4">
+          {sentences.map((s) => {
+            const tr = sentenceTranslation(s, lang);
+            return (
+              <li class="rounded-xl border border-line bg-surface px-5 py-4">
+                <p lang="ja" class="example font-jp text-xl leading-loose">
+                  {s.j.map(([text, reading]) => {
+                    // Tô màu chữ đang học trong câu.
+                    const body = [...text].map((ch) => (ch === k.c ? <span class="text-brand">{ch}</span> : ch));
+                    return reading ? <ruby>{body}<rt>{reading}</rt></ruby> : body;
+                  })}
+                </p>
+                <p lang={tr.fallback ? 'en' : HTML_LANGS[lang]} class="mt-1">{tr.text}</p>
+                <p class="mt-2 flex flex-wrap gap-x-3 text-xs text-fg-muted">
+                  <a href={`https://tatoeba.org/sentences/show/${s.i}`} class="hover:text-brand" rel="noopener" target="_blank">Tatoeba #{s.i}</a>
+                  {tr.ai && <span>{t('Bản dịch có hỗ trợ AI', 'AI-assisted translation', '译文由 AI 辅助', 'AI 도움 번역', 'Terjemahan dibantu AI')}</span>}
+                  {tr.fallback && <span>{t('Chưa có bản dịch tiếng Việt', '', '暂无中文译文', '아직 한국어 번역이 없습니다', 'Belum ada terjemahan bahasa Indonesia')}</span>}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
+  )}
+
   {sameRadical.length > 0 && (
     <section class="border-t border-dashed border-line">
       <div class="container-page py-10">
@@ -225,5 +256,10 @@ const facts: [string, string, string?][] = [
   .kanji-box::after {
     inset: 50% 0;
     border-top: 1px dashed var(--color-line);
+  }
+  /* Furigana trên câu ví dụ */
+  .example rt {
+    font-size: 0.5em;
+    color: var(--color-fg-muted);
   }
 </style>

@@ -27,6 +27,14 @@ npm run preview:cf  # xem bản build bằng môi trường mô phỏng Cloudfla
 `src/data/generated/kanji.json` được tạo bằng `npm run data` và commit vào repo, nên khi deploy không cần chạy lại.
 
 Ảnh chia sẻ (Open Graph) của từng ngôn ngữ nằm ở `public/og/{lang}.png`, tạo bằng `npm run og` (cần Google Chrome; đặt biến `CHROME` nếu Chrome không ở đường dẫn mặc định của macOS). Đổi tên site hoặc câu giới thiệu trong `scripts/build-og.mjs` thì chạy lại lệnh này.
+Câu ví dụ lấy từ Tatoeba (CC BY 2.0 FR), tạo bằng `npm run sentences` và commit vào `src/data/generated/sentences.json`. Cần tải dữ liệu một lần vào `.cache/tatoeba/` (không commit):
+
+```bash
+mkdir -p .cache/tatoeba && cd .cache/tatoeba && for l in jpn eng vie cmn kor ind; do curl -fLO "https://downloads.tatoeba.org/exports/per_language/$l/${l}_sentences.tsv.bz2"; done && curl -fLO https://downloads.tatoeba.org/exports/links.tar.bz2
+```
+
+Bản dịch câu do AI dịch (khi Tatoeba chưa có), đổi sang giản thể hoặc sửa lỗi nằm ở `src/data/meanings/sentences-{lang}.json`, khoá là id câu, nên chạy lại `npm run sentences` không làm mất.
+
 Danh sách từ vựng ví dụ (open-anki-jlpt-decks) có một số cách đọc và nghĩa tiếng Anh sai. Bản sửa tay nằm ở `src/data/vocab-fixes.json`, khoá là `"từ|cách đọc gốc"`, giá trị `{ reading?, en?, why }`. File này được áp dụng mỗi lần chạy `npm run data`; script báo các bản sửa không còn khớp với nguồn. Sửa cách đọc thì nhớ đổi khoá tương ứng trong `src/data/meanings/words-*.json`.
 
 Danh sách chủ đề tự soạn nằm trong `src/data/themes.json` (tên chủ đề có `name`, `name_en`, `name_zh`, `name_ko`, `name_id`). Sửa xong thì chạy lại `npm run data`.
@@ -93,5 +101,6 @@ Trang `/privacy` (Chính sách quyền riêng tư) đã có phần công bố v�
 - [ ] Giai đoạn 7: dịch (Pages Functions), tạm hoãn, đã gỡ khỏi menu
 - [x] Giai đoạn 8: tiếng Việt (URL gốc) và tiếng Anh (/en/), có hreflang và nút chuyển ngôn ngữ
 - [x] Giai đoạn 9: sitemap, robots.txt, Open Graph, JSON-LD, font tự host, Lighthouse 95–100
+- [x] Giai đoạn 12: 37 chủ đề kanji; trắc nghiệm kanji (/tools/quiz); câu ví dụ từ Tatoeba có furigana
 - [x] Giai đoạn 11: đổi tên thành Kanjiba, ảnh chia sẻ theo ngôn ngữ, chỗ đặt quảng cáo, trang Chính sách quyền riêng tư
 - [x] Giai đoạn 10: tiếng Trung giản thể (/zh/, kèm pinyin) và tiếng Hàn (/ko/, kèm âm Hán-Hàn); tìm kiếm theo pinyin và hangul; tiếng Indonesia (/id/)

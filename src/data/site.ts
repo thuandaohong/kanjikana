@@ -70,6 +70,7 @@ export function nav(lang: Lang): NavMenu[] {
             { label: t('Tạo furigana', 'Furigana generator', '假名注音生成', '후리가나 생성기', 'Pembuat furigana'), href: l('/tools/furigana') },
             { label: t('Tìm kanji', 'Kanji search', '汉字搜索', '한자 검색', 'Cari kanji'), href: l('/kanji/search') },
             { label: t('Flashcards', 'Flashcards', '闪卡', '플래시카드', 'Flashcard'), href: l('/flashcards') },
+            { label: t('Trắc nghiệm kanji', 'Kanji quiz', '汉字测验', '한자 퀴즈', 'Kuis kanji'), href: l('/tools/quiz') },
           ],
         },
       ],
@@ -104,6 +105,7 @@ export function footer(lang: Lang): { title: string; links: NavLink[] }[] {
         { label: t('Furigana', 'Furigana', '假名注音', '후리가나', 'Furigana'), href: l('/tools/furigana') },
         { label: t('Tìm kanji', 'Kanji search', '汉字搜索', '한자 검색', 'Cari kanji'), href: l('/kanji/search') },
         { label: t('Flashcards', 'Flashcards', '闪卡', '플래시카드', 'Flashcard'), href: l('/flashcards') },
+        { label: t('Trắc nghiệm kanji', 'Kanji quiz', '汉字测验', '한자 퀴즈', 'Kuis kanji'), href: l('/tools/quiz') },
       ],
     },
     {

@@ -8,6 +8,7 @@
     "preview": "astro preview",
     "data": "node scripts/build-data.mjs",
     "og": "node scripts/build-og.mjs",
+    "sentences": "node scripts/build-sentences.mjs",
     "predev": "node scripts/copy-kuromoji.mjs && node scripts/gen-locale-routes.mjs",
     "prebuild": "node scripts/copy-kuromoji.mjs && node scripts/gen-locale-routes.mjs",
     "preview:cf": "wrangler pages dev dist"

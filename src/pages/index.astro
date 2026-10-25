@@ -7,6 +7,8 @@ import { SITE } from '../data/site';
 import { HTML_LANGS, getLang, linker, pick } from '../i18n';
 
 const lang = getLang(Astro);
+// Trang chủ chỉ hiện vài chủ đề đầu; danh sách đầy đủ ở /kanji/themes.
+const HOME_THEMES = 9;
 const l = linker(lang);
 const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
 
@@ -80,7 +82,7 @@ const jsonLd = {
     <div class="container-page py-16 md:py-20">
       <h2 class="text-2xl font-bold">{t('Kanji theo chủ đề', 'Kanji by theme', '按主题学汉字', '주제별 한자', 'Kanji per tema')}</h2>
       <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {THEMES.map((th) => (
+        {THEMES.slice(0, HOME_THEMES).map((th) => (
           <CardLink
             href={l(`/kanji/themes/${th.slug}`)}
             title={th.name[lang]}

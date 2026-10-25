@@ -11,6 +11,11 @@ import wordsVi from './meanings/words-vi.json';
 import wordsZh from './meanings/words-zh.json';
 import wordsKo from './meanings/words-ko.json';
 import wordsId from './meanings/words-id.json';
+import sentencesRaw from './generated/sentences.json';
+import sentencesVi from './meanings/sentences-vi.json';
+import sentencesZh from './meanings/sentences-zh.json';
+import sentencesKo from './meanings/sentences-ko.json';
+import sentencesId from './meanings/sentences-id.json';
 import { type Lang, localize, pick } from '../i18n';
 
 export type Kanji = {
@@ -168,3 +173,32 @@ const WORD_MEANINGS: Record<Exclude<Lang, 'en'>, Record<string, string>> = {
 /** Nghĩa của một từ ví dụ ở ngôn ngữ của trang, hoặc null nếu chưa có bản dịch (dùng nghĩa tiếng Anh). */
 export const wordMeaning = ([word, reading]: Word, lang: Lang): string | null =>
   lang === 'en' ? null : WORD_MEANINGS[lang][`${word}|${reading}`] || null;
+
+// ---------- Câu ví dụ (Tatoeba) ----------
+/** Đoạn của câu: [chữ] hoặc [kanji, cách đọc] để hiện furigana. */
+export type RubySegment = [string] | [string, string];
+/** i: id câu trên Tatoeba; j: câu tiếng Nhật đã tách furigana; t: bản dịch có sẵn trên Tatoeba. */
+export type Sentence = { i: number; j: RubySegment[]; t: Partial<Record<Lang, string>> };
+/** Tối đa 3 câu cho mỗi kanji, do scripts/build-sentences.mjs tạo. */
+export const SENTENCES = sentencesRaw as unknown as Record<string, Sentence[]>;
+
+// Bản dịch câu do AI dịch (khi Tatoeba chưa có), đổi sang giản thể hoặc sửa lỗi; khoá là id câu.
+const SENTENCE_FIXES: Record<Exclude<Lang, 'en'>, Record<string, string>> = {
+  vi: sentencesVi as Record<string, string>,
+  zh: sentencesZh as Record<string, string>,
+  ko: sentencesKo as Record<string, string>,
+  id: sentencesId as Record<string, string>,
+};
+/**
+ * Bản dịch của câu theo ngôn ngữ trang. `ai`: bản dịch do AI làm hoặc sửa;
+ * `fallback`: chưa có bản dịch nên dùng tiếng Anh.
+ */
+export function sentenceTranslation(s: Sentence, lang: Lang): { text: string; ai: boolean; fallback: boolean } {
+  if (lang !== 'en') {
+    const fixed = SENTENCE_FIXES[lang][String(s.i)];
+    if (fixed) return { text: fixed, ai: true, fallback: false };
+    const own = s.t[lang];
+    if (own) return { text: own, ai: false, fallback: false };
+  }
+  return { text: s.t.en ?? '', ai: false, fallback: lang !== 'en' };
+}

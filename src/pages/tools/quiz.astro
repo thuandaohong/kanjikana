@@ -1,0 +1,408 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { LOCAL_READING_LABEL } from '../../data/kanji';
+import { getLang, linker, pick } from '../../i18n';
+
+const lang = getLang(Astro);
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
+// Dạng câu hỏi "âm đọc của người học" chỉ có ở bản vi (Hán Việt), zh (pinyin), ko (âm Hán-Hàn).
+const localLabel = LOCAL_READING_LABEL[lang];
+// Chuỗi cho script phía trình duyệt; {n}, {score}, {total}, {best}, {pct} được thay khi hiển thị.
+const strings = {
+  lang,
+  kanjiBase: linker(lang)('/kanji/'),
+  deckInfo: t('{n} kanji · điểm cao nhất: {best}', '{n} kanji · best score: {best}', '{n} 个汉字 · 最高分：{best}', '한자 {n}자 · 최고 점수: {best}', '{n} kanji · skor terbaik: {best}'),
+  noBest: '—',
+  tooSmall: t('Bộ này có quá ít chữ để làm trắc nghiệm.', 'This deck has too few kanji for a quiz.', '这组汉字太少，无法测验。', '이 덱은 한자가 너무 적어 퀴즈를 만들 수 없습니다.', 'Dek ini terlalu sedikit kanjinya untuk kuis.'),
+  progress: t('Câu {n}/{total}', 'Question {n}/{total}', '第 {n}/{total} 题', '{n}/{total}번 문제', 'Soal {n}/{total}'),
+  score: t('Đúng {score}', '{score} correct', '答对 {score}', '정답 {score}', 'Benar {score}'),
+  askMeaning: t('Chữ này nghĩa là gì?', 'What does this kanji mean?', '这个汉字是什么意思？', '이 한자의 뜻은?', 'Apa arti kanji ini?'),
+  askReading: t('Chữ này đọc là gì?', 'How is this kanji read?', '这个汉字怎么读？', '이 한자는 어떻게 읽나요?', 'Bagaimana cara membaca kanji ini?'),
+  askKanji: t('Chữ nào có nghĩa này?', 'Which kanji has this meaning?', '哪个汉字是这个意思？', '이 뜻을 가진 한자는?', 'Kanji mana yang berarti ini?'),
+  askLocal: t('Âm Hán Việt của chữ này là gì?', '', '这个汉字的拼音是什么？', '이 한자의 한자음은?', ''),
+  correct: t('Chính xác!', 'Correct!', '答对了！', '정답!', 'Benar!'),
+  wrong: t('Chưa đúng. Đáp án: {answer}', 'Not quite. Answer: {answer}', '答错了。正确答案：{answer}', '오답입니다. 정답: {answer}', 'Kurang tepat. Jawaban: {answer}'),
+  result: t('Bạn trả lời đúng {score}/{total} câu ({pct}%).', 'You got {score} of {total} right ({pct}%).', '你答对了 {score}/{total} 题（{pct}%）。', '{total}문제 중 {score}문제를 맞혔습니다 ({pct}%).', 'Kamu menjawab benar {score} dari {total} soal ({pct}%).'),
+  newBest: t('Kỷ lục mới!', 'New best score!', '新纪录！', '최고 기록!', 'Rekor baru!'),
+  perfect: t('Tuyệt vời, không sai câu nào!', 'Perfect, no mistakes!', '太棒了，全部答对！', '완벽해요, 하나도 틀리지 않았어요!', 'Sempurna, tidak ada yang salah!'),
+  details: t('Xem chi tiết', 'Details', '查看详情', '자세히 보기', 'Lihat detail'),
+  error: t('Không tải được dữ liệu. Hãy thử tải lại trang.', 'Could not load data. Please reload the page.', '无法加载数据，请刷新页面重试。', '데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.', 'Gagal memuat data. Silakan muat ulang halaman.'),
+};
+---
+<BaseLayout
+  title={t('Trắc nghiệm kanji', 'Kanji quiz', '汉字测验', '한자 퀴즈', 'Kuis kanji')}
+  description={t(
+    'Kiểm tra trí nhớ kanji theo cấp JLPT, Kanken hoặc chủ đề: chọn nghĩa, cách đọc hoặc chữ đúng.',
+    'Test your kanji by JLPT level, Kanken level or theme: pick the right meaning, reading or character.',
+    '按 JLPT 级别、汉检级别或主题测验汉字：选择正确的释义、读音或汉字。',
+    'JLPT 급수, 한자검정 급수, 주제별로 한자를 테스트하세요. 알맞은 뜻, 읽기, 한자를 고르면 됩니다.',
+    'Uji kanji per level JLPT, level Kanken, atau tema: pilih arti, cara baca, atau kanji yang benar.',
+  )}
+>
+  <script is:inline type="application/json" id="page-strings" set:html={JSON.stringify(strings)} />
+  <PageHeader
+    title={t('Trắc nghiệm kanji', 'Kanji quiz', '汉字测验', '한자 퀴즈', 'Kuis kanji')}
+    crumbs={[{ label: t('Công cụ', 'Tools', '工具', '도구', 'Alat') }, { label: t('Trắc nghiệm', 'Quiz', '测验', '퀴즈', 'Kuis') }]}
+    lead={t(
+      'Chọn một bộ chữ và dạng câu hỏi. Mỗi câu có 4 đáp án; cuối bài bạn có thể làm lại những câu sai.',
+      'Pick a deck and a question type. Each question has four choices; at the end you can retry the ones you missed.',
+      '选择一组汉字和题型。每题有 4 个选项，结束后可以重做答错的题。',
+      '덱과 문제 유형을 고르세요. 문제마다 보기가 4개이며, 끝나면 틀린 문제만 다시 풀 수 있습니다.',
+      'Pilih dek dan jenis soal. Setiap soal punya 4 pilihan; di akhir kamu bisa mengulang soal yang salah.',
+    )}
+  />
+
+  <section class="container-page py-10">
+    <!-- Bước 1: chọn bộ chữ và dạng câu hỏi -->
+    <form id="qz-setup" class="max-w-xl space-y-5">
+      <div>
+        <label for="qz-deck" class="mb-1.5 block text-sm font-semibold">{t('Bộ chữ', 'Deck', '汉字组', '덱', 'Dek')}</label>
+        <select id="qz-deck" class="h-11 w-full rounded-lg border border-line bg-surface px-3" disabled>
+          <option>{t('Đang tải…', 'Loading…', '加载中…', '불러오는 중…', 'Memuat…')}</option>
+        </select>
+        <p id="qz-deck-info" class="mt-2 text-sm text-fg-muted"></p>
+      </div>
+      <fieldset>
+        <legend class="mb-1.5 text-sm font-semibold">{t('Dạng câu hỏi', 'Question type', '题型', '문제 유형', 'Jenis soal')}</legend>
+        <div class="grid gap-2 text-sm sm:grid-cols-2">
+          <label class="inline-flex items-center gap-2"><input type="radio" name="mode" value="meaning" checked class="accent-brand" /> {t('Kanji → nghĩa', 'Kanji → meaning', '汉字 → 释义', '한자 → 뜻', 'Kanji → arti')}</label>
+          <label class="inline-flex items-center gap-2"><input type="radio" name="mode" value="reading" class="accent-brand" /> {t('Kanji → cách đọc', 'Kanji → reading', '汉字 → 日语读音', '한자 → 일본어 읽기', 'Kanji → cara baca')}</label>
+          <label class="inline-flex items-center gap-2"><input type="radio" name="mode" value="kanji" class="accent-brand" /> {t('Nghĩa → kanji', 'Meaning → kanji', '释义 → 汉字', '뜻 → 한자', 'Arti → kanji')}</label>
+          {localLabel && (
+            <label class="inline-flex items-center gap-2"><input type="radio" name="mode" value="local" class="accent-brand" /> {t('Kanji → âm Hán Việt', '', '汉字 → 拼音', '한자 → 한자음', '')}</label>
+          )}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend class="mb-1.5 text-sm font-semibold">{t('Số câu', 'Questions', '题数', '문제 수', 'Jumlah soal')}</legend>
+        <div class="flex flex-wrap gap-4 text-sm">
+          {[10, 20, 50].map((n, i) => (
+            <label class="inline-flex items-center gap-2"><input type="radio" name="count" value={n} checked={i === 0} class="accent-brand" /> {n}</label>
+          ))}
+        </div>
+      </fieldset>
+      <button type="submit" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90 disabled:opacity-50">{t('Bắt đầu', 'Start', '开始', '시작', 'Mulai')}</button>
+    </form>
+
+    <!-- Bước 2: làm bài -->
+    <div id="qz-play" hidden class="mx-auto max-w-xl">
+      <div class="mb-4 flex items-center justify-between text-sm text-fg-muted">
+        <span id="qz-progress"></span>
+        <span id="qz-score"></span>
+      </div>
+      <div class="mb-6 h-1.5 overflow-hidden rounded-full bg-bg-muted">
+        <div id="qz-bar" class="h-full rounded-full bg-brand transition-[width]"></div>
+      </div>
+      <div class="rounded-2xl border border-line bg-surface p-8 text-center shadow-sm">
+        <p id="qz-ask" class="text-sm text-fg-muted"></p>
+        <div id="qz-prompt" class="mt-3"></div>
+      </div>
+      <div id="qz-options" class="mt-5 grid gap-3 sm:grid-cols-2"></div>
+      <p id="qz-feedback" class="mt-4 min-h-6 text-center font-semibold" aria-live="polite"></p>
+      <div class="mt-2 flex items-center justify-between">
+        <button type="button" id="qz-quit" class="link-underline text-sm">← {t('Chọn bộ khác', 'Choose another deck', '选择其他汉字组', '다른 덱 고르기', 'Pilih dek lain')}</button>
+        <button type="button" id="qz-next" hidden class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90">
+          {t('Câu tiếp', 'Next', '下一题', '다음', 'Berikutnya')} <span class="text-xs opacity-80">(Enter)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bước 3: kết quả -->
+    <div id="qz-done" hidden class="mx-auto max-w-xl">
+      <div class="rounded-2xl border border-line bg-surface p-8 text-center">
+        <p class="font-jp text-6xl">試</p>
+        <h2 class="mt-4 text-2xl font-bold">{t('Kết quả', 'Results', '结果', '결과', 'Hasil')}</h2>
+        <p id="qz-result" class="mt-2 text-fg-muted"></p>
+        <div class="mt-6 flex flex-wrap justify-center gap-3">
+          <button type="button" id="qz-retry-wrong" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90">{t('Làm lại câu sai', 'Retry mistakes', '重做错题', '틀린 문제 다시 풀기', 'Ulangi yang salah')}</button>
+          <button type="button" id="qz-again" class="rounded-lg border border-line px-5 py-2.5 hover:border-brand">{t('Làm bài mới', 'New quiz', '新测验', '새 퀴즈', 'Kuis baru')}</button>
+          <button type="button" id="qz-back" class="rounded-lg border border-line px-5 py-2.5 hover:border-brand">{t('Chọn bộ khác', 'Choose another deck', '选择其他汉字组', '다른 덱 고르기', 'Pilih dek lain')}</button>
+        </div>
+      </div>
+      <div id="qz-review" class="mt-8">
+        <h3 class="mb-3 text-lg font-bold">{t('Câu trả lời sai', 'Your mistakes', '答错的题', '틀린 문제', 'Jawaban yang salah')}</h3>
+        <ul id="qz-wrong-list" class="grid gap-3 sm:grid-cols-2"></ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  #qz-options :global(button[data-state='correct']) {
+    border-color: #16a34a;
+    background: color-mix(in srgb, #16a34a 12%, transparent);
+  }
+  #qz-options :global(button[data-state='wrong']) {
+    border-color: var(--color-brand);
+    background: color-mix(in srgb, var(--color-brand) 12%, transparent);
+  }
+</style>
+
+<script>
+  type Entry = {
+    c: string; hv: string[]; py: string[]; ko: string[]; en: string[]; on: string[]; kun: string[];
+    jlpt: number | null; m?: string;
+  };
+  type Deck = { id: string; group: Record<string, string>; name: Record<string, string>; chars: string };
+  type Mode = 'meaning' | 'reading' | 'kanji' | 'local';
+  type Question = { k: Entry; answer: string; options: string[] };
+
+  const S = JSON.parse(document.getElementById('page-strings')!.textContent!);
+  const fill = (tpl: string, vars: Record<string, string | number>) => tpl.replace(/\{(\w+)\}/g, (_, k) => String(vars[k]));
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+
+  const setup = $<HTMLFormElement>('qz-setup');
+  const play = $('qz-play');
+  const done = $('qz-done');
+  const deckSelect = $<HTMLSelectElement>('qz-deck');
+  const optionsBox = $('qz-options');
+  const nextBtn = $<HTMLButtonElement>('qz-next');
+
+  // ---------- Lưu trữ (localStorage, có thể không dùng được) ----------
+  const store = {
+    get(key: string): string | null {
+      try { return localStorage.getItem(key); } catch { return null; }
+    },
+    set(key: string, value: string) {
+      try { localStorage.setItem(key, value); } catch {}
+    },
+  };
+  const bestKey = (deckId: string, mode: Mode) => `qz-best:${deckId}:${mode}`;
+
+  let byChar = new Map<string, Entry>();
+  let all: Entry[] = [];
+  let decks: Deck[] = [];
+  let deck: Deck;
+  let mode: Mode = 'meaning';
+  let questions: Question[] = [];
+  let index = 0;
+  let score = 0;
+  let answered = false;
+  let wrong: Question[] = [];
+
+  const currentDeck = () => decks.find((d) => d.id === deckSelect.value)!;
+  const shuffle = <T,>(a: T[]) => {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+
+  // ---------- Nội dung đáp án theo dạng câu hỏi ----------
+  /**
+   * Nghĩa ngắn: tối đa 2 nghĩa đầu của bản dịch, hoặc của tiếng Anh.
+   * Bỏ các nghĩa chứa chính chữ đó (bản tiếng Trung hay có "雨" cho 雨), vì sẽ lộ đáp án.
+   */
+  const meaningOf = (k: Entry) => {
+    const senses = (k.m ?? '').split(/[,、]/).map((s) => s.trim()).filter((s) => s && !s.includes(k.c));
+    return senses.length ? senses.slice(0, 2).join(S.lang === 'zh' ? '、' : ', ') : k.en.slice(0, 2).join(', ');
+  };
+  /** Cách đọc tiêu biểu: âm On đầu tiên, không có thì âm Kun (bỏ dấu "-" và "."). */
+  const readingOf = (k: Entry) => (k.on[0] ?? k.kun[0] ?? '').replace(/[-.]/g, '');
+  const localOf = (k: Entry) => (({ vi: k.hv, zh: k.py, ko: k.ko } as Record<string, string[]>)[S.lang] ?? [])[0] ?? '';
+  const answerOf = (k: Entry): string =>
+    mode === 'meaning' ? meaningOf(k) : mode === 'reading' ? readingOf(k) : mode === 'local' ? localOf(k) : k.c;
+
+  /** Tạo câu hỏi: đáp án đúng + 3 đáp án nhiễu khác chữ, ưu tiên lấy trong cùng bộ. */
+  function makeQuestion(k: Entry, pool: Entry[]): Question | null {
+    const answer = answerOf(k);
+    if (!answer) return null;
+    const options = new Set([answer]);
+    for (const src of [shuffle([...pool]), shuffle([...all])]) {
+      for (const x of src) {
+        if (options.size >= 4) break;
+        const o = answerOf(x);
+        if (o && x.c !== k.c) options.add(o);
+      }
+    }
+    return options.size === 4 ? { k, answer, options: shuffle([...options]) } : null;
+  }
+
+  function showDeckInfo() {
+    const d = currentDeck();
+    const best = store.get(bestKey(d.id, selectedMode()));
+    $('qz-deck-info').textContent = fill(S.deckInfo, { n: [...d.chars].length, best: best ? `${best}%` : S.noBest });
+    store.set('qz-last-deck', d.id);
+  }
+  const selectedMode = () => (new FormData(setup).get('mode') as Mode) ?? 'meaning';
+
+  function start(chars: string[]) {
+    deck = currentDeck();
+    mode = selectedMode();
+    const pool = [...deck.chars].map((c) => byChar.get(c)).filter((k): k is Entry => !!k);
+    questions = chars
+      .map((c) => byChar.get(c))
+      .filter((k): k is Entry => !!k)
+      .map((k) => makeQuestion(k, pool))
+      .filter((q): q is Question => !!q);
+    if (!questions.length) {
+      $('qz-deck-info').textContent = S.tooSmall;
+      return;
+    }
+    index = score = 0;
+    wrong = [];
+    setup.hidden = done.hidden = true;
+    play.hidden = false;
+    showQuestion();
+  }
+
+  function startNew() {
+    const d = currentDeck();
+    const count = Number(new FormData(setup).get('count') ?? 10);
+    start(shuffle([...d.chars]).slice(0, count));
+  }
+
+  function el(tag: string, cls: string, text: string, lang?: string) {
+    const e = document.createElement(tag);
+    e.className = cls;
+    e.textContent = text;
+    if (lang) e.lang = lang;
+    return e;
+  }
+
+  function showQuestion() {
+    const q = questions[index];
+    answered = false;
+    nextBtn.hidden = true;
+    $('qz-feedback').textContent = '';
+    $('qz-progress').textContent = fill(S.progress, { n: index + 1, total: questions.length });
+    $('qz-score').textContent = fill(S.score, { score });
+    $('qz-bar').style.width = `${(index / questions.length) * 100}%`;
+    $('qz-ask').textContent = { meaning: S.askMeaning, reading: S.askReading, kanji: S.askKanji, local: S.askLocal }[mode];
+    $('qz-prompt').replaceChildren(
+      mode === 'kanji'
+        ? el('p', 'font-serif text-3xl font-bold text-brand', meaningOf(q.k))
+        : el('p', 'font-jp text-8xl leading-none', q.k.c, 'ja'),
+    );
+    optionsBox.replaceChildren(
+      ...q.options.map((o, i) => {
+        const b = el(
+          'button',
+          `flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-left transition hover:border-brand/60 ${mode === 'kanji' ? 'justify-center font-jp text-4xl' : mode === 'reading' ? 'font-jp text-xl' : 'text-base'}`,
+          '',
+          mode === 'kanji' || mode === 'reading' ? 'ja' : undefined,
+        ) as HTMLButtonElement;
+        b.type = 'button';
+        b.dataset.value = o;
+        b.append(el('span', 'font-sans text-xs text-fg-muted', String(i + 1)), el('span', '', o));
+        b.addEventListener('click', () => choose(o));
+        return b;
+      }),
+    );
+  }
+
+  function choose(value: string) {
+    if (answered) return;
+    answered = true;
+    const q = questions[index];
+    const ok = value === q.answer;
+    if (ok) score++;
+    else wrong.push(q);
+    optionsBox.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
+      b.disabled = true;
+      if (b.dataset.value === q.answer) b.dataset.state = 'correct';
+      else if (b.dataset.value === value) b.dataset.state = 'wrong';
+    });
+    $('qz-feedback').textContent = ok ? S.correct : fill(S.wrong, { answer: q.answer });
+    $('qz-feedback').className = `mt-4 min-h-6 text-center font-semibold ${ok ? 'text-green-600' : 'text-brand'}`;
+    $('qz-score').textContent = fill(S.score, { score });
+    nextBtn.hidden = false;
+    nextBtn.focus({ preventScroll: true });
+  }
+
+  function next() {
+    if (!answered) return;
+    index++;
+    if (index < questions.length) showQuestion();
+    else finish();
+  }
+
+  function finish() {
+    play.hidden = true;
+    done.hidden = false;
+    const pct = Math.round((score / questions.length) * 100);
+    const key = bestKey(deck.id, mode);
+    const best = Number(store.get(key) ?? -1);
+    let msg = fill(S.result, { score, total: questions.length, pct });
+    if (pct > best) {
+      store.set(key, String(pct));
+      if (best >= 0) msg += ` ${S.newBest}`;
+    }
+    if (!wrong.length) msg += ` ${S.perfect}`;
+    $('qz-result').textContent = msg;
+    $('qz-review').hidden = !wrong.length;
+    $<HTMLButtonElement>('qz-retry-wrong').hidden = !wrong.length;
+    $('qz-wrong-list').replaceChildren(
+      ...wrong.map((q) => {
+        const li = el('li', '', '');
+        const a = el('a', 'flex h-full items-center gap-4 rounded-xl border border-line bg-surface p-4 transition hover:border-brand/60', '') as HTMLAnchorElement;
+        a.href = S.kanjiBase + q.k.c;
+        const body = el('div', 'min-w-0 flex-1', '');
+        body.append(
+          el('p', 'font-semibold text-brand', meaningOf(q.k)),
+          el('p', 'text-sm', [...q.k.on, ...q.k.kun].slice(0, 4).join('、'), 'ja'),
+        );
+        a.append(el('span', 'font-jp text-4xl leading-none', q.k.c, 'ja'), body);
+        li.append(a);
+        return li;
+      }),
+    );
+  }
+
+  function backToSetup() {
+    play.hidden = done.hidden = true;
+    setup.hidden = false;
+    showDeckInfo();
+  }
+
+  setup.addEventListener('submit', (e) => {
+    e.preventDefault();
+    startNew();
+  });
+  setup.addEventListener('change', showDeckInfo);
+  nextBtn.addEventListener('click', next);
+  $('qz-quit').addEventListener('click', backToSetup);
+  $('qz-back').addEventListener('click', backToSetup);
+  $('qz-again').addEventListener('click', startNew);
+  $('qz-retry-wrong').addEventListener('click', () => start(wrong.map((q) => q.k.c)));
+  document.addEventListener('keydown', (e) => {
+    if (play.hidden || e.target instanceof HTMLSelectElement) return;
+    if (!answered && /^[1-4]$/.test(e.key)) {
+      const b = optionsBox.querySelectorAll<HTMLButtonElement>('button')[Number(e.key) - 1];
+      if (b) choose(b.dataset.value!);
+    } else if (answered && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      next();
+    }
+  });
+
+  // Bản không phải tiếng Anh tải thêm nghĩa đã dịch của ngôn ngữ đó.
+  Promise.all([
+    fetch('/data/kanji.json').then((r) => r.json()),
+    S.lang === 'en' ? {} : fetch(`/data/meanings/${S.lang}.json`).then((r) => r.json()),
+  ])
+    .then(([json, meanings]: [{ kanji: Entry[]; decks: Deck[] }, Record<string, string>]) => {
+      all = json.kanji.map((k) => ({ ...k, m: meanings[k.c] }));
+      byChar = new Map(all.map((k) => [k.c, k]));
+      decks = json.decks;
+      const groups = new Map<string, HTMLOptGroupElement>();
+      deckSelect.replaceChildren();
+      for (const d of decks) {
+        const group = d.group[S.lang];
+        if (!groups.has(group)) {
+          const g = document.createElement('optgroup');
+          g.label = group;
+          groups.set(group, g);
+          deckSelect.append(g);
+        }
+        groups.get(group)!.append(new Option(d.name[S.lang], d.id));
+      }
+      const last = store.get('qz-last-deck');
+      if (last && decks.some((d) => d.id === last)) deckSelect.value = last;
+      deckSelect.disabled = false;
+      showDeckInfo();
+    })
+    .catch(() => ($('qz-deck-info').textContent = S.error));
+</script>

@@ -2,55 +2,334 @@
   {
     "slug": "numbers",
     "name": "Số đếm",
-    "kanji": "一二三四五六七八九十百千万億零",
     "name_en": "Numbers",
     "name_zh": "数字",
     "name_ko": "숫자",
-    "name_id": "Angka"
+    "name_id": "Angka",
+    "kanji": "一二三四五六七八九十百千万億零"
   },
   {
     "slug": "animals",
     "name": "Động vật",
-    "kanji": "犬猫馬牛羊豚鳥魚虫貝竜熊鹿猿象蛇亀兎狐",
     "name_en": "Animals",
     "name_zh": "动物",
     "name_ko": "동물",
-    "name_id": "Hewan"
+    "name_id": "Hewan",
+    "kanji": "犬猫馬牛羊豚鳥魚虫貝竜熊鹿猿象蛇亀兎狐"
   },
   {
     "slug": "nature-and-landscape",
     "name": "Thiên nhiên & Cảnh quan",
-    "kanji": "山川木林森花草空雨雪風雲石海湖池田野火水土金天日月星光",
     "name_en": "Nature & Landscape",
     "name_zh": "自然与风景",
     "name_ko": "자연과 풍경",
-    "name_id": "Alam & Pemandangan"
+    "name_id": "Alam & Pemandangan",
+    "kanji": "山川木林森花草空雨雪風雲石海湖池田野火水土金天日月星光"
   },
   {
     "slug": "people-and-society",
     "name": "Con người & Xã hội",
-    "kanji": "人男女子父母兄弟姉妹友王民族家私彼客員社会国市町村先生",
     "name_en": "People & Society",
     "name_zh": "人与社会",
     "name_ko": "사람과 사회",
-    "name_id": "Manusia & Masyarakat"
+    "name_id": "Manusia & Masyarakat",
+    "kanji": "人男女子父母兄弟姉妹友王民族家私彼客員社会国市町村先生"
   },
   {
     "slug": "body",
     "name": "Cơ thể",
-    "kanji": "目耳口手足頭顔首心体肩腕指歯毛血骨背胸腹鼻舌皮爪",
     "name_en": "Body",
     "name_zh": "身体",
     "name_ko": "신체",
-    "name_id": "Tubuh"
+    "name_id": "Tubuh",
+    "kanji": "目耳口手足頭顔首心体肩腕指歯毛血骨背胸腹鼻舌皮爪"
   },
   {
     "slug": "emotions-and-feelings",
     "name": "Cảm xúc",
-    "kanji": "愛恋喜楽悲怒恐驚笑泣好嫌怖幸寂悩憂感情安苦怨",
     "name_en": "Emotions & Feelings",
     "name_zh": "情感",
     "name_ko": "감정",
-    "name_id": "Emosi & Perasaan"
+    "name_id": "Emosi & Perasaan",
+    "kanji": "愛恋喜楽悲怒恐驚笑泣好嫌怖幸寂悩憂感情安苦怨"
+  },
+  {
+    "slug": "family",
+    "name": "Gia đình",
+    "name_en": "Family",
+    "name_zh": "家庭",
+    "name_ko": "가족",
+    "name_id": "Keluarga",
+    "kanji": "家族親父母兄弟姉妹祖孫夫妻婦嫁婚息娘叔伯"
+  },
+  {
+    "slug": "time",
+    "name": "Thời gian",
+    "name_en": "Time",
+    "name_zh": "时间",
+    "name_ko": "시간",
+    "name_id": "Waktu",
+    "kanji": "時間分秒年月日週曜朝昼夜晩午前後今昔毎早遅期"
+  },
+  {
+    "slug": "days-of-the-week",
+    "name": "Các ngày trong tuần",
+    "name_en": "Days of the Week",
+    "name_zh": "星期",
+    "name_ko": "요일",
+    "name_id": "Hari dalam Seminggu",
+    "kanji": "日月火水木金土"
+  },
+  {
+    "slug": "seasons",
+    "name": "Bốn mùa",
+    "name_en": "Seasons",
+    "name_zh": "四季",
+    "name_ko": "사계절",
+    "name_id": "Musim",
+    "kanji": "春夏秋冬季節暑寒暖涼"
+  },
+  {
+    "slug": "weather",
+    "name": "Thời tiết",
+    "name_en": "Weather",
+    "name_zh": "天气",
+    "name_ko": "날씨",
+    "name_id": "Cuaca",
+    "kanji": "天気晴曇雨雪風雲雷霧嵐霜露虹温湿"
+  },
+  {
+    "slug": "colors",
+    "name": "Màu sắc",
+    "name_en": "Colors",
+    "name_zh": "颜色",
+    "name_ko": "색깔",
+    "name_id": "Warna",
+    "kanji": "色赤青白黒黄緑紫茶灰紅金銀"
+  },
+  {
+    "slug": "directions-and-position",
+    "name": "Phương hướng & Vị trí",
+    "name_en": "Directions & Position",
+    "name_zh": "方向与位置",
+    "name_ko": "방향과 위치",
+    "name_id": "Arah & Posisi",
+    "kanji": "東西南北上下左右前後内外中横縦奥隣側間向"
+  },
+  {
+    "slug": "food-and-drink",
+    "name": "Đồ ăn & Thức uống",
+    "name_en": "Food & Drink",
+    "name_zh": "饮食",
+    "name_ko": "음식과 음료",
+    "name_id": "Makanan & Minuman",
+    "kanji": "食飲米肉魚卵菜果茶酒麦豆塩糖油汁味飯麺粉"
+  },
+  {
+    "slug": "cooking",
+    "name": "Nấu ăn",
+    "name_en": "Cooking",
+    "name_zh": "烹饪",
+    "name_ko": "요리",
+    "name_id": "Memasak",
+    "kanji": "料理焼煮炊蒸揚切混皿鍋釜箸器"
+  },
+  {
+    "slug": "plants",
+    "name": "Cây cỏ & Hoa",
+    "name_en": "Plants & Flowers",
+    "name_zh": "植物与花",
+    "name_ko": "식물과 꽃",
+    "name_id": "Tumbuhan & Bunga",
+    "kanji": "木林森花草葉根枝芽実種桜梅松竹菊稲苗茎咲"
+  },
+  {
+    "slug": "home",
+    "name": "Nhà cửa",
+    "name_en": "Home",
+    "name_zh": "家居",
+    "name_ko": "집",
+    "name_id": "Rumah",
+    "kanji": "家宅室部屋窓戸門庭床壁階台机椅棚箱鍵"
+  },
+  {
+    "slug": "clothing",
+    "name": "Quần áo",
+    "name_en": "Clothing",
+    "name_zh": "服装",
+    "name_ko": "의복",
+    "name_id": "Pakaian",
+    "kanji": "服衣着脱帽靴袋布糸綿絹履袖襟帯"
+  },
+  {
+    "slug": "school-and-learning",
+    "name": "Trường học & Học tập",
+    "name_en": "School & Learning",
+    "name_zh": "学校与学习",
+    "name_ko": "학교와 학습",
+    "name_id": "Sekolah & Belajar",
+    "kanji": "学校教習勉強試験問題答書読字文本紙筆科授業宿卒級"
+  },
+  {
+    "slug": "language-and-communication",
+    "name": "Ngôn ngữ & Giao tiếp",
+    "name_en": "Language & Communication",
+    "name_zh": "语言与交流",
+    "name_ko": "언어와 소통",
+    "name_id": "Bahasa & Komunikasi",
+    "kanji": "言語話説談論議訳詞句辞声告伝報連絡返"
+  },
+  {
+    "slug": "work-and-business",
+    "name": "Công việc & Kinh doanh",
+    "name_en": "Work & Business",
+    "name_zh": "工作与商业",
+    "name_ko": "일과 사업",
+    "name_id": "Pekerjaan & Bisnis",
+    "kanji": "仕事働職業務社員会勤営商売買店企給募就課係"
+  },
+  {
+    "slug": "money-and-shopping",
+    "name": "Tiền bạc & Mua sắm",
+    "name_en": "Money & Shopping",
+    "name_zh": "金钱与购物",
+    "name_ko": "돈과 쇼핑",
+    "name_id": "Uang & Belanja",
+    "kanji": "金銀円銭貨価値料費税払貯預借貸財賃販"
+  },
+  {
+    "slug": "travel-and-transport",
+    "name": "Du lịch & Giao thông",
+    "name_en": "Travel & Transport",
+    "name_zh": "旅行与交通",
+    "name_ko": "여행과 교통",
+    "name_id": "Perjalanan & Transportasi",
+    "kanji": "旅行車電駅道路線船航空港乗降運転便券宿橋"
+  },
+  {
+    "slug": "geography-and-places",
+    "name": "Địa lý & Địa danh",
+    "name_en": "Geography & Places",
+    "name_zh": "地理与地名",
+    "name_ko": "지리와 장소",
+    "name_id": "Geografi & Tempat",
+    "kanji": "地都府県州島陸洋岸湾半谷原丘峠岬境域郡区"
+  },
+  {
+    "slug": "compass",
+    "name": "La bàn",
+    "name_en": "Cardinal Directions",
+    "name_zh": "方位",
+    "name_ko": "방위",
+    "name_id": "Arah Mata Angin",
+    "kanji": "東西南北"
+  },
+  {
+    "slug": "health-and-medicine",
+    "name": "Sức khỏe & Y tế",
+    "name_en": "Health & Medicine",
+    "name_zh": "健康与医疗",
+    "name_ko": "건강과 의료",
+    "name_id": "Kesehatan & Pengobatan",
+    "kanji": "病院医薬療治健康患症痛熱傷診看護死命息"
+  },
+  {
+    "slug": "sports-and-hobbies",
+    "name": "Thể thao & Sở thích",
+    "name_en": "Sports & Hobbies",
+    "name_zh": "运动与爱好",
+    "name_ko": "스포츠와 취미",
+    "name_id": "Olahraga & Hobi",
+    "kanji": "運動球技泳走投打勝負戦競選趣遊釣登踊"
+  },
+  {
+    "slug": "music-and-art",
+    "name": "Âm nhạc & Nghệ thuật",
+    "name_en": "Music & Art",
+    "name_zh": "音乐与艺术",
+    "name_ko": "음악과 예술",
+    "name_id": "Musik & Seni",
+    "kanji": "音楽歌曲奏琴笛鼓劇芸美絵画描写彫像舞"
+  },
+  {
+    "slug": "science-and-technology",
+    "name": "Khoa học & Công nghệ",
+    "name_en": "Science & Technology",
+    "name_zh": "科学与技术",
+    "name_ko": "과학과 기술",
+    "name_id": "Sains & Teknologi",
+    "kanji": "科学技術研究実験理化物電機械器算数式元素"
+  },
+  {
+    "slug": "government-and-law",
+    "name": "Chính trị & Pháp luật",
+    "name_en": "Government & Law",
+    "name_zh": "政治与法律",
+    "name_ko": "정치와 법률",
+    "name_id": "Pemerintahan & Hukum",
+    "kanji": "政治法律憲議党選挙官省府裁判権罪警察刑"
+  },
+  {
+    "slug": "military-and-history",
+    "name": "Quân sự & Lịch sử",
+    "name_en": "Military & History",
+    "name_zh": "军事与历史",
+    "name_ko": "군사와 역사",
+    "name_id": "Militer & Sejarah",
+    "kanji": "軍兵戦争武器隊将侍城王皇帝史代歴昔"
+  },
+  {
+    "slug": "religion-and-tradition",
+    "name": "Tôn giáo & Truyền thống",
+    "name_en": "Religion & Tradition",
+    "name_zh": "宗教与传统",
+    "name_ko": "종교와 전통",
+    "name_id": "Agama & Tradisi",
+    "kanji": "神仏寺宮社祭礼拝祈僧禅経霊魂"
+  },
+  {
+    "slug": "materials",
+    "name": "Vật liệu & Kim loại",
+    "name_en": "Materials & Metals",
+    "name_zh": "材料与金属",
+    "name_ko": "재료와 금속",
+    "name_id": "Bahan & Logam",
+    "kanji": "金銀銅鉄鉛鋼石岩砂土木材紙布糸油炭"
+  },
+  {
+    "slug": "shapes-and-sizes",
+    "name": "Hình dạng & Kích thước",
+    "name_en": "Shapes & Sizes",
+    "name_zh": "形状与大小",
+    "name_ko": "모양과 크기",
+    "name_id": "Bentuk & Ukuran",
+    "kanji": "大小長短高低広狭太細厚薄円角丸形方線点"
+  },
+  {
+    "slug": "movement",
+    "name": "Di chuyển",
+    "name_en": "Movement",
+    "name_zh": "移动",
+    "name_ko": "이동",
+    "name_id": "Gerakan",
+    "kanji": "行来帰入出歩走飛泳登降進退移通過渡回止"
+  },
+  {
+    "slug": "sea",
+    "name": "Biển cả",
+    "name_en": "The Sea",
+    "name_zh": "海洋",
+    "name_ko": "바다",
+    "name_id": "Laut",
+    "kanji": "海洋波浪潮浜岸湾沖港船魚貝鯨鯛"
+  },
+  {
+    "slug": "insects-and-birds",
+    "name": "Côn trùng & Chim",
+    "name_en": "Insects & Birds",
+    "name_zh": "昆虫与鸟类",
+    "name_ko": "곤충과 새",
+    "name_id": "Serangga & Burung",
+    "kanji": "虫蚊蜂蝶蛍鳥鶏鳩鶴羽巣卵"
   }
 ]
