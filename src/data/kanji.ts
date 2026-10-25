@@ -3,6 +3,7 @@ import themesRaw from './themes.json';
 import strokesRaw from './generated/strokes.json';
 import vocabRaw from './generated/vocab.json';
 import radicalsRaw from './generated/radicals.json';
+import kankenRaw from './generated/kanken.json';
 import meaningsVi from './meanings/vi.json';
 import meaningsZh from './meanings/zh.json';
 import meaningsKo from './meanings/ko.json';
@@ -56,8 +57,17 @@ export const gradeLabel = (g: number, lang: Lang) =>
     ? pick(lang, { vi: 'Trung học', en: 'Secondary school', zh: '初高中', ko: '중고등학교', id: 'SMP–SMA' })
     : pick(lang, { vi: `Lớp ${g}`, en: `Grade ${g}`, zh: `${g}年级`, ko: `${g}학년`, id: `Kelas ${g}` });
 
-// Kanken cấp 10–5 trùng với bảng kanji theo lớp của tiểu học Nhật.
-// KANJIDIC2 không tách riêng các cấp 4, 3, 準2, 2 nên tạm gộp phần trung học.
+// Kanken cấp 10–5 trùng với bảng kanji theo lớp của tiểu học Nhật. Phần jōyō trung học chia thành
+// 4級, 3級, 準2級, 2級 theo src/data/generated/kanken.json (scripts/build-data.mjs).
+// 準1級 và 1級 không có dữ liệu mở; chỉ gom các chữ ngoài jōyō mà site có.
+/** Chữ jōyō trung học theo từng cấp Kanken: { "4": "…", "3": "…", "pre2": "…", "2": "…" } */
+const KANKEN_SECONDARY = kankenRaw as Record<'4' | '3' | 'pre2' | '2', string>;
+const SECONDARY_KANKEN: ['4' | '3' | 'pre2' | '2', string, Record<Lang, string>][] = [
+  ['4', '4級', { vi: 'Trình độ đang học THCS', en: 'Junior high school level', zh: '初中在学程度', ko: '중학교 재학 수준', id: 'Tingkat SMP' }],
+  ['3', '3級', { vi: 'Trình độ tốt nghiệp THCS', en: 'Junior high school graduate level', zh: '初中毕业程度', ko: '중학교 졸업 수준', id: 'Tingkat lulus SMP' }],
+  ['pre2', '準2級', { vi: 'Trình độ đang học THPT', en: 'High school level', zh: '高中在学程度', ko: '고등학교 재학 수준', id: 'Tingkat SMA' }],
+  ['2', '2級', { vi: 'Trình độ tốt nghiệp THPT, đủ toàn bộ jōyō', en: 'High school graduate level, all jōyō kanji', zh: '高中毕业程度，全部常用汉字', ko: '고등학교 졸업 수준, 상용한자 전체', id: 'Tingkat lulus SMA, semua kanji jōyō' }],
+];
 export type KankenGroup = { slug: string; name: string; note: Record<Lang, string>; match: (k: Kanji) => boolean };
 export const KANKEN: KankenGroup[] = [
   ...[1, 2, 3, 4, 5, 6].map((g) => ({
@@ -66,16 +76,22 @@ export const KANKEN: KankenGroup[] = [
     note: { vi: `Kanji lớp ${g} tiểu học`, en: `Elementary school grade ${g} kanji`, zh: `小学${g}年级汉字`, ko: `초등학교 ${g}학년 한자`, id: `Kanji kelas ${g} SD` },
     match: (k: Kanji) => k.grade === g,
   })),
-  {
-    slug: '4-2-kyu',
-    name: '4級 – 2級',
-    note: { vi: 'Phần còn lại của bảng jōyō (trung học)', en: 'Remaining jōyō kanji (secondary school)', zh: '其余常用汉字（初高中）', ko: '나머지 상용한자 (중고등학교)', id: 'Sisa kanji jōyō (SMP–SMA)' },
-    match: (k) => k.grade === 8,
-  },
+  ...SECONDARY_KANKEN.map(([key, name, note]) => ({
+    slug: `${key}-kyu`,
+    name,
+    note,
+    match: (k: Kanji) => k.grade === 8 && KANKEN_SECONDARY[key].includes(k.c),
+  })),
   {
     slug: 'jun1-1-kyu',
     name: '準1級 – 1級',
-    note: { vi: 'Ngoài jōyō (chủ yếu là chữ dùng trong tên người)', en: 'Beyond jōyō (mostly name kanji)', zh: '常用汉字以外（多为人名用字）', ko: '상용한자 외 (주로 인명용 한자)', id: 'Di luar jōyō (kebanyakan kanji untuk nama)' },
+    note: {
+      vi: 'Một phần: các chữ ngoài jōyō có trong site',
+      en: 'Partial: the non-jōyō kanji on this site',
+      zh: '部分：本站收录的常用汉字以外的字',
+      ko: '일부: 이 사이트에 있는 상용한자 외 한자',
+      id: 'Sebagian: kanji di luar jōyō yang ada di situs ini',
+    },
     match: (k) => k.grade === null || k.grade > 8,
   },
 ];

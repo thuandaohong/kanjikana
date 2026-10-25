@@ -8,6 +8,8 @@
 // - Cấp JLPT mới (N5–N1) từ davidluzgouveia/kanji-data (MIT), dựa trên danh
 //   sách của Jonathan Waller (tanos.co.uk).
 // - Thứ tự nét từ KanjiVG (CC BY-SA 3.0), lưu tạm trong .cache/kanjivg.
+// - Cấp Kanken 4級–2級 của chữ jōyō trung học từ fosskers/kanji (Data/Kanji/Levels.hs),
+//   lưu tạm trong .cache/kanken.
 // - Từ vựng ví dụ từ jamsinclair/open-anki-jlpt-decks (MIT), cũng dựa trên tanos.
 //   Các cách đọc và nghĩa tiếng Anh sai trong nguồn được sửa bằng src/data/vocab-fixes.json.
 //
@@ -17,6 +19,7 @@ import { existsSync } from 'node:fs';
 
 const JLPT_URL = 'https://raw.githubusercontent.com/davidluzgouveia/kanji-data/master/kanji.json';
 const KANJIVG_URL = 'https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji';
+const KANKEN_URL = 'https://raw.githubusercontent.com/fosskers/kanji/master/lib/Data/Kanji/Levels.hs';
 const VOCAB_URL = 'https://raw.githubusercontent.com/jamsinclair/open-anki-jlpt-decks/main/src';
 const GEN = new URL('../src/data/generated/', import.meta.url);
 const OUT = new URL('kanji.json', GEN);
@@ -100,6 +103,36 @@ const radicals = Array.from({ length: 214 }, (_, i) => {
 });
 await writeFile(new URL('radicals.json', GEN), JSON.stringify(radicals));
 console.log(`Bộ thủ: ${radicals.filter(([p, k]) => p && k).length}/214 có đủ pinyin và âm Hán-Hàn`);
+
+// ---------- Cấp Kanken 4級–2級 ----------
+// Cấp 10級–5級 trùng với cấp lớp tiểu học (KANJIDIC2, chương trình 2020) nên không cần dữ liệu riêng.
+// Phần jōyō trung học được chia theo danh sách của fosskers/kanji; danh sách tiểu học trong file
+// là bảng cũ trước 2020 nên bỏ qua.
+const kankenFile = new URL('../.cache/kanken/Levels.hs', import.meta.url);
+if (!existsSync(kankenFile)) {
+  console.log('Tải danh sách cấp Kanken…');
+  const r = await fetch(KANKEN_URL);
+  if (!r.ok) throw new Error(`Không tải được ${KANKEN_URL}: ${r.status}`);
+  await mkdir(new URL('../.cache/kanken/', import.meta.url), { recursive: true });
+  await writeFile(kankenFile, await r.text());
+}
+const levelsHs = await readFile(kankenFile, 'utf8');
+// File dùng dạng chữ cũ cho 4 chữ thêm vào jōyō năm 2010; đổi về dạng của KANJIDIC2.
+const VARIANTS = { 叱: '𠮟', 剥: '剝', 填: '塡', 頬: '頰' };
+const kankenList = (name) => {
+  const m = levelsHs.match(new RegExp(`^${name} = S\\.fromDistinctAscList \\$\\n((?:\\s+"[^"]*"(?: \\+\\+)?\\n?)+)`, 'm'));
+  if (!m) throw new Error(`Không tìm thấy danh sách ${name} trong Levels.hs`);
+  return [...[...m[1].matchAll(/"([^"]*)"/g)].map((x) => x[1]).join('')].map((c) => VARIANTS[c] ?? c);
+};
+const secondary = new Set(out.filter((k) => k.grade === 8).map((k) => k.c));
+const kanken = {};
+for (const [key, name] of [['4', 'fourth'], ['3', 'third'], ['pre2', 'preSecond'], ['2', 'second']]) {
+  kanken[key] = kankenList(name).filter((c) => secondary.has(c)).join('');
+}
+const assigned = new Set(Object.values(kanken).join(''));
+const unassigned = [...secondary].filter((c) => !assigned.has(c));
+await writeFile(new URL('kanken.json', GEN), JSON.stringify(kanken));
+console.log(`Kanken: ${Object.entries(kanken).map(([k, v]) => `${k === 'pre2' ? '準2' : k}級 ${[...v].length}`).join(', ')}` + (unassigned.length ? `, chưa xếp cấp: ${unassigned.join('')}` : ''));
 
 // ---------- Thứ tự nét (KanjiVG) ----------
 // Mỗi chữ chỉ giữ lại danh sách path "d" theo đúng thứ tự nét, toạ độ trong khung 109×109.

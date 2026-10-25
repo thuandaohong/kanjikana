@@ -48,7 +48,7 @@ src/
   data/kanji.ts       # truy vấn kanji: JLPT, Kanken, 214 bộ thủ, chủ đề
   data/themes.json    # danh sách kanji theo chủ đề (tự soạn)
   data/kana.ts        # bảng hiragana/katakana
-  data/generated/     # kanji.json, strokes.json, vocab.json, kana-strokes.json, radicals.json do scripts/build-data.mjs tạo ra
+  data/generated/     # kanji.json, strokes.json, vocab.json, kana-strokes.json, radicals.json, kanken.json, sentences.json do scripts/build-data.mjs tạo ra
   styles/global.css   # design tokens (màu sáng/tối, font)
   layouts/            # BaseLayout (head, header, footer), ProseLayout
   components/         # Header, Footer, ThemeToggle, SearchBox, HeroGrid, ...
@@ -101,6 +101,7 @@ Trang `/privacy` (Chính sách quyền riêng tư) đã có phần công bố v�
 - [ ] Giai đoạn 7: dịch (Pages Functions), tạm hoãn, đã gỡ khỏi menu
 - [x] Giai đoạn 8: tiếng Việt (URL gốc) và tiếng Anh (/en/), có hreflang và nút chuyển ngôn ngữ
 - [x] Giai đoạn 9: sitemap, robots.txt, Open Graph, JSON-LD, font tự host, Lighthouse 95–100
+- [x] Giai đoạn 13: tách cấp Kanken 4級, 3級, 準2級, 2級 (dữ liệu từ fosskers/kanji, lưu tạm ở .cache/kanken)
 - [x] Giai đoạn 12: 37 chủ đề kanji; trắc nghiệm kanji (/tools/quiz); câu ví dụ từ Tatoeba có furigana
 - [x] Giai đoạn 11: đổi tên thành Kanjiba, ảnh chia sẻ theo ngôn ngữ, chỗ đặt quảng cáo, trang Chính sách quyền riêng tư
 - [x] Giai đoạn 10: tiếng Trung giản thể (/zh/, kèm pinyin) và tiếng Hàn (/ko/, kèm âm Hán-Hàn); tìm kiếm theo pinyin và hangul; tiếng Indonesia (/id/)
