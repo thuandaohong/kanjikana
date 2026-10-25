@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import KanjiList from '../../components/KanjiList.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { JINMEIYO } from '../../data/kanji';
+import { getLang, linker, pick } from '../../i18n';
+
+const lang = getLang(Astro);
+const l = linker(lang);
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
+const n = JINMEIYO.length;
+---
+<BaseLayout
+  title={t('Chữ nhân danh (jinmeiyō)', 'Jinmeiyō kanji (name kanji)', '人名用汉字', '인명용 한자', 'Kanji jinmeiyō (kanji nama)')}
+  description={t(
+    `Danh sách ${n} chữ nhân danh (jinmeiyō) dùng trong tên người Nhật, kèm nghĩa, âm đọc và thứ tự nét.`,
+    `All ${n} jinmeiyō kanji used in Japanese personal names, with meanings, readings and stroke order.`,
+    `日本人名中使用的全部 ${n} 个人名用汉字，附释义、读音和笔顺。`,
+    `일본 사람 이름에 쓰이는 인명용 한자 ${n}자 전체, 뜻·읽기·획순 포함.`,
+    `Semua ${n} kanji jinmeiyō yang dipakai dalam nama orang Jepang, beserta arti, cara baca, dan urutan goresan.`,
+  )}
+>
+  <PageHeader
+    title={t('Chữ nhân danh (jinmeiyō)', 'Jinmeiyō kanji', '人名用汉字', '인명용 한자', 'Kanji jinmeiyō')}
+    crumbs={[{ label: t('Kanji', 'Kanji', '汉字', '한자', 'Kanji'), href: l('/kanji') }, { label: t('Chữ nhân danh', 'Jinmeiyō', '人名用汉字', '인명용 한자', 'Jinmeiyō') }]}
+    lead={t(
+      `Jinmeiyō (人名用漢字) là ${n} chữ ngoài bảng jōyō nhưng được phép dùng trong tên người Nhật. Nhiều chữ mang nghĩa đẹp và rất hay gặp trong tên, như 翔, 凛, 蓮, 葵.`,
+      `The jinmeiyō (人名用漢字) are ${n} kanji outside the jōyō list that are officially allowed in Japanese personal names. Many have beautiful meanings and are very common in names, like 翔, 凛, 蓮 and 葵.`,
+      `人名用汉字（人名用漢字）是常用汉字以外、允许用于日本人名的 ${n} 个汉字。其中很多字寓意美好，在名字中很常见，例如 翔、凛、蓮、葵。`,
+      `인명용 한자(人名用漢字)는 상용한자 외에 일본 사람 이름에 쓸 수 있도록 허용된 ${n}자입니다. 뜻이 좋은 글자가 많아 이름에 자주 쓰입니다(예: 翔, 凛, 蓮, 葵).`,
+      `Jinmeiyō (人名用漢字) adalah ${n} kanji di luar daftar jōyō yang resmi boleh dipakai dalam nama orang Jepang. Banyak yang bermakna indah dan sering muncul dalam nama, seperti 翔, 凛, 蓮, dan 葵.`,
+    )}
+  />
+  <AdSlot placement="list" class="pt-8" />
+  <section class="container-page py-10">
+    <KanjiList kanji={JINMEIYO} sortable />
+  </section>
+</BaseLayout>

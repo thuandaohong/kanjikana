@@ -47,6 +47,8 @@ export const ALL: Kanji[] = raw as Kanji[];
 export const BY_CHAR = new Map(ALL.map((k) => [k.c, k]));
 
 export const JOYO = ALL.filter((k) => k.grade !== null && k.grade <= 8);
+/** Chữ nhân danh (人名用漢字): ngoài jōyō nhưng được phép dùng trong tên người Nhật. */
+export const JINMEIYO = ALL.filter((k) => k.grade === 9);
 
 // ---------- JLPT ----------
 export const JLPT_LEVELS = [5, 4, 3, 2, 1] as const;

@@ -1,6 +1,6 @@
 // Dữ liệu gọn cho các công cụ chạy trên trình duyệt (tìm kiếm, flashcards).
 // Được sinh tĩnh lúc build tại /data/kanji.json.
-import { ALL, KANKEN, THEMES, kunPlain } from '../../data/kanji';
+import { ALL, JINMEIYO, KANKEN, THEMES, kunPlain } from '../../data/kanji';
 import { foldVi, toRomaji } from '../../lib/text';
 
 export function GET() {
@@ -27,6 +27,7 @@ export function GET() {
   const same = (x: string) => ({ vi: x, en: x, zh: x, ko: x, id: x });
   const decks = [
     ...[5, 4, 3, 2, 1].map((n) => ({ id: `jlpt-n${n}`, group: same('JLPT'), name: same(`JLPT N${n}`), chars: ALL.filter((k) => k.jlpt === n).map((k) => k.c).join('') })),
+    { id: 'jinmeiyo', group: { vi: 'Khác', en: 'Other', zh: '其他', ko: '기타', id: 'Lainnya' }, name: { vi: 'Chữ nhân danh', en: 'Name kanji (jinmeiyō)', zh: '人名用汉字', ko: '인명용 한자', id: 'Kanji nama (jinmeiyō)' }, chars: JINMEIYO.map((k) => k.c).join('') },
     ...KANKEN.map((g) => ({ id: `kanken-${g.slug}`, group: { vi: 'Kanken', en: 'Kanken', zh: '汉检', ko: '한자검정', id: 'Kanken' }, name: { vi: `Kanken ${g.name}`, en: `Kanken ${g.name}`, zh: `汉检 ${g.name}`, ko: `한자검정 ${g.name}`, id: `Kanken ${g.name}` }, chars: ALL.filter(g.match).map((k) => k.c).join('') })),
     ...THEMES.map((t) => ({ id: `theme-${t.slug}`, group: { vi: 'Chủ đề', en: 'Themes', zh: '主题', ko: '주제', id: 'Tema' }, name: t.name, chars: t.kanji.map((k) => k.c).join('') })),
   ];

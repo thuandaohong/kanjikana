@@ -46,6 +46,7 @@ export function nav(lang: Lang): NavMenu[] {
             { label: t('Theo cấp Kanken', 'By Kanken level', '按汉检级别', '한자검정 급수별', 'Per level Kanken'), href: l('/kanji/kanken') },
             { label: t('Theo bộ thủ', 'By radical', '按部首', '부수별', 'Per radikal'), href: l('/kanji/radicals') },
             { label: t('Theo chủ đề', 'By theme', '按主题', '주제별', 'Per tema'), href: l('/kanji/themes') },
+            { label: t('Chữ nhân danh', 'Name kanji (jinmeiyō)', '人名用汉字', '인명용 한자', 'Kanji nama (jinmeiyō)'), href: l('/kanji/jinmeiyo') },
             { label: t('Giới thiệu về kanji', 'About kanji', '关于日语汉字', '일본 한자란', 'Tentang kanji'), href: l('/kanji') },
           ],
         },
@@ -90,6 +91,7 @@ export function footer(lang: Lang): { title: string; links: NavLink[] }[] {
         { label: t('Theo cấp Kanken', 'By Kanken level', '按汉检级别', '한자검정 급수별', 'Per level Kanken'), href: l('/kanji/kanken') },
         { label: t('Theo bộ thủ', 'By radical', '按部首', '부수별', 'Per radikal'), href: l('/kanji/radicals') },
         { label: t('Theo chủ đề', 'By theme', '按主题', '주제별', 'Per tema'), href: l('/kanji/themes') },
+        { label: t('Chữ nhân danh', 'Name kanji', '人名用汉字', '인명용 한자', 'Kanji nama'), href: l('/kanji/jinmeiyo') },
       ],
     },
     {

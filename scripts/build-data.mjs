@@ -40,6 +40,9 @@ const themes = JSON.parse(await readFile(new URL('../src/data/themes.json', impo
 const JOYO_GRADES = new Set([1, 2, 3, 4, 5, 6, 8]);
 const chars = new Set();
 for (const k of kanjidic) if (JOYO_GRADES.has(k.grade)) chars.add(k.literal);
+// Chữ nhân danh (jinmeiyō, grade 9). Bỏ grade 10: đó là dạng chữ cũ của chữ jōyō.
+// Bỏ các ký tự "tương thích" (U+F900…) như 祐: đó là bản trùng của chữ thường 祐 đã có.
+for (const k of kanjidic) if (k.grade === 9 && k.literal.normalize('NFC') === k.literal) chars.add(k.literal);
 for (const [c, v] of Object.entries(jlptData)) if (v.jlpt_new) chars.add(c);
 for (const t of themes) for (const c of t.kanji) chars.add(c);
 
@@ -93,6 +96,7 @@ await writeFile(OUT, JSON.stringify(out));
 const count = (f) => out.filter(f).length;
 console.log(`Đã ghi ${out.length} kanji vào ${OUT.pathname}`);
 console.log(`  jōyō: ${count((k) => JOYO_GRADES.has(k.grade))}`);
+console.log(`  jinmeiyō: ${count((k) => k.grade === 9)}`);
 for (const n of [5, 4, 3, 2, 1]) console.log(`  N${n}: ${count((k) => k.jlpt === n)}`);
 
 // ---------- Âm đọc của 214 bộ thủ ----------
