@@ -1,0 +1,288 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+---
+<BaseLayout title="Flashcards kanji" description="Ôn kanji bằng flashcards theo cấp JLPT, Kanken hoặc chủ đề. Tiến độ được lưu trên trình duyệt.">
+  <PageHeader
+    title="Flashcards"
+    crumbs={[{ label: 'Công cụ' }, { label: 'Flashcards' }]}
+    lead="Chọn một bộ thẻ, lật thẻ để xem đáp án, rồi đánh dấu đã nhớ hoặc chưa nhớ. Thẻ chưa nhớ sẽ quay lại sau vài lượt."
+  />
+
+  <section class="container-page py-10">
+    <!-- Bước 1: chọn bộ thẻ -->
+    <form id="fc-setup" class="max-w-xl space-y-5">
+      <div>
+        <label for="fc-deck" class="mb-1.5 block text-sm font-semibold">Bộ thẻ</label>
+        <select id="fc-deck" class="h-11 w-full rounded-lg border border-line bg-surface px-3" disabled>
+          <option>Đang tải…</option>
+        </select>
+        <p id="fc-deck-info" class="mt-2 text-sm text-fg-muted"></p>
+      </div>
+      <fieldset>
+        <legend class="mb-1.5 text-sm font-semibold">Mặt trước</legend>
+        <div class="flex flex-wrap gap-4 text-sm">
+          <label class="inline-flex items-center gap-2"><input type="radio" name="mode" value="kanji" checked class="accent-brand" /> Kanji → nghĩa</label>
+          <label class="inline-flex items-center gap-2"><input type="radio" name="mode" value="meaning" class="accent-brand" /> Hán Việt, nghĩa → kanji</label>
+        </div>
+      </fieldset>
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" id="fc-only-new" checked class="size-4 accent-brand" /> Chỉ ôn những chữ chưa thuộc
+      </label>
+      <div class="flex flex-wrap gap-3">
+        <button type="submit" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90 disabled:opacity-50">Bắt đầu</button>
+        <button type="button" id="fc-reset" class="rounded-lg border border-line px-4 py-2.5 text-sm hover:border-brand">Xoá tiến độ bộ này</button>
+      </div>
+    </form>
+
+    <!-- Bước 2: học -->
+    <div id="fc-study" hidden class="mx-auto max-w-xl">
+      <div class="mb-4 flex items-center justify-between text-sm text-fg-muted">
+        <span id="fc-deck-name"></span>
+        <span id="fc-count"></span>
+      </div>
+      <div class="mb-6 h-1.5 overflow-hidden rounded-full bg-bg-muted">
+        <div id="fc-bar" class="h-full rounded-full bg-brand transition-[width]"></div>
+      </div>
+
+      <button
+        type="button"
+        id="fc-card"
+        class="flex min-h-80 w-full flex-col items-center justify-center rounded-2xl border border-line bg-surface p-8 text-center shadow-sm transition hover:border-brand/50"
+        aria-live="polite"
+      >
+        <div id="fc-front"></div>
+        <div id="fc-back" hidden class="mt-6 w-full border-t border-dashed border-line pt-6"></div>
+        <span id="fc-hint" class="mt-6 text-xs text-fg-muted">Bấm vào thẻ hoặc nhấn phím cách để lật</span>
+      </button>
+
+      <div class="mt-5 grid grid-cols-2 gap-3">
+        <button type="button" id="fc-again" disabled class="rounded-lg border border-line py-3 font-semibold hover:border-brand disabled:opacity-40">
+          Chưa nhớ <span class="text-xs text-fg-muted">(1)</span>
+        </button>
+        <button type="button" id="fc-good" disabled class="rounded-lg bg-brand py-3 font-semibold text-white hover:opacity-90 disabled:opacity-40">
+          Đã nhớ <span class="text-xs opacity-80">(2)</span>
+        </button>
+      </div>
+      <button type="button" id="fc-quit" class="link-underline mt-6 text-sm">← Chọn bộ khác</button>
+    </div>
+
+    <!-- Bước 3: kết thúc -->
+    <div id="fc-done" hidden class="mx-auto max-w-xl rounded-2xl border border-line bg-surface p-8 text-center">
+      <p class="font-jp text-6xl">完</p>
+      <h2 class="mt-4 text-2xl font-bold">Hoàn thành!</h2>
+      <p id="fc-summary" class="mt-2 text-fg-muted"></p>
+      <div class="mt-6 flex justify-center gap-3">
+        <button type="button" id="fc-restart" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90">Ôn lại</button>
+        <button type="button" id="fc-back-setup" class="rounded-lg border border-line px-5 py-2.5 hover:border-brand">Chọn bộ khác</button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  type Entry = { c: string; hv: string[]; en: string[]; on: string[]; kun: string[]; jlpt: number | null };
+  type Deck = { id: string; group: string; name: string; chars: string };
+
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const setup = $<HTMLFormElement>('fc-setup');
+  const study = $('fc-study');
+  const done = $('fc-done');
+  const deckSelect = $<HTMLSelectElement>('fc-deck');
+  const onlyNew = $<HTMLInputElement>('fc-only-new');
+  const card = $<HTMLButtonElement>('fc-card');
+  const front = $('fc-front');
+  const back = $('fc-back');
+  const btnAgain = $<HTMLButtonElement>('fc-again');
+  const btnGood = $<HTMLButtonElement>('fc-good');
+
+  // ---------- Lưu trữ (localStorage, có thể không dùng được) ----------
+  const store = {
+    get(key: string): string | null {
+      try { return localStorage.getItem(key); } catch { return null; }
+    },
+    set(key: string, value: string) {
+      try { localStorage.setItem(key, value); } catch {}
+    },
+  };
+  const knownKey = (deck: Deck) => `fc-known:${deck.id}`;
+  const getKnown = (deck: Deck) => new Set([...(store.get(knownKey(deck)) ?? '')]);
+  const saveKnown = (deck: Deck, set: Set<string>) => store.set(knownKey(deck), [...set].join(''));
+
+  let byChar = new Map<string, Entry>();
+  let decks: Deck[] = [];
+  let deck: Deck;
+  let queue: string[] = [];
+  let total = 0;
+  let learned = 0;
+  let flipped = false;
+  let mode: 'kanji' | 'meaning' = 'kanji';
+
+  const currentDeck = () => decks.find((d) => d.id === deckSelect.value)!;
+
+  function showDeckInfo() {
+    const d = currentDeck();
+    const known = getKnown(d);
+    const n = [...d.chars].length;
+    $('fc-deck-info').textContent = `${n} thẻ · đã thuộc ${[...d.chars].filter((c) => known.has(c)).length}/${n}`;
+    store.set('fc-last-deck', d.id);
+  }
+
+  function shuffle<T>(a: T[]) {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function el(tag: string, cls: string, text: string, ja = false) {
+    const e = document.createElement(tag);
+    e.className = cls;
+    e.textContent = text;
+    if (ja) e.lang = 'ja';
+    return e;
+  }
+
+  function start() {
+    deck = currentDeck();
+    mode = (new FormData(setup).get('mode') as 'kanji' | 'meaning') ?? 'kanji';
+    const known = getKnown(deck);
+    let chars = [...deck.chars].filter((c) => byChar.has(c));
+    if (onlyNew.checked) chars = chars.filter((c) => !known.has(c));
+    if (!chars.length) {
+      $('fc-deck-info').textContent = 'Bạn đã thuộc hết bộ này. Bỏ chọn “Chỉ ôn những chữ chưa thuộc” để ôn lại.';
+      return;
+    }
+    queue = shuffle(chars);
+    total = queue.length;
+    learned = 0;
+    $('fc-deck-name').textContent = deck.name;
+    setup.hidden = true;
+    done.hidden = true;
+    study.hidden = false;
+    showCard();
+  }
+
+  function showCard() {
+    if (!queue.length) return finish();
+    const k = byChar.get(queue[0])!;
+    flipped = false;
+    btnAgain.disabled = btnGood.disabled = true;
+    back.hidden = true;
+    $('fc-hint').hidden = false;
+    $('fc-count').textContent = `Còn ${queue.length} thẻ`;
+    $('fc-bar').style.width = `${(learned / total) * 100}%`;
+
+    const meaning = k.en.slice(0, 3).join(', ');
+    if (mode === 'kanji') {
+      front.replaceChildren(el('p', 'font-jp text-8xl leading-none', k.c, true));
+    } else {
+      front.replaceChildren(
+        el('p', 'font-serif text-3xl font-bold text-brand', k.hv.join(', ') || '—'),
+        el('p', 'mt-2 text-lg', meaning),
+      );
+    }
+
+    const details = [
+      mode === 'kanji'
+        ? el('p', 'font-serif text-2xl font-bold text-brand', k.hv.join(', ') || '—')
+        : el('p', 'font-jp text-7xl leading-none', k.c, true),
+      el('p', 'mt-2 text-fg-muted', mode === 'kanji' ? meaning : ''),
+      el('p', 'mt-3 text-sm', [...k.on, ...k.kun].slice(0, 6).join('、'), true),
+    ];
+    const link = el('a', 'link-underline mt-4 inline-block text-sm', 'Xem chi tiết') as HTMLAnchorElement;
+    link.href = `/kanji/${k.c}`;
+    link.target = '_blank';
+    back.replaceChildren(...details, link);
+  }
+
+  function flip() {
+    if (flipped || study.hidden) return;
+    flipped = true;
+    back.hidden = false;
+    $('fc-hint').hidden = true;
+    btnAgain.disabled = btnGood.disabled = false;
+    btnGood.focus({ preventScroll: true });
+  }
+
+  function answer(good: boolean) {
+    if (!flipped) return;
+    const c = queue.shift()!;
+    if (good) {
+      learned++;
+      const known = getKnown(deck);
+      known.add(c);
+      saveKnown(deck, known);
+    } else {
+      // Đưa thẻ quay lại sau 3–6 lượt.
+      queue.splice(Math.min(queue.length, 3 + Math.floor(Math.random() * 4)), 0, c);
+    }
+    showCard();
+  }
+
+  function finish() {
+    study.hidden = true;
+    done.hidden = false;
+    $('fc-summary').textContent = `Bạn đã ôn xong ${total} thẻ của bộ ${deck.name}.`;
+  }
+
+  function backToSetup() {
+    study.hidden = done.hidden = true;
+    setup.hidden = false;
+    showDeckInfo();
+  }
+
+  setup.addEventListener('submit', (e) => {
+    e.preventDefault();
+    start();
+  });
+  deckSelect.addEventListener('change', showDeckInfo);
+  $('fc-reset').addEventListener('click', () => {
+    const d = currentDeck();
+    if (confirm(`Xoá tiến độ của bộ ${d.name}?`)) {
+      saveKnown(d, new Set());
+      showDeckInfo();
+    }
+  });
+  card.addEventListener('click', flip);
+  btnAgain.addEventListener('click', () => answer(false));
+  btnGood.addEventListener('click', () => answer(true));
+  $('fc-quit').addEventListener('click', backToSetup);
+  $('fc-back-setup').addEventListener('click', backToSetup);
+  $('fc-restart').addEventListener('click', () => {
+    onlyNew.checked = false;
+    start();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (study.hidden || e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      flip();
+    } else if (e.key === '1' || e.key === 'ArrowLeft') answer(false);
+    else if (e.key === '2' || e.key === 'ArrowRight') answer(true);
+  });
+
+  fetch('/data/kanji.json')
+    .then((r) => r.json())
+    .then((json) => {
+      byChar = new Map((json.kanji as Entry[]).map((k) => [k.c, k]));
+      decks = json.decks;
+      const groups = new Map<string, HTMLOptGroupElement>();
+      deckSelect.replaceChildren();
+      for (const d of decks) {
+        if (!groups.has(d.group)) {
+          const g = document.createElement('optgroup');
+          g.label = d.group;
+          groups.set(d.group, g);
+          deckSelect.append(g);
+        }
+        groups.get(d.group)!.append(new Option(d.name, d.id));
+      }
+      const last = store.get('fc-last-deck');
+      if (last && decks.some((d) => d.id === last)) deckSelect.value = last;
+      deckSelect.disabled = false;
+      showDeckInfo();
+    })
+    .catch(() => ($('fc-deck-info').textContent = 'Không tải được dữ liệu. Hãy thử tải lại trang.'));
+</script>

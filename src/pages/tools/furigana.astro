@@ -1,0 +1,211 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+---
+<BaseLayout title="Tạo furigana" description="Tự động thêm furigana (cách đọc) lên trên kanji cho văn bản tiếng Nhật. Chạy hoàn toàn trên trình duyệt.">
+  <PageHeader
+    title="Tạo furigana"
+    crumbs={[{ label: 'Công cụ' }, { label: 'Furigana' }]}
+    lead="Dán văn bản tiếng Nhật để thêm cách đọc lên trên kanji. Mọi xử lý diễn ra ngay trên trình duyệt, văn bản không được gửi đi đâu."
+  />
+
+  <section class="container-page grid gap-8 py-10 lg:grid-cols-2">
+    <form id="fg-form" class="space-y-4">
+      <label for="fg-input" class="block text-sm font-semibold">Văn bản tiếng Nhật</label>
+      <textarea
+        id="fg-input"
+        lang="ja"
+        rows="9"
+        class="w-full rounded-xl border border-line bg-surface p-4 font-jp text-lg leading-relaxed focus:border-brand focus:outline-none"
+      >私は毎朝七時に起きて、学校へ行きます。
+日本語の勉強は難しいですが、とても楽しいです。</textarea>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="fg-script" class="mb-1.5 block text-sm font-semibold">Kiểu chữ đọc</label>
+          <select id="fg-script" class="h-10 w-full rounded-lg border border-line bg-surface px-3">
+            <option value="hiragana">Hiragana</option>
+            <option value="katakana">Katakana</option>
+            <option value="romaji">Romaji</option>
+          </select>
+        </div>
+        <div>
+          <label for="fg-skip" class="mb-1.5 block text-sm font-semibold">Bỏ furigana cho kanji đã biết</label>
+          <select id="fg-skip" class="h-10 w-full rounded-lg border border-line bg-surface px-3">
+            <option value="0">Không bỏ (thêm cho tất cả)</option>
+            <option value="5">Kanji N5</option>
+            <option value="4">Kanji N5–N4</option>
+            <option value="3">Kanji N5–N3</option>
+            <option value="2">Kanji N5–N2</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <button type="submit" id="fg-run" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90 disabled:opacity-50">
+          Tạo furigana
+        </button>
+        <span id="fg-status" class="text-sm text-fg-muted" aria-live="polite"></span>
+      </div>
+      <p class="text-xs text-fg-muted">
+        Lần đầu dùng, trình duyệt sẽ tải bộ từ điển tách từ (khoảng 18MB, được lưu cache cho lần sau). Kết quả do máy
+        phân tích nên đôi khi đọc sai, nhất là với tên riêng.
+      </p>
+    </form>
+
+    <div>
+      <div class="mb-1.5 flex items-center justify-between gap-2">
+        <span class="text-sm font-semibold">Kết quả</span>
+        <div class="flex gap-2">
+          <button type="button" id="fg-copy-text" disabled class="rounded-md border border-line px-3 py-1 text-sm hover:border-brand disabled:opacity-40">Chép dạng 漢字(かんじ)</button>
+          <button type="button" id="fg-copy-html" disabled class="rounded-md border border-line px-3 py-1 text-sm hover:border-brand disabled:opacity-40">Chép HTML</button>
+        </div>
+      </div>
+      <div id="fg-output" lang="ja" class="min-h-60 rounded-xl border border-line bg-surface p-5 font-jp text-2xl leading-[2.4] whitespace-pre-wrap">
+        <span class="font-sans text-base text-fg-muted">Kết quả sẽ hiện ở đây.</span>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  #fg-output :global(rt) {
+    font-size: 0.5em;
+    color: var(--color-brand);
+  }
+</style>
+
+<script>
+  import { alignReading, type Segment } from '../../lib/furigana';
+  import { toHiragana, toRomaji } from '../../lib/text';
+
+  type Token = { surface_form: string; reading?: string };
+  type Tokenizer = { tokenize(text: string): Token[] };
+  declare global {
+    interface Window {
+      kuromoji?: { builder(o: { dicPath: string }): { build(cb: (err: unknown, t: Tokenizer) => void): void } };
+    }
+  }
+
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const input = $<HTMLTextAreaElement>('fg-input');
+  const output = $('fg-output');
+  const status = $('fg-status');
+  const runBtn = $<HTMLButtonElement>('fg-run');
+  const scriptSel = $<HTMLSelectElement>('fg-script');
+  const skipSel = $<HTMLSelectElement>('fg-skip');
+
+  // ---------- Tải kuromoji và cấp JLPT (chỉ khi cần) ----------
+  let tokenizerPromise: Promise<Tokenizer> | null = null;
+  function getTokenizer() {
+    tokenizerPromise ??= new Promise<Tokenizer>((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = '/kuromoji/kuromoji.js';
+      s.onload = () =>
+        window.kuromoji!.builder({ dicPath: '/kuromoji/dict/' }).build((err, t) => (err ? reject(err) : resolve(t)));
+      s.onerror = reject;
+      document.head.append(s);
+    }).catch((e) => {
+      tokenizerPromise = null;
+      throw e;
+    });
+    return tokenizerPromise;
+  }
+
+  let jlptPromise: Promise<Map<string, number>> | null = null;
+  const getJlpt = () =>
+    (jlptPromise ??= fetch('/data/kanji.json')
+      .then((r) => r.json())
+      .then((j) => new Map<string, number>(j.kanji.filter((k: any) => k.jlpt).map((k: any) => [k.c, k.jlpt]))));
+
+  // ---------- Xử lý ----------
+  let lines: Segment[][] = [];
+
+  function annotate(t: Tokenizer, text: string, jlpt: Map<string, number>, skipLevel: number): Segment[][] {
+    const known = (s: string) => skipLevel > 0 && [...s].every((ch) => (jlpt.get(ch) ?? 0) >= skipLevel);
+    return text.split('\n').map((line) =>
+      t.tokenize(line).flatMap((tok) => {
+        const r = tok.reading && tok.reading !== '*' ? tok.reading : '';
+        if (!r) return [{ text: tok.surface_form }];
+        return alignReading(tok.surface_form, r).map((seg) => (seg.reading && known(seg.text) ? { text: seg.text } : seg));
+      }),
+    );
+  }
+
+  function formatReading(r: string) {
+    const mode = scriptSel.value;
+    if (mode === 'katakana') return r.replace(/[ぁ-ゖ]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60));
+    if (mode === 'romaji') return toRomaji(r);
+    return toHiragana(r);
+  }
+
+  function render() {
+    const frag = document.createDocumentFragment();
+    lines.forEach((segs, i) => {
+      if (i > 0) frag.append('\n');
+      for (const s of segs) {
+        if (!s.reading) {
+          frag.append(s.text);
+          continue;
+        }
+        const ruby = document.createElement('ruby');
+        const rt = document.createElement('rt');
+        rt.textContent = formatReading(s.reading);
+        ruby.append(s.text, rt);
+        frag.append(ruby);
+      }
+    });
+    output.replaceChildren(frag);
+    $<HTMLButtonElement>('fg-copy-text').disabled = $<HTMLButtonElement>('fg-copy-html').disabled = false;
+  }
+
+  async function run() {
+    const text = input.value.trim();
+    if (!text) return;
+    runBtn.disabled = true;
+    status.textContent = tokenizerPromise ? 'Đang xử lý…' : 'Đang tải từ điển…';
+    try {
+      const [t, jlpt] = await Promise.all([getTokenizer(), getJlpt()]);
+      lines = annotate(t, text, jlpt, Number(skipSel.value));
+      render();
+      status.textContent = '';
+    } catch (e) {
+      console.error(e);
+      status.textContent = 'Không tải được từ điển. Hãy kiểm tra kết nối và thử lại.';
+    } finally {
+      runBtn.disabled = false;
+    }
+  }
+
+  async function copy(text: string, btn: HTMLButtonElement) {
+    try {
+      await navigator.clipboard.writeText(text);
+      const old = btn.textContent;
+      btn.textContent = 'Đã chép!';
+      setTimeout(() => (btn.textContent = old), 1200);
+    } catch {
+      status.textContent = 'Trình duyệt không cho phép chép tự động.';
+    }
+  }
+
+  $('fg-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    run();
+  });
+  // Đổi kiểu chữ chỉ cần vẽ lại; đổi mức bỏ qua thì phải phân tích lại.
+  scriptSel.addEventListener('change', () => lines.length && render());
+  skipSel.addEventListener('change', () => lines.length && run());
+  // Bắt đầu tải từ điển sớm khi người dùng chạm vào ô nhập.
+  input.addEventListener('focus', () => getTokenizer().catch(() => {}), { once: true });
+
+  $('fg-copy-html').addEventListener('click', (e) => {
+    const html = output.innerHTML.replace(/\n/g, '<br>');
+    copy(html, e.currentTarget as HTMLButtonElement);
+  });
+  $('fg-copy-text').addEventListener('click', (e) => {
+    const text = lines
+      .map((segs) => segs.map((s) => (s.reading ? `${s.text}(${formatReading(s.reading)})` : s.text)).join(''))
+      .join('\n');
+    copy(text, e.currentTarget as HTMLButtonElement);
+  });
+</script>

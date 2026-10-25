@@ -30,6 +30,7 @@ src/
   components/         # Header, Footer, ThemeToggle, SearchBox, HeroGrid, ...
   pages/              # mỗi file là một route
 public/               # favicon, _headers của Cloudflare
+scripts/              # build-data.mjs (dữ liệu), copy-kuromoji.mjs (chạy tự động trước dev/build)
 ```
 
 ## Deploy lên Cloudflare Pages
@@ -55,7 +56,7 @@ Sau khi có domain thật, sửa `site` trong `astro.config.mjs`.
 - [x] Giai đoạn 3: danh sách kanji (JLPT, jōyō, Kanken, bộ thủ, chủ đề)
 - [x] Giai đoạn 4: trang chi tiết kanji, hoạt ảnh thứ tự nét (KanjiVG), từ vựng ví dụ theo JLPT
 - [x] Giai đoạn 5: Hiragana / Katakana (phát âm bằng Web Speech API, thứ tự nét)
-- [ ] Giai đoạn 6: tìm kanji, flashcards, furigana
+- [x] Giai đoạn 6: tìm kanji, flashcards (lưu tiến độ trên trình duyệt), furigana (kuromoji chạy trên trình duyệt)
 - [ ] Giai đoạn 7: dịch (Pages Functions)
 - [ ] Giai đoạn 8: đa ngôn ngữ
 - [ ] Giai đoạn 9: SEO, sitemap, analytics
