@@ -101,6 +101,7 @@ Trang `/privacy` (Chính sách quyền riêng tư) đã có phần công bố v�
 - [ ] Giai đoạn 7: dịch (Pages Functions), tạm hoãn, đã gỡ khỏi menu
 - [x] Giai đoạn 8: tiếng Việt (URL gốc) và tiếng Anh (/en/), có hreflang và nút chuyển ngôn ngữ
 - [x] Giai đoạn 9: sitemap, robots.txt, Open Graph, JSON-LD, font tự host, Lighthouse 95–100
+- [x] Giai đoạn 21: trò chơi Hiragana/Katakana (/tools/kana-quiz): chọn bảng chữ và nhóm âm, 3 cách chơi (kana → cách đọc, cách đọc → kana, gõ romaji), chế độ 60 giây, ưu tiên chữ dễ nhầm làm đáp án nhiễu
 - [x] Giai đoạn 20: mục “Chữ trông giống nhau” trên trang kanji (thành phần KanjiVG có trọng số IDF + nhóm dễ nhầm soạn tay `src/data/confusables.json`, ra `similar.json`); JSON-LD `DefinedTerm` cho trang kanji; sửa 114 bản dịch tiếng Anh sai của Tatoeba (`sentences-en.json`)
 - [x] Giai đoạn 19: danh sách kanji dài (trên 80 chữ) tự chia trang 60 chữ ngay trên trình duyệt, không tạo thêm file; mọi link vẫn nằm trong HTML
 - [x] Giai đoạn 18: trang kanji không có từ vựng lẫn câu ví dụ đặt noindex và bỏ khỏi sitemap (`isThinKanji`, `astro.config.mjs`); trang Giới thiệu có phần người làm site và email liên hệ

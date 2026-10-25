@@ -59,6 +59,7 @@ export function nav(lang: Lang): NavMenu[] {
           links: [
             { label: t('Hiragana', 'Hiragana', '平假名', '히라가나', 'Hiragana'), href: l('/hiragana') },
             { label: t('Katakana', 'Katakana', '片假名', '가타카나', 'Katakana'), href: l('/katakana') },
+            { label: t('Trò chơi kana', 'Kana quiz', '假名测验', '가나 퀴즈', 'Kuis kana'), href: l('/tools/kana-quiz') },
           ],
         },
       ],
@@ -72,6 +73,7 @@ export function nav(lang: Lang): NavMenu[] {
             { label: t('Tìm kanji', 'Kanji search', '汉字搜索', '한자 검색', 'Cari kanji'), href: l('/kanji/search') },
             { label: t('Flashcards', 'Flashcards', '闪卡', '플래시카드', 'Flashcard'), href: l('/flashcards') },
             { label: t('Trắc nghiệm kanji', 'Kanji quiz', '汉字测验', '한자 퀴즈', 'Kuis kanji'), href: l('/tools/quiz') },
+            { label: t('Trò chơi kana', 'Kana quiz', '假名测验', '가나 퀴즈', 'Kuis kana'), href: l('/tools/kana-quiz') },
           ],
         },
       ],
@@ -99,6 +101,7 @@ export function footer(lang: Lang): { title: string; links: NavLink[] }[] {
       links: [
         { label: t('Hiragana', 'Hiragana', '平假名', '히라가나', 'Hiragana'), href: l('/hiragana') },
         { label: t('Katakana', 'Katakana', '片假名', '가타카나', 'Katakana'), href: l('/katakana') },
+        { label: t('Trò chơi kana', 'Kana quiz', '假名测验', '가나 퀴즈', 'Kuis kana'), href: l('/tools/kana-quiz') },
       ],
     },
     {

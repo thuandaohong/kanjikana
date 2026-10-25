@@ -122,3 +122,13 @@ export const SCRIPTS: Record<Script, { name: Record<Lang, string>; jp: string; l
     other: 'hiragana',
   },
 };
+
+/** Các nhóm chữ cho trò chơi kana: [chữ hiragana, romaji]. Nhóm "extended" đã là katakana. */
+export type KanaSet = 'basic' | 'voiced' | 'combined' | 'extended';
+const flat = (rows: Cell[][]) => rows.flat().filter((c): c is [string, string] => !!c);
+export const KANA_SETS: Record<KanaSet, [string, string][]> = {
+  basic: flat(GOJUON),
+  voiced: flat(DAKUTEN),
+  combined: flat(YOON),
+  extended: flat(EXTENDED),
+};

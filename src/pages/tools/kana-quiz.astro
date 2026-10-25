@@ -1,0 +1,499 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { KANA_SETS, toKatakana } from '../../data/kana';
+import { getLang, linker, pick } from '../../i18n';
+
+const lang = getLang(Astro);
+const l = linker(lang);
+const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
+
+// Chữ cho trò chơi: mỗi chữ là [kana, romaji, nhóm, bảng chữ]. Nhóm "extended" chỉ có katakana.
+const items: [string, string, string, 'h' | 'k'][] = [];
+for (const [set, cells] of Object.entries(KANA_SETS)) {
+  for (const [kana, romaji] of cells) {
+    if (set !== 'extended') items.push([kana, romaji, set, 'h']);
+    items.push([set === 'extended' ? kana : toKatakana(kana), romaji, set, 'k']);
+  }
+}
+// Chuỗi cho script phía trình duyệt; {n}, {score}, {total}, {pct}, {answer}, {best}, {s} được thay khi hiển thị.
+const strings = {
+  lang,
+  items,
+  progress: t('Câu {n}/{total}', 'Question {n}/{total}', '第 {n}/{total} 题', '{n}/{total}번 문제', 'Soal {n}/{total}'),
+  timer: t('Còn {s} giây', '{s}s left', '剩余 {s} 秒', '{s}초 남음', 'Sisa {s} detik'),
+  score: t('Đúng {score}', '{score} correct', '答对 {score}', '정답 {score}', 'Benar {score}'),
+  streak: t('Chuỗi {n}', 'Streak {n}', '连对 {n}', '연속 {n}', 'Beruntun {n}'),
+  askRomaji: t('Chữ này đọc là gì?', 'How is this read?', '这个假名怎么读？', '이 글자는 어떻게 읽나요?', 'Bagaimana cara membacanya?'),
+  askKana: t('Chữ nào đọc như thế này?', 'Which character is this?', '哪个假名是这个读音？', '이 발음의 글자는?', 'Huruf mana yang dibaca begini?'),
+  askType: t('Gõ cách đọc bằng romaji rồi nhấn Enter', 'Type the reading in romaji and press Enter', '输入罗马字读音并按 Enter', '로마자로 읽기를 입력하고 Enter를 누르세요', 'Ketik cara bacanya dalam romaji lalu tekan Enter'),
+  correct: t('Chính xác!', 'Correct!', '答对了！', '정답!', 'Benar!'),
+  wrong: t('Chưa đúng. Đáp án: {answer}', 'Not quite. Answer: {answer}', '答错了。正确答案：{answer}', '오답입니다. 정답: {answer}', 'Kurang tepat. Jawaban: {answer}'),
+  result: t('Bạn trả lời đúng {score}/{total} câu ({pct}%).', 'You got {score} of {total} right ({pct}%).', '你答对了 {score}/{total} 题（{pct}%）。', '{total}문제 중 {score}문제를 맞혔습니다 ({pct}%).', 'Kamu menjawab benar {score} dari {total} soal ({pct}%).'),
+  resultTimed: t('Bạn trả lời đúng {score} câu trong 60 giây ({total} câu đã làm).', 'You got {score} right in 60 seconds ({total} answered).', '你在 60 秒内答对了 {score} 题（共答 {total} 题）。', '60초 동안 {score}문제를 맞혔습니다 (총 {total}문제).', 'Kamu menjawab benar {score} soal dalam 60 detik ({total} dijawab).'),
+  best: t('Kỷ lục: {best}', 'Best: {best}', '最高纪录：{best}', '최고 기록: {best}', 'Rekor: {best}'),
+  newBest: t('Kỷ lục mới!', 'New best score!', '新纪录！', '최고 기록!', 'Rekor baru!'),
+  perfect: t('Tuyệt vời, không sai câu nào!', 'Perfect, no mistakes!', '太棒了，全部答对！', '완벽해요, 하나도 틀리지 않았어요!', 'Sempurna, tidak ada yang salah!'),
+  info: t('{n} chữ được chọn', '{n} characters selected', '已选 {n} 个假名', '{n}자 선택됨', '{n} huruf dipilih'),
+  tooSmall: t('Hãy chọn ít nhất 4 chữ.', 'Select at least 4 characters.', '请至少选择 4 个假名。', '4자 이상 선택하세요.', 'Pilih minimal 4 huruf.'),
+};
+const label = 'inline-flex items-center gap-2';
+---
+<BaseLayout
+  title={t('Trò chơi Hiragana và Katakana', 'Hiragana and katakana quiz game', '平假名和片假名测验游戏', '히라가나·가타카나 퀴즈 게임', 'Permainan kuis hiragana dan katakana')}
+  description={t(
+    'Luyện đọc Hiragana và Katakana: chọn cách đọc đúng, chọn chữ đúng hoặc gõ romaji, có chế độ tính giờ 60 giây.',
+    'Practise reading hiragana and katakana: pick the right reading or character, or type the romaji, with a 60-second time attack.',
+    '练习平假名和片假名：选择正确的读音或假名，或输入罗马字，还有 60 秒限时模式。',
+    '히라가나와 가타카나 읽기 연습: 알맞은 읽기나 글자를 고르거나 로마자를 입력하세요. 60초 타임 어택도 있습니다.',
+    'Latih membaca hiragana dan katakana: pilih cara baca atau huruf yang benar, atau ketik romaji, dengan mode 60 detik.',
+  )}
+>
+  <script is:inline type="application/json" id="page-strings" set:html={JSON.stringify(strings)} />
+  <PageHeader
+    title={t('Trò chơi Hiragana và Katakana', 'Kana quiz game', '假名测验游戏', '가나 퀴즈 게임', 'Permainan kuis kana')}
+    crumbs={[{ label: t('Công cụ', 'Tools', '工具', '도구', 'Alat') }, { label: t('Trò chơi kana', 'Kana quiz', '假名测验', '가나 퀴즈', 'Kuis kana') }]}
+    lead={t(
+      'Chọn bảng chữ, nhóm âm và cách chơi. Chữ dễ nhầm (như ぬ/め, シ/ツ) thường được đưa vào đáp án để bạn phân biệt.',
+      'Choose a script, sound groups and a game mode. Look-alike characters (such as ぬ/め, シ/ツ) often appear among the choices so you learn to tell them apart.',
+      '选择文字、音组和玩法。容易混淆的假名（如 ぬ/め、シ/ツ）常会出现在选项中，帮助你学会区分。',
+      '문자, 음 그룹, 게임 방식을 고르세요. 헷갈리기 쉬운 글자(ぬ/め, シ/ツ 등)가 보기에 자주 나와 구별하는 연습이 됩니다.',
+      'Pilih aksara, kelompok bunyi, dan mode permainan. Huruf yang mirip (seperti ぬ/め, シ/ツ) sering muncul di pilihan agar kamu terlatih membedakannya.',
+    )}
+  />
+
+  <section class="container-page py-10">
+    <!-- Bước 1: chọn chữ và cách chơi -->
+    <form id="kq-setup" class="max-w-xl space-y-5">
+      <fieldset>
+        <legend class="mb-1.5 text-sm font-semibold">{t('Bảng chữ', 'Script', '文字', '문자', 'Aksara')}</legend>
+        <div class="flex flex-wrap gap-4 text-sm">
+          <label class={label}><input type="radio" name="script" value="h" checked class="accent-brand" /> Hiragana</label>
+          <label class={label}><input type="radio" name="script" value="k" class="accent-brand" /> Katakana</label>
+          <label class={label}><input type="radio" name="script" value="hk" class="accent-brand" /> {t('Cả hai', 'Both', '两者', '둘 다', 'Keduanya')}</label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend class="mb-1.5 text-sm font-semibold">{t('Nhóm âm', 'Sounds', '音组', '음 그룹', 'Kelompok bunyi')}</legend>
+        <div class="grid gap-2 text-sm sm:grid-cols-2">
+          <label class={label}><input type="checkbox" name="set" value="basic" checked class="accent-brand" /> {t('Âm cơ bản (あ, か…)', 'Basic (あ, か…)', '清音（あ、か…）', '기본음 (あ, か…)', 'Dasar (あ, か…)')}</label>
+          <label class={label}><input type="checkbox" name="set" value="voiced" class="accent-brand" /> {t('Âm đục (が, ぱ…)', 'Voiced (が, ぱ…)', '浊音（が、ぱ…）', '탁음 (が, ぱ…)', 'Bersuara (が, ぱ…)')}</label>
+          <label class={label}><input type="checkbox" name="set" value="combined" class="accent-brand" /> {t('Âm ghép (きゃ…)', 'Combined (きゃ…)', '拗音（きゃ…）', '요음 (きゃ…)', 'Gabungan (きゃ…)')}</label>
+          <label class={label}><input type="checkbox" name="set" value="extended" class="accent-brand" /> {t('Âm mở rộng (ファ…, chỉ katakana)', 'Extended (ファ…, katakana only)', '扩展音（ファ…，仅片假名）', '확장음 (ファ…, 가타카나만)', 'Tambahan (ファ…, hanya katakana)')}</label>
+        </div>
+        <p id="kq-info" class="mt-2 text-sm text-fg-muted"></p>
+      </fieldset>
+      <fieldset>
+        <legend class="mb-1.5 text-sm font-semibold">{t('Cách chơi', 'Mode', '玩法', '방식', 'Mode')}</legend>
+        <div class="grid gap-2 text-sm sm:grid-cols-2">
+          <label class={label}><input type="radio" name="mode" value="romaji" checked class="accent-brand" /> {t('Kana → cách đọc', 'Kana → reading', '假名 → 读音', '가나 → 읽기', 'Kana → cara baca')}</label>
+          <label class={label}><input type="radio" name="mode" value="kana" class="accent-brand" /> {t('Cách đọc → kana', 'Reading → kana', '读音 → 假名', '읽기 → 가나', 'Cara baca → kana')}</label>
+          <label class={label}><input type="radio" name="mode" value="type" class="accent-brand" /> {t('Gõ romaji', 'Type the romaji', '输入罗马字', '로마자 입력', 'Ketik romaji')}</label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend class="mb-1.5 text-sm font-semibold">{t('Số câu', 'Length', '题数', '문제 수', 'Jumlah soal')}</legend>
+        <div class="flex flex-wrap gap-4 text-sm">
+          <label class={label}><input type="radio" name="count" value="10" checked class="accent-brand" /> 10</label>
+          <label class={label}><input type="radio" name="count" value="20" class="accent-brand" /> 20</label>
+          <label class={label}><input type="radio" name="count" value="all" class="accent-brand" /> {t('Tất cả chữ đã chọn', 'All selected', '全部所选', '선택한 전체', 'Semua yang dipilih')}</label>
+          <label class={label}><input type="radio" name="count" value="timed" class="accent-brand" /> {t('Tính giờ 60 giây', '60-second time attack', '限时 60 秒', '60초 타임 어택', 'Mode 60 detik')}</label>
+        </div>
+      </fieldset>
+      <label class={`${label} text-sm`}><input type="checkbox" id="kq-sound" checked class="size-4 accent-brand" /> {t('Phát âm sau mỗi câu', 'Play the sound after each answer', '每题后播放发音', '답한 뒤 발음 듣기', 'Putar suara setelah menjawab')}</label>
+      <div>
+        <button type="submit" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90">{t('Bắt đầu', 'Start', '开始', '시작', 'Mulai')}</button>
+        <p id="kq-best" class="mt-2 text-sm text-fg-muted"></p>
+      </div>
+    </form>
+
+    <!-- Bước 2: chơi -->
+    <div id="kq-play" hidden class="mx-auto max-w-xl">
+      <div class="mb-4 flex items-center justify-between gap-3 text-sm text-fg-muted">
+        <span id="kq-progress"></span>
+        <span id="kq-streak"></span>
+        <span id="kq-score"></span>
+      </div>
+      <div class="mb-6 h-1.5 overflow-hidden rounded-full bg-bg-muted">
+        <div id="kq-bar" class="h-full rounded-full bg-brand transition-[width]"></div>
+      </div>
+      <div class="rounded-2xl border border-line bg-surface p-8 text-center shadow-sm">
+        <p id="kq-ask" class="text-sm text-fg-muted"></p>
+        <div id="kq-prompt" class="mt-3"></div>
+      </div>
+      <div id="kq-options" class="mt-5 grid grid-cols-2 gap-3"></div>
+      <form id="kq-type" hidden class="mt-5 flex gap-2">
+        <input
+          id="kq-input"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          class="h-12 min-w-0 flex-1 rounded-lg border border-line bg-surface px-4 text-lg"
+          aria-label={t('Cách đọc bằng romaji', 'Reading in romaji', '罗马字读音', '로마자 읽기', 'Cara baca dalam romaji')}
+        />
+        <button type="submit" class="rounded-lg bg-brand px-5 font-semibold text-white hover:opacity-90">{t('Trả lời', 'Answer', '回答', '답하기', 'Jawab')}</button>
+      </form>
+      <p id="kq-feedback" class="mt-4 min-h-6 text-center font-semibold" aria-live="polite"></p>
+      <div class="mt-2 flex items-center justify-between">
+        <button type="button" id="kq-quit" class="link-underline text-sm">← {t('Đổi cách chơi', 'Change settings', '更改设置', '설정 바꾸기', 'Ubah pengaturan')}</button>
+        <button type="button" id="kq-next" hidden class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90">
+          {t('Câu tiếp', 'Next', '下一题', '다음', 'Berikutnya')} <span class="text-xs opacity-80">(Enter)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bước 3: kết quả -->
+    <div id="kq-done" hidden class="mx-auto max-w-xl">
+      <div class="rounded-2xl border border-line bg-surface p-8 text-center">
+        <p lang="ja" class="font-jp text-6xl">あア</p>
+        <h2 class="mt-4 text-2xl font-bold">{t('Kết quả', 'Results', '结果', '결과', 'Hasil')}</h2>
+        <p id="kq-result" class="mt-2 text-fg-muted"></p>
+        <div class="mt-6 flex flex-wrap justify-center gap-3">
+          <button type="button" id="kq-retry-wrong" class="rounded-lg bg-brand px-5 py-2.5 font-semibold text-white hover:opacity-90">{t('Làm lại câu sai', 'Retry mistakes', '重做错题', '틀린 문제 다시 풀기', 'Ulangi yang salah')}</button>
+          <button type="button" id="kq-again" class="rounded-lg border border-line px-5 py-2.5 hover:border-brand">{t('Chơi lại', 'Play again', '再玩一次', '다시 하기', 'Main lagi')}</button>
+          <button type="button" id="kq-back" class="rounded-lg border border-line px-5 py-2.5 hover:border-brand">{t('Đổi cách chơi', 'Change settings', '更改设置', '설정 바꾸기', 'Ubah pengaturan')}</button>
+        </div>
+      </div>
+      <div id="kq-review" class="mt-8">
+        <h3 class="mb-3 text-lg font-bold">{t('Chữ trả lời sai', 'Your mistakes', '答错的假名', '틀린 글자', 'Huruf yang salah')}</h3>
+        <ul id="kq-wrong-list" class="grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2"></ul>
+        <p class="mt-4 text-sm">
+          <a href={l('/hiragana')} class="link-underline">{t('Xem bảng Hiragana', 'Hiragana chart', '平假名表', '히라가나 표', 'Tabel hiragana')}</a> ·{' '}
+          <a href={l('/katakana')} class="link-underline">{t('Xem bảng Katakana', 'Katakana chart', '片假名表', '가타카나 표', 'Tabel katakana')}</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  #kq-options :global(button[data-state='correct']) {
+    border-color: #16a34a;
+    background: color-mix(in srgb, #16a34a 12%, transparent);
+  }
+  #kq-options :global(button[data-state='wrong']) {
+    border-color: var(--color-brand);
+    background: color-mix(in srgb, var(--color-brand) 12%, transparent);
+  }
+</style>
+
+<script>
+  type Item = { kana: string; romaji: string; set: string; script: 'h' | 'k' };
+  type Mode = 'romaji' | 'kana' | 'type';
+  type Question = { item: Item; options: Item[] };
+
+  const S = JSON.parse(document.getElementById('page-strings')!.textContent!);
+  const fill = (tpl: string, vars: Record<string, string | number>) => tpl.replace(/\{(\w+)\}/g, (_, k) => String(vars[k]));
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const ITEMS: Item[] = S.items.map(([kana, romaji, set, script]: string[]) => ({ kana, romaji, set, script }));
+  const TIME_LIMIT = 60;
+
+  const setup = $<HTMLFormElement>('kq-setup');
+  const play = $('kq-play');
+  const done = $('kq-done');
+  const optionsBox = $('kq-options');
+  const typeForm = $<HTMLFormElement>('kq-type');
+  const input = $<HTMLInputElement>('kq-input');
+  const nextBtn = $<HTMLButtonElement>('kq-next');
+
+  const store = {
+    get(key: string): string | null {
+      try { return localStorage.getItem(key); } catch { return null; }
+    },
+    set(key: string, value: string) {
+      try { localStorage.setItem(key, value); } catch {}
+    },
+  };
+
+  // Chữ trông giống nhau, được ưu tiên làm đáp án nhiễu.
+  const LOOKALIKE = [
+    'ぬめ', 'ねれわ', 'はほけ', 'るろ', 'さちき', 'いりこ', 'こに', 'あおめ', 'まもよ', 'たな', 'うら', 'しつ', 'くへ', 'そろ',
+    'シツ', 'ソン', 'シソ', 'ツン', 'クケタ', 'ウワフ', 'ユコヨ', 'ナメ', 'チテ', 'ロコ', 'ヌス', 'マム', 'エユ', 'ルレ', 'ノメ', 'ヲラ', 'セサ', 'カケ', 'ワク',
+  ];
+  const lookalikes = (kana: string) => new Set(LOOKALIKE.filter((g) => g.includes(kana)).join(''));
+
+  // Cách gõ romaji khác được chấp nhận (kiểu Kunrei, kiểu gõ bàn phím).
+  const PREFIX_ALT: [string, string][] = [
+    ['shi', 'si'], ['chi', 'ti'], ['tsu', 'tu'], ['fu', 'hu'], ['ji', 'zi'], ['ji', 'di'], ['zu', 'du'],
+    ['sh', 'sy'], ['ch', 'ty'], ['ch', 'cy'], ['j', 'zy'], ['j', 'jy'],
+  ];
+  function accepted(romaji: string) {
+    const out = new Set([romaji]);
+    for (const [a, b] of PREFIX_ALT) if (romaji.startsWith(a)) out.add(b + romaji.slice(a.length));
+    if (romaji === 'wo') out.add('o');
+    if (romaji === 'n') out.add('nn');
+    return out;
+  }
+
+  let pool: Item[] = [];
+  let mode: Mode = 'romaji';
+  let timed = false;
+  let configKey = '';
+  let questions: Question[] = [];
+  let index = 0;
+  let score = 0;
+  let streak = 0;
+  let answered = false;
+  let wrong: Item[] = [];
+  let deadline = 0;
+  let timerId = 0;
+
+  const shuffle = <T,>(a: T[]) => {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  const form = () => new FormData(setup);
+  function selectedPool() {
+    const script = String(form().get('script'));
+    const sets = new Set(form().getAll('set').map(String));
+    return ITEMS.filter((x) => script.includes(x.script) && sets.has(x.set));
+  }
+
+  function speak(text: string) {
+    if (!$<HTMLInputElement>('kq-sound').checked || !('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ja-JP';
+    u.rate = 0.8;
+    const voice = speechSynthesis.getVoices().find((v) => v.lang.replace('_', '-').startsWith('ja'));
+    if (voice) u.voice = voice;
+    speechSynthesis.speak(u);
+  }
+
+  /** Đáp án nhiễu: tối đa 2 chữ trông giống, còn lại lấy ngẫu nhiên; không trùng cách đọc với đáp án. */
+  function makeQuestion(item: Item): Question {
+    const options = [item];
+    const romajis = new Set([item.romaji]);
+    const look = lookalikes(item.kana);
+    const candidates = [...shuffle(pool.filter((x) => look.has(x.kana))).slice(0, 2), ...shuffle([...pool]), ...shuffle([...ITEMS])];
+    for (const x of candidates) {
+      if (options.length >= 4) break;
+      if (romajis.has(x.romaji)) continue;
+      options.push(x);
+      romajis.add(x.romaji);
+    }
+    return { item, options: shuffle(options) };
+  }
+
+  function updateInfo() {
+    const n = selectedPool().length;
+    $('kq-info').textContent = n < 4 ? S.tooSmall : fill(S.info, { n });
+    const best = store.get(bestKey());
+    $('kq-best').textContent = best ? fill(S.best, { best: form().get('count') === 'timed' ? best : `${best}%` }) : '';
+  }
+  const bestKey = () => {
+    const f = form();
+    return `kq-best:${f.get('script')}:${f.getAll('set').join('+')}:${f.get('mode')}:${f.get('count')}`;
+  };
+
+  function start(items: Item[]) {
+    if (pool.length < 4 || !items.length) return;
+    questions = items.map(makeQuestion);
+    index = score = streak = 0;
+    wrong = [];
+    setup.hidden = done.hidden = true;
+    play.hidden = false;
+    clearInterval(timerId);
+    if (timed) {
+      deadline = Date.now() + TIME_LIMIT * 1000;
+      timerId = window.setInterval(tick, 200);
+    }
+    showQuestion();
+  }
+
+  function startNew() {
+    pool = selectedPool();
+    if (pool.length < 4) {
+      $('kq-info').textContent = S.tooSmall;
+      return;
+    }
+    const f = form();
+    mode = f.get('mode') as Mode;
+    const count = String(f.get('count'));
+    timed = count === 'timed';
+    configKey = bestKey();
+    store.set('kq-settings', JSON.stringify({ script: f.get('script'), set: f.getAll('set'), mode, count }));
+    // Tính giờ: lặp lại cả bộ chữ (đã xáo) cho đủ dài.
+    const items = timed ? Array.from({ length: 8 }, () => shuffle([...pool])).flat() : shuffle([...pool]).slice(0, count === 'all' ? pool.length : Number(count));
+    start(items);
+  }
+
+  function tick() {
+    const left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+    $('kq-progress').textContent = fill(S.timer, { s: left });
+    $('kq-bar').style.width = `${(left / TIME_LIMIT) * 100}%`;
+    if (left === 0) finish();
+  }
+
+  function el(tag: string, cls: string, text: string, lang?: string) {
+    const e = document.createElement(tag);
+    e.className = cls;
+    e.textContent = text;
+    if (lang) e.lang = lang;
+    return e;
+  }
+
+  function showQuestion() {
+    const q = questions[index];
+    answered = false;
+    nextBtn.hidden = true;
+    $('kq-feedback').textContent = '';
+    if (timed) tick();
+    else {
+      $('kq-progress').textContent = fill(S.progress, { n: index + 1, total: questions.length });
+      $('kq-bar').style.width = `${(index / questions.length) * 100}%`;
+    }
+    $('kq-score').textContent = fill(S.score, { score });
+    $('kq-streak').textContent = streak >= 3 ? fill(S.streak, { n: streak }) : '';
+    $('kq-ask').textContent = { romaji: S.askRomaji, kana: S.askKana, type: S.askType }[mode];
+    $('kq-prompt').replaceChildren(
+      mode === 'kana'
+        ? el('p', 'font-serif text-6xl font-bold text-brand', q.item.romaji)
+        : el('p', 'font-jp text-8xl leading-none', q.item.kana, 'ja'),
+    );
+    typeForm.hidden = mode !== 'type';
+    optionsBox.hidden = mode === 'type';
+    if (mode === 'type') {
+      input.value = '';
+      input.disabled = false;
+      input.focus({ preventScroll: true });
+      return;
+    }
+    optionsBox.replaceChildren(
+      ...q.options.map((o, i) => {
+        const text = mode === 'kana' ? o.kana : o.romaji;
+        const b = el(
+          'button',
+          `flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 transition hover:border-brand/60 ${mode === 'kana' ? 'font-jp text-4xl' : 'text-2xl'}`,
+          '',
+          mode === 'kana' ? 'ja' : undefined,
+        ) as HTMLButtonElement;
+        b.type = 'button';
+        b.dataset.value = o.kana;
+        b.append(el('span', 'font-sans text-xs text-fg-muted', String(i + 1)), el('span', 'flex-1 text-center', text));
+        b.addEventListener('click', () => answer(o.kana === q.item.kana, o.kana));
+        return b;
+      }),
+    );
+  }
+
+  function answer(ok: boolean, chosen?: string) {
+    if (answered) return;
+    answered = true;
+    const q = questions[index];
+    if (ok) {
+      score++;
+      streak++;
+    } else {
+      streak = 0;
+      if (!wrong.includes(q.item)) wrong.push(q.item);
+    }
+    optionsBox.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
+      b.disabled = true;
+      if (b.dataset.value === q.item.kana) b.dataset.state = 'correct';
+      else if (b.dataset.value === chosen) b.dataset.state = 'wrong';
+    });
+    input.disabled = true;
+    const shown = mode === 'kana' ? q.item.kana : q.item.romaji;
+    $('kq-feedback').textContent = ok ? S.correct : fill(S.wrong, { answer: shown });
+    $('kq-feedback').className = `mt-4 min-h-6 text-center font-semibold ${ok ? 'text-green-600' : 'text-brand'}`;
+    $('kq-score').textContent = fill(S.score, { score });
+    $('kq-streak').textContent = streak >= 3 ? fill(S.streak, { n: streak }) : '';
+    speak(q.item.kana);
+    // Tính giờ: đúng thì sang câu luôn, sai thì dừng một chút để xem đáp án.
+    if (timed) {
+      setTimeout(next, ok ? 350 : 1200);
+      return;
+    }
+    nextBtn.hidden = false;
+    nextBtn.focus({ preventScroll: true });
+  }
+
+  function next() {
+    if (!answered || play.hidden) return;
+    index++;
+    if (index < questions.length) showQuestion();
+    else finish();
+  }
+
+  function finish() {
+    if (play.hidden) return;
+    clearInterval(timerId);
+    play.hidden = true;
+    done.hidden = false;
+    const total = timed ? index + (answered ? 1 : 0) : questions.length;
+    const pct = total ? Math.round((score / total) * 100) : 0;
+    // Tính giờ: kỷ lục là số câu đúng; còn lại là phần trăm.
+    const value = timed ? score : pct;
+    const best = Number(store.get(configKey) ?? -1);
+    let msg = timed ? fill(S.resultTimed, { score, total }) : fill(S.result, { score, total, pct });
+    // Làm lại câu sai không tính kỷ lục (configKey rỗng).
+    if (configKey && value > best) {
+      store.set(configKey, String(value));
+      if (best >= 0) msg += ` ${S.newBest}`;
+    }
+    if (!wrong.length && total) msg += ` ${S.perfect}`;
+    $('kq-result').textContent = msg;
+    $('kq-review').hidden = !wrong.length;
+    $<HTMLButtonElement>('kq-retry-wrong').hidden = !wrong.length;
+    $('kq-wrong-list').replaceChildren(
+      ...wrong.map((x) => {
+        const li = el('li', 'flex aspect-square flex-col items-center justify-center rounded-lg border border-line bg-surface', '');
+        li.append(el('span', 'font-jp text-3xl leading-none', x.kana, 'ja'), el('span', 'mt-1.5 text-sm text-fg-muted', x.romaji));
+        return li;
+      }),
+    );
+  }
+
+  function backToSetup() {
+    clearInterval(timerId);
+    play.hidden = done.hidden = true;
+    setup.hidden = false;
+    updateInfo();
+  }
+
+  setup.addEventListener('submit', (e) => {
+    e.preventDefault();
+    startNew();
+  });
+  setup.addEventListener('change', updateInfo);
+  typeForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const value = input.value.trim().toLowerCase();
+    if (value) answer(accepted(questions[index].item.romaji).has(value));
+  });
+  nextBtn.addEventListener('click', next);
+  $('kq-quit').addEventListener('click', backToSetup);
+  $('kq-back').addEventListener('click', backToSetup);
+  $('kq-again').addEventListener('click', startNew);
+  $('kq-retry-wrong').addEventListener('click', () => {
+    timed = false;
+    configKey = '';
+    start(shuffle([...wrong]));
+  });
+  document.addEventListener('keydown', (e) => {
+    if (play.hidden || mode === 'type') return;
+    if (!answered && /^[1-4]$/.test(e.key)) {
+      optionsBox.querySelectorAll<HTMLButtonElement>('button')[Number(e.key) - 1]?.click();
+    } else if (answered && !timed && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      next();
+    }
+  });
+
+  // Khôi phục lựa chọn lần trước.
+  try {
+    const saved = JSON.parse(store.get('kq-settings') ?? 'null');
+    if (saved) {
+      setup.querySelectorAll<HTMLInputElement>('input[name]').forEach((i) => {
+        const v = saved[i.name];
+        if (v === undefined) return;
+        i.checked = Array.isArray(v) ? v.includes(i.value) : String(v) === i.value;
+      });
+    }
+  } catch {}
+  updateInfo();
+</script>
