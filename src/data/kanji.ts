@@ -4,6 +4,8 @@ import strokesRaw from './generated/strokes.json';
 import vocabRaw from './generated/vocab.json';
 import radicalsRaw from './generated/radicals.json';
 import kankenRaw from './generated/kanken.json';
+import radicalInfoRaw from './radicals-info.json';
+import radicalStrokesRaw from './generated/radical-strokes.json';
 import meaningsVi from './meanings/vi.json';
 import meaningsZh from './meanings/zh.json';
 import meaningsKo from './meanings/ko.json';
@@ -109,7 +111,33 @@ const RADICAL_NAMES_EN =
 const RADICAL_READINGS = radicalsRaw as [string, string][];
 if (RADICAL_NAMES.length !== 214 || RADICAL_NAMES_EN.length !== 214) throw new Error('Cần đủ 214 tên bộ thủ');
 
-export type Radical = { n: number; char: string; name: string; nameEn: string; py: string; ko: string; kanji: Kanji[] };
+/** Vị trí của bộ trong chữ: 偏 trái, 旁 phải, 冠 trên, 脚 dưới, 垂 rủ trên-trái, 繞 bao dưới-trái, 構 bao quanh. */
+export type RadicalPos = 'hen' | 'tsukuri' | 'kanmuri' | 'ashi' | 'tare' | 'nyou' | 'kamae' | 'other';
+export type RadicalVariant = { c: string; ja: string; pos: RadicalPos };
+/** Thông tin soạn tay trong src/data/radicals-info.json: tên tiếng Nhật, vị trí, nghĩa, dạng biến thể. */
+type RadicalInfo = { n: number; ja: string; pos: RadicalPos; meaning: Record<Exclude<Lang, 'en'>, string>; variants: RadicalVariant[] };
+const RADICAL_INFO = radicalInfoRaw as RadicalInfo[];
+
+// 214 bộ Khang Hy xếp theo số nét: bộ đầu tiên của nhóm 1, 2, 3… 17 nét.
+const STROKE_GROUP_START = [1, 7, 30, 61, 95, 118, 147, 167, 176, 187, 195, 201, 205, 209, 211, 212, 214];
+const radicalStrokeCount = (n: number) => STROKE_GROUP_START.filter((start) => start <= n).length;
+
+export type Radical = {
+  n: number;
+  char: string;
+  name: string;
+  nameEn: string;
+  py: string;
+  ko: string;
+  /** Số nét */
+  strokes: number;
+  /** Tên bộ thủ tiếng Nhật (hiragana) */
+  ja: string;
+  pos: RadicalPos;
+  meaning: Record<Exclude<Lang, 'en'>, string>;
+  variants: RadicalVariant[];
+  kanji: Kanji[];
+};
 
 export const RADICALS: Radical[] = RADICAL_NAMES.map((name, i) => ({
   n: i + 1,
@@ -119,8 +147,32 @@ export const RADICALS: Radical[] = RADICAL_NAMES.map((name, i) => ({
   nameEn: RADICAL_NAMES_EN[i],
   py: RADICAL_READINGS[i][0],
   ko: RADICAL_READINGS[i][1],
+  strokes: radicalStrokeCount(i + 1),
+  ja: RADICAL_INFO[i].ja,
+  pos: RADICAL_INFO[i].pos,
+  meaning: RADICAL_INFO[i].meaning,
+  variants: RADICAL_INFO[i].variants,
   kanji: ALL.filter((k) => k.rad === i + 1),
 }));
+if (RADICAL_INFO.some((r, i) => r.n !== i + 1)) throw new Error('radicals-info.json phải đủ 214 bộ theo thứ tự');
+
+/** Nghĩa của bộ thủ theo ngôn ngữ trang (bản tiếng Anh dùng tên Unicode). */
+export const radicalMeaning = (r: Radical, lang: Lang) => (lang === 'en' ? r.nameEn : r.meaning[lang]);
+/** Path SVG thứ tự nét của chữ bộ thủ và các dạng biến thể (KanjiVG). */
+export const RADICAL_STROKES = radicalStrokesRaw as Record<string, string[]>;
+export const RADICAL_POS_LABEL: Record<RadicalPos, Record<Lang, string>> = {
+  hen: { vi: 'Bên trái (偏)', en: 'Left side (hen)', zh: '左侧（偏）', ko: '왼쪽 (변)', id: 'Kiri (hen)' },
+  tsukuri: { vi: 'Bên phải (旁)', en: 'Right side (tsukuri)', zh: '右侧（旁）', ko: '오른쪽 (방)', id: 'Kanan (tsukuri)' },
+  kanmuri: { vi: 'Phía trên (冠)', en: 'Top (kanmuri)', zh: '上部（冠）', ko: '위쪽 (머리)', id: 'Atas (kanmuri)' },
+  ashi: { vi: 'Phía dưới (脚)', en: 'Bottom (ashi)', zh: '下部（脚）', ko: '아래쪽 (발)', id: 'Bawah (ashi)' },
+  tare: { vi: 'Rủ từ trên xuống bên trái (垂)', en: 'Top-left hanging (tare)', zh: '左上包围（垂）', ko: '엄 (위·왼쪽을 덮음)', id: 'Menaungi kiri atas (tare)' },
+  nyou: { vi: 'Bao phía dưới bên trái (繞)', en: 'Bottom-left wrap (nyō)', zh: '左下包围（繞）', ko: '받침 (아래·왼쪽을 감쌈)', id: 'Melingkar kiri bawah (nyō)' },
+  kamae: { vi: 'Bao quanh (構)', en: 'Enclosure (kamae)', zh: '包围（构）', ko: '몸 (둘러쌈)', id: 'Mengelilingi (kamae)' },
+  other: { vi: 'Đứng riêng hoặc nhiều vị trí', en: 'Standalone or varies', zh: '独立或位置不定', ko: '단독 또는 여러 위치', id: 'Berdiri sendiri / bervariasi' },
+};
+/** "1 nét" / "1 stroke" / "1 画" / "1획" / "1 goresan" */
+export const strokeLabel = (n: number, lang: Lang) =>
+  pick(lang, { vi: `${n} nét`, en: `${n} ${n === 1 ? 'stroke' : 'strokes'}`, zh: `${n} 画`, ko: `${n}획`, id: `${n} goresan` });
 
 /** Tên bộ thủ để hiển thị: "Bộ Nhân" / "Radical “man”" / "人部" / "人 부수" */
 export const radicalTitle = (r: Radical, lang: Lang) =>

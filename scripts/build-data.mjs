@@ -165,6 +165,24 @@ async function worker() {
 console.log('Tải KanjiVG…');
 await Promise.all(Array.from({ length: 16 }, worker));
 await writeFile(new URL('strokes.json', GEN), JSON.stringify(strokes));
+
+// Thứ tự nét cho 214 bộ thủ và các dạng biến thể (亻, 氵…) trong src/data/radicals-info.json.
+const radicalInfo = JSON.parse(await readFile(new URL('../src/data/radicals-info.json', import.meta.url), 'utf8'));
+const radicalChars = new Set();
+for (let i = 0; i < 214; i++) radicalChars.add(String.fromCodePoint(0x2f00 + i).normalize('NFKC'));
+for (const r of radicalInfo) for (const v of r.variants) radicalChars.add(v.c);
+const radicalStrokes = {};
+const radicalQueue = [...radicalChars];
+await Promise.all(
+  Array.from({ length: 16 }, async () => {
+    for (let c; (c = radicalQueue.shift()); ) {
+      const paths = strokes[c] ?? (await kanjivg(c).then((svg) => svg && [...svg.matchAll(/<path id="kvg:[^"]*-s\d+"[^>]*\sd="([^"]+)"/g)].map((m) => m[1])));
+      if (paths?.length) radicalStrokes[c] = paths;
+    }
+  }),
+);
+await writeFile(new URL('radical-strokes.json', GEN), JSON.stringify(Object.fromEntries([...radicalChars].filter((c) => radicalStrokes[c]).map((c) => [c, radicalStrokes[c]]))));
+console.log(`Thứ tự nét bộ thủ: ${Object.keys(radicalStrokes).length}/${radicalChars.size} chữ`);
 console.log(`Thứ tự nét: ${Object.keys(strokes).length} chữ` + (missing.length ? `, thiếu: ${missing.join('')}` : ''));
 
 // ---------- Từ vựng ví dụ ----------

@@ -1,12 +1,14 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/PageHeader.astro';
-import { RADICALS, kanjiCount, radicalName } from '../../../data/kanji';
+import { RADICALS, kanjiCount, radicalName, strokeLabel } from '../../../data/kanji';
 import { getLang, linker, pick } from '../../../i18n';
 
 const lang = getLang(Astro);
 const l = linker(lang);
 const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
+// Nhóm bộ thủ theo số nét, như mục lục bộ thủ trong từ điển chữ Hán.
+const groups = [...new Set(RADICALS.map((r) => r.strokes))].map((n) => ({ n, radicals: RADICALS.filter((r) => r.strokes === n) }));
 ---
 <BaseLayout
   title={t('Kanji theo bộ thủ', 'Kanji by radical', '按部首学汉字', '부수별 한자', 'Kanji per radikal')}
@@ -22,34 +24,40 @@ const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(l
     title={t('Kanji theo bộ thủ', 'Kanji by radical', '按部首学汉字', '부수별 한자', 'Kanji per radikal')}
     crumbs={[{ label: t('Kanji', 'Kanji', '汉字', '한자', 'Kanji'), href: l('/kanji') }, { label: t('Bộ thủ', 'Radicals', '部首', '부수', 'Radikal') }]}
     lead={t(
-      '214 bộ thủ Khang Hy, xếp theo số thứ tự. Bộ thủ là thành phần dùng để phân loại và tra cứu chữ Hán.',
-      'The 214 Kangxi radicals, in traditional order. Radicals are the components used to classify and look up kanji.',
-      '康熙字典 214 部首，按传统顺序排列。部首是用来分类和查找汉字的组成部分。',
-      '강희자전 214 부수를 전통 순서로 배열했습니다. 부수는 한자를 분류하고 찾을 때 쓰는 구성 요소입니다.',
-      '214 radikal Kangxi menurut urutan tradisional. Radikal adalah komponen yang dipakai untuk mengelompokkan dan mencari kanji.',
+      '214 bộ thủ Khang Hy, nhóm theo số nét. Bộ thủ là thành phần dùng để phân loại và tra cứu chữ Hán; nhiều bộ có dạng biến thể khi đứng trong chữ, như 人 → 亻.',
+      'The 214 Kangxi radicals, grouped by stroke count. Radicals are the components used to classify and look up kanji; many take a different shape inside a character, like 人 → 亻.',
+      '康熙字典 214 部首，按笔画数分组。部首是用来分类和查找汉字的组成部分，很多部首在字中会变形，例如 人 → 亻。',
+      '강희자전 214 부수를 획수별로 묶었습니다. 부수는 한자를 분류하고 찾을 때 쓰는 구성 요소이며, 글자 안에서 모양이 바뀌는 부수도 많습니다(예: 人 → 亻).',
+      '214 radikal Kangxi, dikelompokkan menurut jumlah goresan. Radikal adalah komponen untuk mengelompokkan dan mencari kanji; banyak radikal berubah bentuk di dalam huruf, misalnya 人 → 亻.',
     )}
-  />
-  <section class="container-page py-10">
-    <ul class="grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-2">
-      {RADICALS.map((r) => (
-        <li>
-          {r.kanji.length > 0 ? (
-            <a href={l(`/kanji/radicals/${r.n}`)} class="flex h-full flex-col items-center rounded-lg border border-line bg-surface px-2 py-3 transition hover:border-brand/60 hover:text-brand">
+  >
+    <nav class="mt-6 flex flex-wrap gap-2" aria-label={t('Đi đến số nét', 'Jump to stroke count', '按笔画跳转', '획수로 이동', 'Langsung ke jumlah goresan')}>
+      {groups.map((g) => (
+        <a href={`#strokes-${g.n}`} class="rounded-full border border-line px-3 py-1 text-sm tabular-nums hover:border-brand">{g.n}</a>
+      ))}
+    </nav>
+  </PageHeader>
+  {groups.map((g) => (
+    <section id={`strokes-${g.n}`} class="container-page scroll-mt-20 py-6">
+      <h2 class="mb-4 text-lg font-bold">{strokeLabel(g.n, lang)}</h2>
+      <ul class="grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-2">
+        {g.radicals.map((r) => (
+          <li>
+            <a
+              href={l(`/kanji/radicals/${r.n}`)}
+              class={`flex h-full flex-col items-center rounded-lg border bg-surface px-2 py-3 transition hover:border-brand/60 hover:text-brand ${r.kanji.length ? 'border-line' : 'border-dashed border-line text-fg-muted'}`}
+            >
               <span class="self-start text-xs text-fg-muted tabular-nums">{r.n}</span>
-              <span lang="ja" class="font-jp text-3xl leading-none">{r.char}</span>
-              <span class="mt-2 text-center text-sm font-semibold">{radicalName(r, lang)}</span>
+              <span lang="ja" class="font-jp text-3xl leading-none">
+                {r.char}{r.variants.length > 0 && <span class="ml-1 text-lg text-fg-muted">{r.variants.map((v) => v.c).join(' ')}</span>}
+              </span>
+              <span lang="ja" class="mt-2 text-xs text-fg-muted">{r.ja}</span>
+              <span class="text-center text-sm font-semibold">{radicalName(r, lang)}</span>
               <span class="text-xs text-fg-muted">{kanjiCount(r.kanji.length, lang)}</span>
             </a>
-          ) : (
-            <div class="flex h-full flex-col items-center rounded-lg border border-dashed border-line px-2 py-3 text-fg-muted">
-              <span class="self-start text-xs tabular-nums">{r.n}</span>
-              <span lang="ja" class="font-jp text-3xl leading-none">{r.char}</span>
-              <span class="mt-2 text-center text-sm">{radicalName(r, lang)}</span>
-              <span class="text-xs">{kanjiCount(0, lang)}</span>
-            </div>
-          )}
-        </li>
-      ))}
-    </ul>
-  </section>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
 </BaseLayout>

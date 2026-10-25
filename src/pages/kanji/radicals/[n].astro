@@ -3,47 +3,133 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import KanjiList from '../../../components/KanjiList.astro';
 import AdSlot from '../../../components/AdSlot.astro';
-import { RADICALS, radicalLabel, radicalName, radicalTitle } from '../../../data/kanji';
+import StrokeOrder from '../../../components/StrokeOrder.astro';
+import {
+  LOCAL_READING_LABEL,
+  RADICALS,
+  RADICAL_POS_LABEL,
+  RADICAL_STROKES,
+  radicalLabel,
+  radicalMeaning,
+  radicalName,
+  radicalTitle,
+  strokeLabel,
+} from '../../../data/kanji';
 import { getLang, linker, pick } from '../../../i18n';
 
+// Trang cho cả 214 bộ, kể cả bộ chưa có kanji nào trên site (vẫn có tên, nghĩa, thứ tự nét).
 export function getStaticPaths() {
-  return RADICALS.filter((r) => r.kanji.length > 0).map((r) => ({ params: { n: String(r.n) }, props: { r } }));
+  return RADICALS.map((r) => ({ params: { n: String(r.n) }, props: { r } }));
 }
 const { r } = Astro.props;
 const lang = getLang(Astro);
 const l = linker(lang);
 const t = (vi: string, en: string, zh: string, ko: string, id: string) => pick(lang, { vi, en, zh, ko, id });
-const prev = RADICALS.slice(0, r.n - 1).findLast((x) => x.kanji.length > 0);
-const next = RADICALS.slice(r.n).find((x) => x.kanji.length > 0);
+const prev = RADICALS[r.n - 2];
+const next = RADICALS[r.n];
+const meaning = radicalMeaning(r, lang);
+// Âm đọc theo ngôn ngữ của người học: tên Hán Việt (vi), pinyin (zh), âm Hán-Hàn (ko).
+const localReading = pick(lang, { vi: r.name, en: '', zh: r.py, ko: r.ko, id: '' });
+const facts: [string, string, string?][] = [
+  [t('Tên tiếng Nhật', 'Japanese name', '日语名称', '일본어 이름', 'Nama Jepang'), r.ja, 'ja'],
+  ...(localReading ? ([[LOCAL_READING_LABEL[lang], localReading]] as [string, string][]) : []),
+  [t('Số nét', 'Strokes', '笔画数', '획수', 'Goresan'), strokeLabel(r.strokes, lang)],
+  [t('Vị trí trong chữ', 'Position in a kanji', '在字中的位置', '글자 안 위치', 'Posisi dalam kanji'), RADICAL_POS_LABEL[r.pos][lang]],
+  [t('Số thứ tự', 'Radical no.', '部首编号', '부수 번호', 'Nomor radikal'), String(r.n)],
+];
 ---
 <BaseLayout
   title={radicalLabel(r, lang)}
   description={t(
-    `Bộ thủ số ${r.n}: ${r.char} (${r.name}), gồm ${r.kanji.length} kanji.`,
-    `Kangxi radical ${r.n}: ${r.char} (“${r.nameEn}”), with ${r.kanji.length} kanji.`,
-    `康熙部首第 ${r.n} 部：${r.char}（${radicalName(r, lang)}），共 ${r.kanji.length} 个汉字。`,
-    `강희 부수 ${r.n}번: ${r.char}(${radicalName(r, lang)}), 한자 ${r.kanji.length}자.`,
-    `Radikal Kangxi ${r.n}: ${r.char} (“${r.nameEn}”), dengan ${r.kanji.length} kanji.`,
+    `Bộ thủ số ${r.n}: ${r.char} (${r.name}, tiếng Nhật: ${r.ja}), nghĩa là ${meaning}, ${r.strokes} nét, gồm ${r.kanji.length} kanji.`,
+    `Kangxi radical ${r.n}: ${r.char} (“${r.nameEn}”, Japanese: ${r.ja}), ${r.strokes} strokes, with ${r.kanji.length} kanji.`,
+    `康熙部首第 ${r.n} 部：${r.char}（${meaning}，日语：${r.ja}），${r.strokes} 画，共 ${r.kanji.length} 个汉字。`,
+    `강희 부수 ${r.n}번: ${r.char}(${meaning}, 일본어: ${r.ja}), ${r.strokes}획, 한자 ${r.kanji.length}자.`,
+    `Radikal Kangxi ${r.n}: ${r.char} (${meaning}, bahasa Jepang: ${r.ja}), ${r.strokes} goresan, dengan ${r.kanji.length} kanji.`,
   )}
 >
   <PageHeader
     title={radicalTitle(r, lang)}
     crumbs={[{ label: t('Kanji', 'Kanji', '汉字', '한자', 'Kanji'), href: l('/kanji') }, { label: t('Bộ thủ', 'Radicals', '部首', '부수', 'Radikal'), href: l('/kanji/radicals') }, { label: radicalName(r, lang) }]}
-  >
-    <div class="mt-6 flex items-center gap-5">
-      <span lang="ja" class="grid size-24 place-items-center rounded-xl border border-line bg-surface font-jp text-6xl">{r.char}</span>
-      <p class="text-fg-muted">
-        {t(`Bộ thủ số ${r.n}`, `Radical no. ${r.n}`, `第 ${r.n} 部`, `부수 ${r.n}번`, `Radikal no. ${r.n}`)}
-        <br />{t(`${r.kanji.length} kanji trong danh sách`, `${r.kanji.length} kanji in our lists`, `本站列表中有 ${r.kanji.length} 个汉字`, `이 사이트 목록의 한자 ${r.kanji.length}자`, `${r.kanji.length} kanji di daftar kami`)}
-      </p>
+  />
+
+  <section class="container-page grid gap-10 py-10 md:grid-cols-[16rem_1fr]">
+    <div>
+      {RADICAL_STROKES[r.char] ? (
+        <StrokeOrder char={r.char} paths={RADICAL_STROKES[r.char]} />
+      ) : (
+        <div class="mx-auto grid aspect-square w-full max-w-60 place-items-center rounded-2xl border border-line bg-surface md:max-w-none">
+          <span lang="ja" class="font-jp text-[9rem] leading-none">{r.char}</span>
+        </div>
+      )}
     </div>
-  </PageHeader>
+    <div>
+      <p class="text-sm font-semibold tracking-wide text-fg-muted uppercase">{t('Nghĩa', 'Meaning', '含义', '뜻', 'Arti')}</p>
+      <p class="mt-1 font-serif text-3xl font-bold text-brand">{meaning}</p>
+      <dl class="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {facts.map(([label, value, valueLang]) => (
+          <div class="rounded-xl border border-line bg-surface p-4">
+            <dt class="text-xs text-fg-muted">{label}</dt>
+            <dd lang={valueLang} class="mt-1 font-semibold">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  {r.variants.length > 0 && (
+    <section class="border-t border-dashed border-line">
+      <div class="container-page py-10">
+        <h2 class="mb-2 text-xl font-bold">{t('Dạng biến thể', 'Variant forms', '变体', '변형', 'Bentuk varian')}</h2>
+        <p class="mb-6 text-sm text-fg-muted">
+          {t(
+            'Khi đứng trong một chữ, bộ này thường được viết theo các dạng sau.',
+            'Inside a kanji, this radical is often written in these forms.',
+            '在汉字中，这个部首常写成以下形式。',
+            '한자 안에서 이 부수는 흔히 다음 모양으로 씁니다.',
+            'Di dalam kanji, radikal ini sering ditulis dalam bentuk berikut.',
+          )}
+        </p>
+        <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {r.variants.map((v) => (
+            <li class="max-w-60">
+              {RADICAL_STROKES[v.c] ? (
+                <StrokeOrder char={v.c} paths={RADICAL_STROKES[v.c]} />
+              ) : (
+                <div class="grid aspect-square w-full place-items-center rounded-2xl border border-line bg-surface">
+                  <span lang="ja" class="font-jp text-8xl leading-none">{v.c}</span>
+                </div>
+              )}
+              <p class="mt-3 font-semibold"><span lang="ja" class="font-jp text-lg">{v.c}</span> · <span lang="ja">{v.ja}</span></p>
+              <p class="text-sm text-fg-muted">{RADICAL_POS_LABEL[v.pos][lang]}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
   <AdSlot placement="list" class="pt-8" />
-  <section class="container-page py-10">
-    <KanjiList kanji={r.kanji} />
-    <nav class="mt-10 flex justify-between text-sm">
-      {prev ? <a href={l(`/kanji/radicals/${prev.n}`)} class="link-underline">← {radicalLabel(prev, lang)}</a> : <span />}
-      {next && <a href={l(`/kanji/radicals/${next.n}`)} class="link-underline">{radicalLabel(next, lang)} →</a>}
-    </nav>
+  <section class="border-t border-dashed border-line">
+    <div class="container-page py-10">
+      <h2 class="mb-6 text-xl font-bold">{t('Kanji thuộc bộ này', 'Kanji with this radical', '此部首的汉字', '이 부수의 한자', 'Kanji dengan radikal ini')}</h2>
+      {r.kanji.length > 0 ? (
+        <KanjiList kanji={r.kanji} />
+      ) : (
+        <p class="text-fg-muted">
+          {t(
+            'Site chưa có kanji nào thuộc bộ này.',
+            'No kanji on this site use this radical yet.',
+            '本站暂无此部首的汉字。',
+            '이 사이트에는 아직 이 부수의 한자가 없습니다.',
+            'Belum ada kanji dengan radikal ini di situs ini.',
+          )}
+        </p>
+      )}
+      <nav class="mt-10 flex justify-between text-sm">
+        {prev ? <a href={l(`/kanji/radicals/${prev.n}`)} class="link-underline">← {radicalLabel(prev, lang)}</a> : <span />}
+        {next && <a href={l(`/kanji/radicals/${next.n}`)} class="link-underline">{radicalLabel(next, lang)} →</a>}
+      </nav>
+    </div>
   </section>
 </BaseLayout>
