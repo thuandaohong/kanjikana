@@ -5,3 +5,4 @@ dist/
 .cache/
 public/kuromoji/
 src/pages/en/
+.wrangler/
