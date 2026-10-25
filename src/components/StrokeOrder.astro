@@ -97,6 +97,8 @@ const id = `s${char.codePointAt(0)!.toString(16)}`;
     }
 
     root.querySelector('[data-play]')!.addEventListener('click', () => (reduce ? show(true) : play()));
+    // Trang khác có thể yêu cầu chạy lại, ví dụ khi mở hộp thoại kana.
+    root.addEventListener('stroke:play', () => (reduce ? show(true) : play()));
 
     // Tự chạy một lần khi ô lớn xuất hiện trên màn hình.
     if (!reduce) {

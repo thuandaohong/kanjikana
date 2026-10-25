@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from './PageHeader.astro';
+import StrokeOrder from './StrokeOrder.astro';
+import { SCRIPTS, kanaTables, type Script } from '../data/kana';
+import kanaStrokes from '../data/generated/kana-strokes.json';
+
+interface Props { script: Script }
+const { script } = Astro.props;
+const info = SCRIPTS[script];
+const tables = kanaTables(script);
+const strokes = kanaStrokes as Record<string, string[]>;
+
+// Mỗi chữ đơn có thứ tự nét sẽ có một hộp thoại riêng.
+const singles = [...new Set(tables.flatMap((t) => t.rows.flat()).filter((c) => c && c[0].length === 1 && strokes[c[0]]))] as [string, string][];
+const dialogId = (ch: string) => `kana-${ch.codePointAt(0)!.toString(16)}`;
+---
+<BaseLayout title={`Bảng ${info.name}`} description={`Bảng chữ ${info.name} (${info.jp}) đầy đủ: âm cơ bản, âm đục, âm ghép, kèm phát âm và thứ tự nét.`}>
+  <PageHeader title={`Bảng ${info.name}`} crumbs={[{ label: 'Kana' }, { label: info.name }]} lead={info.lead}>
+    <div class="mt-6 flex flex-wrap items-center gap-3">
+      <a href={`/${info.other}`} class="rounded-full border border-line px-4 py-1.5 text-sm font-semibold hover:border-brand">
+        Xem bảng {SCRIPTS[info.other].name}
+      </a>
+      <label class="inline-flex cursor-pointer items-center gap-2 text-sm">
+        <input type="checkbox" id="toggle-romaji" checked class="size-4 accent-brand" />
+        Hiện romaji
+      </label>
+    </div>
+    <p class="mt-4 text-sm text-fg-muted">Bấm vào một chữ để nghe phát âm và xem cách viết.</p>
+  </PageHeader>
+
+  <div id="kana-tables" class="container-page space-y-14 py-10">
+    {tables.map((t) => (
+      <section>
+        <h2 class="text-2xl font-bold">{t.title}</h2>
+        {t.note && <p class="mt-2 text-fg-muted">{t.note}</p>}
+        <div class="mt-6 grid gap-2" style={`grid-template-columns:repeat(${t.cols},minmax(0,1fr));max-width:${t.cols * 8.5}rem`}>
+          {t.rows.flat().map((c) =>
+            c ? (
+              <button
+                type="button"
+                data-kana={c[0]}
+                data-dialog={c[0].length === 1 && strokes[c[0]] ? dialogId(c[0]) : undefined}
+                class="kana-cell flex aspect-[5/4] flex-col items-center justify-center rounded-lg border border-line bg-surface transition hover:border-brand/60 hover:text-brand sm:aspect-[4/3]"
+              >
+                <span lang="ja" class="font-jp text-3xl leading-none sm:text-4xl">{c[0]}</span>
+                <span class="romaji mt-1.5 text-xs text-fg-muted sm:text-sm">{c[1]}</span>
+              </button>
+            ) : (
+              <div class="rounded-lg border border-dashed border-line/70" aria-hidden="true" />
+            ),
+          )}
+        </div>
+      </section>
+    ))}
+  </div>
+
+  {singles.map(([ch, romaji]) => (
+    <dialog id={dialogId(ch)} class="kana-dialog m-auto w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-line bg-bg p-5 text-fg backdrop:bg-black/50">
+      <div class="mb-4 flex items-center justify-between">
+        <p class="text-2xl font-bold"><span lang="ja" class="font-jp">{ch}</span> <span class="text-fg-muted">· {romaji}</span></p>
+        <form method="dialog">
+          <button class="grid size-9 place-items-center rounded-md hover:bg-bg-muted" aria-label="Đóng">
+            <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18" /></svg>
+          </button>
+        </form>
+      </div>
+      <StrokeOrder char={ch} paths={strokes[ch]} />
+      <button type="button" data-speak={ch} class="mt-4 w-full rounded-lg bg-brand py-2.5 font-semibold text-white hover:opacity-90">
+        🔊 Nghe phát âm
+      </button>
+    </dialog>
+  ))}
+</BaseLayout>
+
+<style>
+  #kana-tables.hide-romaji .romaji {
+    visibility: hidden;
+  }
+</style>
+
+<script>
+  // Phát âm bằng Web Speech API (giọng tiếng Nhật của hệ điều hành, nếu có).
+  function speak(text: string) {
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ja-JP';
+    u.rate = 0.8;
+    const voice = speechSynthesis.getVoices().find((v) => v.lang.replace('_', '-').startsWith('ja'));
+    if (voice) u.voice = voice;
+    speechSynthesis.speak(u);
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.kana-cell').forEach((b) =>
+    b.addEventListener('click', () => {
+      speak(b.dataset.kana!);
+      const id = b.dataset.dialog;
+      if (!id) return;
+      const dialog = document.getElementById(id) as HTMLDialogElement;
+      dialog.showModal();
+      dialog.querySelector('[data-stroke-order]')!.dispatchEvent(new Event('stroke:play'));
+    }),
+  );
+  document.querySelectorAll<HTMLButtonElement>('[data-speak]').forEach((b) =>
+    b.addEventListener('click', () => speak(b.dataset.speak!)),
+  );
+  // Bấm ra ngoài hộp thoại thì đóng.
+  document.querySelectorAll<HTMLDialogElement>('.kana-dialog').forEach((d) => {
+    d.addEventListener('click', (e) => {
+      if (e.target === d) d.close();
+    });
+  });
+
+  const toggle = document.getElementById('toggle-romaji') as HTMLInputElement;
+  const tables = document.getElementById('kana-tables')!;
+  const KEY = 'show-romaji';
+  try {
+    toggle.checked = localStorage.getItem(KEY) !== '0';
+  } catch {}
+  const applyRomaji = () => tables.classList.toggle('hide-romaji', !toggle.checked);
+  applyRomaji();
+  toggle.addEventListener('change', () => {
+    applyRomaji();
+    try { localStorage.setItem(KEY, toggle.checked ? '1' : '0'); } catch {}
+  });
+</script>

@@ -142,3 +142,20 @@ for (const k of out) {
 }
 await writeFile(new URL('vocab.json', GEN), JSON.stringify(vocab));
 console.log(`Từ vựng: ${words.length} từ, ${Object.keys(vocab).length} kanji có ví dụ`);
+
+// ---------- Thứ tự nét cho kana ----------
+// Hiragana ぁ–ゖ và katakana ァ–ヶ (từng chữ đơn; âm ghép tự ghép từ các chữ này).
+const kanaChars = [];
+for (let cp = 0x3041; cp <= 0x3096; cp++) kanaChars.push(String.fromCodePoint(cp));
+for (let cp = 0x30a1; cp <= 0x30f6; cp++) kanaChars.push(String.fromCodePoint(cp));
+const kanaStrokes = {};
+await Promise.all(
+  Array.from({ length: 16 }, async () => {
+    for (let c; (c = kanaChars.shift()); ) {
+      const svg = await kanjivg(c);
+      if (svg) kanaStrokes[c] = [...svg.matchAll(/<path id="kvg:[^"]*-s\d+"[^>]*\sd="([^"]+)"/g)].map((m) => m[1]);
+    }
+  }),
+);
+await writeFile(new URL('kana-strokes.json', GEN), JSON.stringify(kanaStrokes));
+console.log(`Thứ tự nét kana: ${Object.keys(kanaStrokes).length} chữ`);
