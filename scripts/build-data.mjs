@@ -262,6 +262,40 @@ for (const k of out) {
   for (const n of rads) radicalMembers[n] = (radicalMembers[n] ?? '') + k.c;
 }
 await writeFile(new URL('radical-members.json', GEN), JSON.stringify(radicalMembers));
+// ---------- Chữ trông giống nhau ----------
+// So sánh tập thành phần KanjiVG của hai chữ (bỏ nét đơn quá phổ biến), mỗi thành phần có trọng số IDF
+// để thành phần hiếm (như 寺, 門) quan trọng hơn thành phần phổ biến (như 亻, 氵). Giữ chữ có độ giống
+// (Jaccard có trọng số) từ 0.4 và số nét chênh tối đa 3. Chữ đơn giản ít thành phần (人入八, 土士…)
+// lấy thêm từ danh sách nhóm dễ nhầm viết tay trong src/data/confusables.json.
+const SIMILAR_MAX = 6;
+const TRIVIAL = new Set('一丨丶丿乙亅乚⺄㇒㇏');
+const compSets = new Map();
+for (const k of out) compSets.set(k.c, new Set([...(await components(k.c))].filter((x) => !TRIVIAL.has(x))));
+const compIndex = new Map();
+for (const [c, set] of compSets) for (const x of set) (compIndex.get(x) ?? compIndex.set(x, new Set()).get(x)).add(c);
+const idf = (x) => Math.log(out.length / (1 + compIndex.get(x).size));
+const weight = (set) => [...set].reduce((s, x) => s + idf(x), 0);
+const kanjiByChar = new Map(out.map((k) => [k.c, k]));
+const confusables = JSON.parse(await readFile(new URL('../src/data/confusables.json', import.meta.url), 'utf8'));
+const similar = {};
+for (const k of out) {
+  const A = compSets.get(k.c);
+  const curated = [...new Set(confusables.filter((g) => g.includes(k.c)).join(''))].filter((c) => c !== k.c && kanjiByChar.has(c));
+  const scored = [];
+  for (const d of new Set([...A].flatMap((x) => [...compIndex.get(x)]))) {
+    if (d === k.c || curated.includes(d)) continue;
+    const B = compSets.get(d);
+    const inter = [...A].filter((x) => B.has(x));
+    const j = weight(new Set(inter)) / weight(new Set([...A, ...B]));
+    const ds = Math.abs(kanjiByChar.get(d).strokes - k.strokes);
+    if (j >= 0.4 && ds <= 3) scored.push([j - 0.02 * ds, kanjiByChar.get(d).freq ?? 9999, d]);
+  }
+  scored.sort((a, b) => b[0] - a[0] || a[1] - b[1]);
+  const list = [...curated, ...scored.map((x) => x[2])].slice(0, SIMILAR_MAX);
+  if (list.length) similar[k.c] = list.join('');
+}
+await writeFile(new URL('similar.json', GEN), JSON.stringify(similar));
+console.log(`Chữ trông giống nhau: ${Object.keys(similar).length}/${out.length} chữ`);
 console.log(`Chữ chứa bộ thủ: trung bình ${(Object.values(radicalMembers).join('').length / out.length).toFixed(1)} bộ mỗi chữ`);
 console.log(`Thứ tự nét: ${Object.keys(strokes).length} chữ` + (missing.length ? `, thiếu: ${missing.join('')}` : ''));
 

@@ -5,7 +5,7 @@ import KanjiList from '../../components/KanjiList.astro';
 import StrokeOrder from '../../components/StrokeOrder.astro';
 import StrokeSteps from '../../components/StrokeSteps.astro';
 import AdSlot from '../../components/AdSlot.astro';
-import { ALL, KANKEN, RADICALS, STROKES, THEMES, VOCAB, gradeLabel, hvText, jlptSlug, kanjiUrl, isThinKanji, localMeaning, meaningText, radicalName, SENTENCES, sentenceTranslation, wordMeaning, type Kanji } from '../../data/kanji';
+import { ALL, KANKEN, RADICALS, STROKES, THEMES, VOCAB, gradeLabel, hvText, jlptSlug, kanjiUrl, isThinKanji, localMeaning, meaningText, radicalName, SENTENCES, sentenceTranslation, similarKanji, wordMeaning, type Kanji } from '../../data/kanji';
 import { HTML_LANGS } from '../../i18n';
 import { getLang, linker, pick } from '../../i18n';
 
@@ -28,6 +28,8 @@ const prev = siblings[idx - 1];
 const next = siblings[idx + 1];
 const sameRadical = radical.kanji.filter((x) => x.c !== k.c).slice(0, 24);
 
+const similar = similarKanji(k.c);
+
 const paths = STROKES[k.c] ?? [];
 const words = VOCAB[k.c] ?? [];
 const sentences = SENTENCES[k.c] ?? [];
@@ -49,8 +51,23 @@ const facts: [string, string, string?][] = [
   [t('Kanken', 'Kanken', '汉检', '한자검정', 'Kanken'), kanken.name, l(`/kanji/kanken/${kanken.slug}`)],
   [t('Tần suất', 'Frequency', '使用频率', '사용 빈도', 'Frekuensi'), k.freq ? `#${k.freq} / 2500` : '—'],
 ];
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'DefinedTerm',
+  name: k.c,
+  description: meaning || meaningEn,
+  inLanguage: 'ja',
+  url: new URL(kanjiUrl(k.c, lang), Astro.site).href,
+  alternateName: [...new Set([...k.on, ...k.kun.map((r) => r.replace('.', '').replace(/^-|-$/g, ''))])],
+  inDefinedTermSet: {
+    '@type': 'DefinedTermSet',
+    name: t('Danh sách kanji', 'Kanji list', '汉字列表', '한자 목록', 'Daftar kanji'),
+    url: new URL(l('/kanji'), Astro.site).href,
+  },
+};
 ---
 <BaseLayout
+  jsonLd={jsonLd}
   noindex={isThinKanji(k.c)}
   title={t(`${k.c} – ${hv || meaning}`, `${k.c} – ${k.en.slice(0, 3).join(', ') || k.on[0] || ''}`, `${k.c} – ${py || meaning}`, `${k.c} – ${ko || meaning}`, `${k.c} – ${meaningText(k, lang) || k.on[0] || ''}`)}
   description={t(
@@ -230,6 +247,24 @@ const facts: [string, string, string?][] = [
             );
           })}
         </ul>
+      </div>
+    </section>
+  )}
+
+  {similar.length > 0 && (
+    <section class="border-t border-dashed border-line">
+      <div class="container-page py-10">
+        <h2 class="text-xl font-bold">{t('Chữ trông giống nhau', 'Look-alike kanji', '形近字', '모양이 비슷한 한자', 'Kanji yang mirip')}</h2>
+        <p class="mt-1 mb-6 text-sm text-fg-muted">
+          {t(
+            'Các chữ có thành phần hoặc hình dạng gần giống, dễ nhầm khi đọc và viết.',
+            'Kanji with similar components or shapes that are easy to mix up when reading and writing.',
+            '部件或字形相近、读写时容易混淆的汉字。',
+            '구성 요소나 모양이 비슷해 읽고 쓸 때 헷갈리기 쉬운 한자입니다.',
+            'Kanji dengan komponen atau bentuk serupa yang mudah tertukar saat membaca dan menulis.',
+          )}
+        </p>
+        <KanjiList kanji={similar} showToggle={false} />
       </div>
     </section>
   )}

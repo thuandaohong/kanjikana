@@ -21,6 +21,8 @@ import sentencesVi from './meanings/sentences-vi.json';
 import sentencesZh from './meanings/sentences-zh.json';
 import sentencesKo from './meanings/sentences-ko.json';
 import sentencesId from './meanings/sentences-id.json';
+import sentencesEn from './meanings/sentences-en.json';
+import similarRaw from './generated/similar.json';
 import { type Lang, localize, pick } from '../i18n';
 
 export type Kanji = {
@@ -271,8 +273,9 @@ export type Sentence = { i: number; j: RubySegment[]; t: Partial<Record<Lang, st
 /** Tối đa 3 câu cho mỗi kanji, do scripts/build-sentences.mjs tạo. */
 export const SENTENCES = sentencesRaw as unknown as Record<string, Sentence[]>;
 
-// Bản dịch câu do AI dịch (khi Tatoeba chưa có), đổi sang giản thể hoặc sửa lỗi; khoá là id câu.
-const SENTENCE_FIXES: Record<Exclude<Lang, 'en'>, Record<string, string>> = {
+// Bản dịch câu do AI dịch (khi Tatoeba chưa có), đổi sang giản thể hoặc sửa lỗi (kể cả bản tiếng Anh dịch sai); khoá là id câu.
+const SENTENCE_FIXES: Record<Lang, Record<string, string>> = {
+  en: sentencesEn as Record<string, string>,
   vi: sentencesVi as Record<string, string>,
   zh: sentencesZh as Record<string, string>,
   ko: sentencesKo as Record<string, string>,
@@ -283,13 +286,13 @@ const SENTENCE_FIXES: Record<Exclude<Lang, 'en'>, Record<string, string>> = {
  * `fallback`: chưa có bản dịch nên dùng tiếng Anh.
  */
 export function sentenceTranslation(s: Sentence, lang: Lang): { text: string; ai: boolean; fallback: boolean } {
-  if (lang !== 'en') {
-    const fixed = SENTENCE_FIXES[lang][String(s.i)];
-    if (fixed) return { text: fixed, ai: true, fallback: false };
-    const own = s.t[lang];
-    if (own) return { text: own, ai: false, fallback: false };
-  }
-  return { text: s.t.en ?? '', ai: false, fallback: lang !== 'en' };
+  const fixed = SENTENCE_FIXES[lang][String(s.i)];
+  if (fixed) return { text: fixed, ai: true, fallback: false };
+  const own = lang !== 'en' && s.t[lang];
+  if (own) return { text: own, ai: false, fallback: false };
+  // Bản tiếng Anh của Tatoeba có thể đã được sửa (sentences-en.json).
+  const en = SENTENCE_FIXES.en[String(s.i)];
+  return { text: en ?? s.t.en ?? '', ai: !!en && lang === 'en', fallback: lang !== 'en' };
 }
 
 /**
@@ -298,3 +301,7 @@ export function sentenceTranslation(s: Sentence, lang: Lang): { text: string; ai
  * không đánh giá cả site là ít nội dung; khi chữ có thêm từ vựng hoặc câu ví dụ thì tự được index.
  */
 export const isThinKanji = (c: string) => !VOCAB[c]?.length && !SENTENCES[c]?.length;
+
+/** Chữ trông giống nhau (theo thành phần KanjiVG và nhóm dễ nhầm), do scripts/build-data.mjs tạo. */
+const SIMILAR = similarRaw as Record<string, string>;
+export const similarKanji = (c: string): Kanji[] => [...(SIMILAR[c] ?? '')].map((x) => BY_CHAR.get(x)).filter((k): k is Kanji => !!k);
