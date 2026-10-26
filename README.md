@@ -77,7 +77,7 @@ Hoặc deploy thẳng từ máy: `npx wrangler pages deploy dist --project-name 
 
 Site build dạng `/trang.html` nên Cloudflare phục vụ thẳng `/trang`, không phải chuyển hướng sang `/trang/`.
 
-Gói miễn phí của Cloudflare Pages giới hạn 20.000 file mỗi lần deploy. Mỗi ngôn ngữ thêm khoảng 2.600 trang; với 5 ngôn ngữ bản build có khoảng 13.600 file, nên chỉ còn chỗ cho khoảng 2 ngôn ngữ nữa. Kiểm tra bằng `find dist -type f | wc -l` sau khi build.
+Gói miễn phí của Cloudflare Pages giới hạn 20.000 file mỗi lần deploy. Mỗi ngôn ngữ thêm khoảng 3.100 file; với 5 ngôn ngữ bản build có khoảng 15.900 file, nên chỉ còn chỗ cho khoảng 1 ngôn ngữ nữa. Kiểm tra bằng `find dist -type f | wc -l` sau khi build.
 
 ## Quảng cáo
 
