@@ -7,5 +7,6 @@ const { href, title, subtitle } = Astro.props;
   class="group block rounded-xl border border-line bg-surface px-5 py-4 transition hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-md"
 >
   <span class="block font-serif text-[17px] font-bold group-hover:text-brand">{title}</span>
-  <span class="mt-1 block text-sm text-fg-muted">{subtitle}</span>
+  {/* Khoảng trắng để Google không dính tiêu đề với dòng phụ trong đoạn trích ("JLPT N579 个汉字"). */}
+  {' '}<span class="mt-1 block text-sm text-fg-muted">{subtitle}</span>
 </a>
