@@ -68,10 +68,11 @@ scripts/              # build-data.mjs (dữ liệu), build-og.mjs (ảnh chia s
    - Build output directory: `dist`
    - Biến môi trường:
      - `NODE_VERSION=22` (cần 22.22.0 trở lên)
-     - `SITE_URL=https://ten-mien-cua-ban` (dùng cho canonical, sitemap, ảnh chia sẻ; mặc định `https://kanjiba.pages.dev`)
+     - `SITE_URL=https://ten-mien-cua-ban` (dùng cho canonical, sitemap, ảnh chia sẻ; mặc định `https://kanjiba.net`)
      - `PUBLIC_CF_BEACON_TOKEN=...` (tuỳ chọn, bật Cloudflare Web Analytics; lấy token ở Dashboard → Analytics & Logs → Web Analytics)
      - Quảng cáo Google AdSense (tuỳ chọn, xem mục Quảng cáo bên dưới)
 4. Save and Deploy. Mỗi lần push lên `main` sẽ tự deploy, các nhánh khác có link preview riêng.
+5. Tên miền chính là `kanjiba.net` (mua ở Cloudflare Registrar). Trong project Pages → **Custom domains**, thêm `kanjiba.net` và `www.kanjiba.net`; nên chuyển hướng `www` và `kanjiba.pages.dev` về `https://kanjiba.net` (Bulk Redirects) để Google chỉ thấy một địa chỉ.
 
 Hoặc deploy thẳng từ máy: `npx wrangler pages deploy dist --project-name kanjiba`.
 

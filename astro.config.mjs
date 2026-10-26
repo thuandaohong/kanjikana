@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { readFileSync } from 'node:fs';
 
 // Đặt SITE_URL trong biến môi trường của Cloudflare Pages khi có domain thật.
-const site = process.env.SITE_URL || 'https://kanjiba.pages.dev';
+const site = process.env.SITE_URL || 'https://kanjiba.net';
 
 // Trang kanji không có từ vựng lẫn câu ví dụ được đặt noindex và bỏ khỏi sitemap
 // (giữ khớp với isThinKanji trong src/data/kanji.ts).
