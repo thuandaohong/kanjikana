@@ -1,12 +1,12 @@
-// Sinh các route cho ngôn ngữ khác tiếng Việt (src/pages/en/, zh/, ko/, id/) bằng cách bọc lại trang
-// tiếng Việt tương ứng. Mỗi trang tự đọc ngôn ngữ từ Astro.currentLocale nên chỉ cần một bản mã nguồn.
+// Sinh các route cho ngôn ngữ khác tiếng Anh (src/pages/vi/, zh/, ko/, id/) bằng cách bọc lại trang
+// gốc tương ứng. Mỗi trang tự đọc ngôn ngữ từ Astro.currentLocale nên chỉ cần một bản mã nguồn.
 // Chạy tự động trước `dev` và `build`; các thư mục này không được commit.
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // Giữ khớp với PREFIXED_LANGS trong src/i18n/index.ts.
-const LOCALES = ['en', 'zh', 'ko', 'id'];
+const LOCALES = ['vi', 'zh', 'ko', 'id'];
 
 const PAGES = fileURLToPath(new URL('../src/pages/', import.meta.url));
 // Không cần bản dịch: thư mục của chính các ngôn ngữ, endpoint dữ liệu, robots.txt và trang 404 (đã đa ngữ).

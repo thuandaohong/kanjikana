@@ -16,10 +16,10 @@ npm run preview:cf  # xem bản build bằng môi trường mô phỏng Cloudfla
 
 ## Đa ngôn ngữ
 
-- Tiếng Việt nằm ở URL gốc; tiếng Anh dưới `/en/`, tiếng Trung giản thể dưới `/zh/`, tiếng Hàn dưới `/ko/`, tiếng Indonesia dưới `/id/`. Mỗi trang tự lấy ngôn ngữ từ `Astro.currentLocale` (`getLang` trong `src/i18n`).
+- Tiếng Anh nằm ở URL gốc; tiếng Việt dưới `/vi/`, tiếng Trung giản thể dưới `/zh/`, tiếng Hàn dưới `/ko/`, tiếng Indonesia dưới `/id/`. Mỗi trang tự lấy ngôn ngữ từ `Astro.currentLocale` (`getLang` trong `src/i18n`).
 - Chuỗi dịch nằm ngay trong từng trang: `pick(lang, { vi: '…', en: '…', zh: '…', ko: '…', id: '…' })`, hoặc helper `t(vi, en, zh, ko, id)` khai báo đầu trang.
 - Mỗi ngôn ngữ có "âm đọc của người học" thay cho cột Hán Việt: Hán Việt (vi), pinyin (zh), âm Hán-Hàn (ko); bản tiếng Anh và tiếng Indonesia nổi bật nghĩa. Nghĩa kanji theo từng ngôn ngữ nằm ở `src/data/meanings/{vi,zh,ko,id}.json` (dịch có hỗ trợ AI từ nghĩa tiếng Anh của KANJIDIC2, giấy phép CC BY-SA 4.0); chữ nào thiếu thì dùng nghĩa tiếng Anh. Nghĩa từ vựng ví dụ nằm ở `src/data/meanings/words-{lang}.json`, khoá là `"từ|cách đọc"`.
-- `src/pages/en/`, `zh/`, `ko/`, `id/` được `scripts/gen-locale-routes.mjs` tự sinh trước `dev`/`build` và không được commit. Thêm trang mới vào `src/pages/` là tự có đủ các bản dịch.
+- `src/pages/vi/`, `zh/`, `ko/`, `id/` được `scripts/gen-locale-routes.mjs` tự sinh trước `dev`/`build` và không được commit. Thêm trang mới vào `src/pages/` là tự có đủ các bản dịch.
 - Thêm ngôn ngữ mới: thêm mã vào `LANGS` trong `src/i18n/index.ts`, `LOCALES` trong `scripts/gen-locale-routes.mjs`, `i18n.locales` trong `astro.config.mjs` và `.gitignore`, rồi bổ sung bản dịch (thiếu bản nào thì editor sẽ báo lỗi kiểu ở `pick`; `astro build` không kiểm tra kiểu).
 
 ## Dữ liệu
@@ -102,6 +102,7 @@ Trang `/privacy` (Chính sách quyền riêng tư) đã có phần công bố v�
 - [ ] Giai đoạn 7: dịch (Pages Functions), tạm hoãn, đã gỡ khỏi menu
 - [x] Giai đoạn 8: tiếng Việt (URL gốc) và tiếng Anh (/en/), có hreflang và nút chuyển ngôn ngữ
 - [x] Giai đoạn 9: sitemap, robots.txt, Open Graph, JSON-LD, font tự host, Lighthouse 95–100
+- [x] Giai đoạn 22: tiếng Anh thành ngôn ngữ mặc định ở URL gốc, tiếng Việt chuyển sang `/vi/`; link cũ `/en/…` chuyển hướng 301 qua `public/_redirects`
 - [x] Giai đoạn 21: trò chơi Hiragana/Katakana (/tools/kana-quiz): chọn bảng chữ và nhóm âm, 3 cách chơi (kana → cách đọc, cách đọc → kana, gõ romaji), chế độ 60 giây, ưu tiên chữ dễ nhầm làm đáp án nhiễu
 - [x] Giai đoạn 20: mục “Chữ trông giống nhau” trên trang kanji (thành phần KanjiVG có trọng số IDF + nhóm dễ nhầm soạn tay `src/data/confusables.json`, ra `similar.json`); JSON-LD `DefinedTerm` cho trang kanji; sửa 114 bản dịch tiếng Anh sai của Tatoeba (`sentences-en.json`)
 - [x] Giai đoạn 19: danh sách kanji dài (trên 80 chữ) tự chia trang 60 chữ ngay trên trình duyệt, không tạo thêm file; mọi link vẫn nằm trong HTML

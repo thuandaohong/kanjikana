@@ -1,0 +1,3 @@
+# Tiếng Anh chuyển từ /en/ về URL gốc (tháng 10/2026); giữ link cũ hoạt động.
+/en /  301
+/en/* /:splat  301

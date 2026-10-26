@@ -4,7 +4,7 @@ dist/
 .DS_Store
 .cache/
 public/kuromoji/
-src/pages/en/
+src/pages/vi/
 src/pages/zh/
 src/pages/ko/
 src/pages/id/

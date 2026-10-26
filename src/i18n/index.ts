@@ -1,8 +1,8 @@
-// Đa ngôn ngữ: tiếng Việt (mặc định, URL gốc), tiếng Anh (/en/), tiếng Trung giản thể (/zh/), tiếng Hàn (/ko/),
+// Đa ngôn ngữ: tiếng Anh (mặc định, URL gốc), tiếng Việt (/vi/), tiếng Trung giản thể (/zh/), tiếng Hàn (/ko/),
 // tiếng Indonesia (/id/).
-export const LANGS = ['vi', 'en', 'zh', 'ko', 'id'] as const;
+export const LANGS = ['en', 'vi', 'zh', 'ko', 'id'] as const;
 export type Lang = (typeof LANGS)[number];
-export const DEFAULT_LANG: Lang = 'vi';
+export const DEFAULT_LANG: Lang = 'en';
 /** Các ngôn ngữ có URL riêng dưới /{lang}/ */
 export const PREFIXED_LANGS = LANGS.filter((l) => l !== DEFAULT_LANG);
 
@@ -24,10 +24,10 @@ export const pick = <T>(lang: Lang, v: Record<Lang, T>): T => v[lang];
 
 const PREFIX = new RegExp(`^/(${PREFIXED_LANGS.join('|')})(?=/|$)`);
 
-/** Bỏ tiền tố ngôn ngữ: "/en/kanji" → "/kanji". */
+/** Bỏ tiền tố ngôn ngữ: "/vi/kanji" → "/kanji". */
 export const stripLang = (path: string) => path.replace(PREFIX, '') || '/';
 
-/** Đường dẫn của trang ở ngôn ngữ cho trước: localize("/kanji", "en") → "/en/kanji". */
+/** Đường dẫn của trang ở ngôn ngữ cho trước: localize("/kanji", "vi") → "/vi/kanji". */
 export const localize = (path: string, lang: Lang) => {
   const base = stripLang(path);
   if (lang === DEFAULT_LANG) return base;
