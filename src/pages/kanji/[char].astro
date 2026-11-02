@@ -43,6 +43,31 @@ const translated = localMeaning(k, lang);
 const meaningEn = k.en.join(', ');
 const meaning = meaningText(k, lang, 99);
 const meaningLang = translated ? HTML_LANGS[lang] : 'en';
+// Tiêu đề và mô tả trang theo cách người dùng tìm kiếm (theo số liệu Search Console):
+// id "kanji darah", en "kanji for heart", zh "淵 日文", ko "… 한자 뜻", vi "kanji 待 hán việt".
+const clean = (r: string) => r.replace(/[-.]/g, '');
+const ons = k.on.join('、');
+const kuns = [...new Set(k.kun.map(clean))].join('、');
+const readingPair = [k.on[0], k.kun[0] && clean(k.kun[0])].filter(Boolean).join(' / ');
+// Nghĩa đầu tiên (ngắn) cho tiêu đề.
+const m1 = meaningText(k, lang, 1).split(/[,、;]/)[0].trim();
+const extras = words.length || sentences.length;
+// Mô tả: bỏ các nghĩa kiểu "heart radical (no. 61)" của KANJIDIC2.
+const descMeaning = meaning.split(/,\s*/).filter((x) => !/radical \(no/i.test(x)).join(', ') || meaning;
+const pageTitle = t(
+  `Kanji ${k.c}${k.hv[0] ? ` (${k.hv[0]})` : ''} – ${m1}: cách đọc, cách viết`,
+  m1 ? `Kanji for ${m1}: ${k.c} – readings & stroke order` : `${k.c} kanji – readings & stroke order`,
+  `${k.c} 日文怎么读${readingPair ? `：${readingPair}` : ''}｜日语汉字`,
+  `${k.c} 일본 한자 뜻·읽는 법${m1 ? `: ${m1}` : ''}${readingPair ? ` (${readingPair})` : ''}`,
+  m1 ? `Kanji ${m1}: ${k.c} – arti & cara baca` : `Kanji ${k.c} – arti & cara baca`,
+);
+const pageDescription = t(
+  `${k.c}${hv ? ` (Hán Việt: ${hv})` : ''} nghĩa là ${descMeaning || '—'}. Âm On: ${ons || '—'}; âm Kun: ${kuns || '—'}. ${k.strokes} nét, có hoạt ảnh thứ tự nét${extras ? ', từ vựng và câu ví dụ' : ''}.`,
+  `${k.c} is the kanji for ${descMeaning || '—'}. On'yomi: ${ons || '—'}; kun'yomi: ${kuns || '—'}. ${k.strokes} strokes, with a stroke order animation${extras ? ', example words and sentences' : ''}.`,
+  `${k.c} 的日文读音：音读 ${ons || '—'}，训读 ${kuns || '—'}。意思：${descMeaning || '—'}${py ? `（拼音 ${py}）` : ''}。${k.strokes} 画，附笔顺动画${extras ? '、例词和例句' : ''}。`,
+  `일본 한자 ${k.c}${ko ? `(${ko})` : ''}: ${descMeaning || '—'}. 음독 ${ons || '—'}, 훈독 ${kuns || '—'}. ${k.strokes}획, 획순 애니메이션${extras ? '·예시 단어·예문' : ''}.`,
+  `${k.c} adalah kanji untuk "${descMeaning || '—'}". On'yomi: ${ons || '—'}; kun'yomi: ${kuns || '—'}. ${k.strokes} goresan, dengan animasi urutan goresan${extras ? ', contoh kata, dan kalimat' : ''}.`,
+);
 const facts: [string, string, string?][] = [
   [t('Số nét', 'Strokes', '笔画数', '획수', 'Goresan'), String(k.strokes)],
   [t('Bộ thủ', 'Radical', '部首', '부수', 'Radikal'), `${radical.char} ${radicalName(radical, lang)} (${radical.n})`, l(`/kanji/radicals/${radical.n}`)],
@@ -69,14 +94,8 @@ const jsonLd = {
 <BaseLayout
   jsonLd={jsonLd}
   noindex={isThinKanji(k.c)}
-  title={t(`${k.c} – ${hv || meaning}`, `${k.c} – ${k.en.slice(0, 3).join(', ') || k.on[0] || ''}`, `${k.c} – ${py || meaning}`, `${k.c} – ${ko || meaning}`, `${k.c} – ${meaningText(k, lang) || k.on[0] || ''}`)}
-  description={t(
-    `Kanji ${k.c}${hv ? ` (Hán Việt: ${hv})` : ''}: ${meaning}. Onyomi ${k.on.join('、') || '—'}, kunyomi ${k.kun.join('、') || '—'}, ${k.strokes} nét.`,
-    `Kanji ${k.c} means ${meaning || '—'}. On'yomi ${k.on.join('、') || '—'}, kun'yomi ${k.kun.join('、') || '—'}, ${k.strokes} strokes, with stroke order and example words.`,
-    `日语汉字 ${k.c}${py ? `（拼音：${py}）` : ''}：${meaning || '—'}。音读 ${k.on.join('、') || '—'}，训读 ${k.kun.join('、') || '—'}，${k.strokes} 画，附笔顺和例词。`,
-    `일본 한자 ${k.c}${ko ? `(한자음: ${ko})` : ''}: ${meaning || '—'}. 음독 ${k.on.join('、') || '—'}, 훈독 ${k.kun.join('、') || '—'}, ${k.strokes}획, 획순과 예시 단어.`,
-    `Kanji ${k.c} berarti ${meaning || '—'}. On'yomi ${k.on.join('、') || '—'}, kun'yomi ${k.kun.join('、') || '—'}, ${k.strokes} goresan, lengkap dengan urutan goresan dan contoh kata.`,
-  )}
+  title={pageTitle}
+  description={pageDescription}
 >
   <PageHeader
     title={t(`Kanji ${k.c}`, `Kanji ${k.c}`, `日语汉字 ${k.c}`, `일본 한자 ${k.c}`, `Kanji ${k.c}`)}
